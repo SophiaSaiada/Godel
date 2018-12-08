@@ -16,7 +16,7 @@ module.exports = {
   dest: '../docs/',
   configureWebpack: {
 	  output: {
-	    publicPath: '/docs/'
+	    publicPath: '/Godel/docs/'
 	  }
   }
 }  
