@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css?family=Assistant:400,600&subset=hebrew')
+@import url('https://unpkg.com/firacode@1.205.0/distr/fira_code.css')
+$accentColor = #00bcd4
+
+body
+    direction: rtl
+    font-family: 'Assistant', sans-serif !important
+
+.page-nav
+	.next
+		float: left	
+	.next, .prev:not(a)
+		color: transparent
+		
+.sidebar .sidebar-sub-headers
+	padding-left: 0
+	padding-right: 1rem
+
+a.sidebar-link
+	border-left: unset
+	border-right: 0.25rem solid transparent
+	&.active
+		border-left-color: unset
+		border-right-color: #00bcd4
+
+.sidebar-sub-headers a.sidebar-link
+	border-right: none
+
+p + ol
+	margin-top: -1rem
+
+div[class*="language-"] pre, div[class*="language-"] pre[class*="language-"]
+	display: block
+	direction: ltr
+
+.content pre code, .content pre[class*="language-"] code
+	font-variant-ligatures: normal
+	font-family: "Fira Code", monospace !important
+
+a.header-anchor
+	float: right !important
+	margin-right: -0.87em !important
+	margin-left: unset !important
+	padding-left: 0.23em !important
+	padding-right: unset !important
+
+div[class*="language-"].line-numbers-mode .line-numbers-wrapper
+	left: 0

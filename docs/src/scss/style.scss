@@ -1,0 +1,89 @@
+@import "ava";
+$editorBackground: #282c34;
+$pink: #e91e63;
+$cyan: #00bcd4;
+
+body {
+	direction: rtl;
+	font-family: "Assistant", sans-serif;
+}
+
+.main-cta-control {
+	width: 60%;
+	margin: auto;
+}
+
+.code-hero {
+	&-background {
+		fill: $editorBackground;
+	}
+}
+
+.main-logo {
+	height: 3rem;
+	width: 4rem;
+}
+
+.inline-logo {
+	display: inline-block;
+	height: 22px;
+	vertical-align: text-top;
+}
+$rem: 18px;
+code {
+	font-family: "Fira Code", monospace;
+	font-weight: lighter;
+	font-variant-ligatures: normal;
+	background: $editorBackground;
+	background: #282c34;
+	color: white;
+	font-size: 0.8*$rem;
+	padding: 0.3*$rem 0.4*$rem;
+	border-radius: 4px;
+	direction: ltr;
+	i {
+		font-style: italic;
+		color: $cyan;
+	}
+	b {
+		color: $pink;
+		font-weight: lighter;
+	}
+	.comment {
+		display: inline;
+		color: #cacaca;
+	}
+}
+
+p,
+li {
+	code {
+		margin: 0 0.2rem;
+	}
+}
+.container > code {
+	display: block;
+	text-align: start;
+	padding: 1rem;
+	margin: 0.6rem 0;
+	box-shadow: transparentize($color: #000000, $amount: 0.8) 2px 2px 5px 0px;
+	&.with-whitespaces {
+		white-space: pre-wrap;
+	}
+}
+
+code.hero-borwser-content {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	background: transparent;
+	border: none;
+	text-align: left;
+	padding: 2rem 3rem;
+}
+
+.newsletter-header  {
+	margin-bottom: 48px;
+}
