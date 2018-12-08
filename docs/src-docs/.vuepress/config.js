@@ -12,5 +12,11 @@ module.exports = {
   },
   markdown: {
     lineNumbers: true
+  },
+  dest: '../docs/',
+  configureWebpack: {
+	  output: {
+	    publicPath: '/docs/'
+	  }
   }
 }  
