@@ -13,6 +13,7 @@ module.exports = {
   markdown: {
     lineNumbers: true
   },
+  base: '/Godel/docs/',
   dest: '../docs/',
   configureWebpack: {
 	  output: {
