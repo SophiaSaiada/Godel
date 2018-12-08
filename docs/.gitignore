@@ -97,9 +97,6 @@ typings/
 # nuxt.js build output
 .nuxt
 
-# vuepress build output
-.vuepress/dist
-
 # Serverless directories
 .serverless
 
@@ -168,5 +165,3 @@ $RECYCLE.BIN/
 
 
 # End of https://www.gitignore.io/api/node,sublimetext,windows,macos,sass
-
-dist/
