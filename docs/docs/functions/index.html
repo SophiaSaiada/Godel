@@ -7,7 +7,7 @@
     <meta name="description" content="">
     
     
-    <link rel="preload" href="/Godel/docs/assets/css/0.styles.7b09d0f3.css" as="style"><link rel="preload" href="/Godel/docs/assets/js/app.b1d5d669.js" as="script"><link rel="preload" href="/Godel/docs/assets/js/4.7660c481.js" as="script"><link rel="prefetch" href="/Godel/docs/assets/js/2.96852959.js"><link rel="prefetch" href="/Godel/docs/assets/js/3.13bddb51.js"><link rel="prefetch" href="/Godel/docs/assets/js/5.ec07ce98.js"><link rel="prefetch" href="/Godel/docs/assets/js/6.b41efa46.js"><link rel="prefetch" href="/Godel/docs/assets/js/7.3d08f1b8.js"><link rel="prefetch" href="/Godel/docs/assets/js/8.70e3edbd.js">
+    <link rel="preload" href="/Godel/docs/assets/css/0.styles.7b09d0f3.css" as="style"><link rel="preload" href="/Godel/docs/assets/js/app.0f7a0275.js" as="script"><link rel="preload" href="/Godel/docs/assets/js/4.8b882bae.js" as="script"><link rel="prefetch" href="/Godel/docs/assets/js/2.96852959.js"><link rel="prefetch" href="/Godel/docs/assets/js/3.13bddb51.js"><link rel="prefetch" href="/Godel/docs/assets/js/5.ec07ce98.js"><link rel="prefetch" href="/Godel/docs/assets/js/6.b41efa46.js"><link rel="prefetch" href="/Godel/docs/assets/js/7.3d08f1b8.js"><link rel="prefetch" href="/Godel/docs/assets/js/8.70e3edbd.js">
     <link rel="stylesheet" href="/Godel/docs/assets/css/0.styles.7b09d0f3.css">
   </head>
   <body>
@@ -27,13 +27,16 @@
 כאשר הפרמטר האחרון של פונקציה הוא בלוק, ניתן להריצה גם בפורמט הבא:</p> <div class="language- line-numbers-mode"><pre class="language-text"><code>functionName(p1) {
   // block body
 }
-</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br></div></div><h2 id="פונקציות-הרחבה"><a href="#פונקציות-הרחבה" aria-hidden="true" class="header-anchor">#</a> פונקציות הרחבה</h2> <p><strong>פוקנציית הרחבה</strong> היא פונקצייה המקבלת לפחות פרמטר אחד, וניתן להפעיל אותה בצורה נוחה יותר.
-ניתן להגדיר כזו ולהשתמש בה בפורמט הבא:</p> <div class="language- line-numbers-mode"><pre class="language-text"><code>ext fun functionName: ReturnType = { param1: ParamType, ... -&gt; 
-  // function body
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br></div></div><h2 id="פונקציות-הרחבה"><a href="#פונקציות-הרחבה" aria-hidden="true" class="header-anchor">#</a> פונקציות הרחבה</h2> <p><strong>פוקנציית הרחבה</strong> היא פונקצייה המקושרת ל<strong>מבנה</strong> כלשהו.<br>
+הפונקצייה צריכה לקבל לפחות פרמטר אחד.
+ניתן להגדיר כזו ולהשתמש בה בפורמט הבא:</p> <div class="language- line-numbers-mode"><pre class="language-text"><code>fun StructName.functionName: ReturnType = { param1: ParamType, ... -&gt; 
   // in this block (and his children),
-  // this refers to the object that the function applied on it.
+  // &quot;this&quot; refers to the object (in our case, obj) that the function applied on it.
 }
-</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br></div></div></div> <div class="page-edit"><!----> <!----></div> <div class="page-nav"><p class="inner"><span class="prev">
+
+val obj = StructName()
+obj.functionName(param1, ...)
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br></div></div></div> <div class="page-edit"><!----> <!----></div> <div class="page-nav"><p class="inner"><span class="prev">
         ←
         <a href="/Godel/docs/types/" class="prev">
           סוגי נתונים
@@ -42,6 +45,6 @@
         </a>
         →
       </span></p></div> </div> <!----></div></div>
-    <script src="/Godel/docs/assets/js/4.7660c481.js" defer></script><script src="/Godel/docs/assets/js/app.b1d5d669.js" defer></script>
+    <script src="/Godel/docs/assets/js/4.8b882bae.js" defer></script><script src="/Godel/docs/assets/js/app.0f7a0275.js" defer></script>
   </body>
 </html>

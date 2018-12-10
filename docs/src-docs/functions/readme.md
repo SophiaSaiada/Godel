@@ -36,12 +36,15 @@ functionName(p1) {
 ```
 
 ## פונקציות הרחבה
-**פוקנציית הרחבה** היא פונקצייה המקבלת לפחות פרמטר אחד, וניתן להפעיל אותה בצורה נוחה יותר.
+**פוקנציית הרחבה** היא פונקצייה המקושרת ל**מבנה** כלשהו.  
+הפונקצייה צריכה לקבל לפחות פרמטר אחד.
 ניתן להגדיר כזו ולהשתמש בה בפורמט הבא:
 ```
-ext fun functionName: ReturnType = { param1: ParamType, ... -> 
-  // function body
+fun StructName.functionName: ReturnType = { param1: ParamType, ... -> 
   // in this block (and his children),
-  // this refers to the object that the function applied on it.
+  // "this" refers to the object (in our case, obj) that the function applied on it.
 }
+
+val obj = StructName()
+obj.functionName(param1, ...)
 ```
