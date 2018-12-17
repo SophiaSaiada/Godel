@@ -29,13 +29,22 @@ a.sidebar-link
 p + ol
 	margin-top: -1rem
 
-div[class*="language-"] pre, div[class*="language-"] pre[class*="language-"]
+div[class*="language-"] pre,
+div[class*="language-"] pre[class*="language-"]
 	display: block
 	direction: ltr
 
-.content pre code, .content pre[class*="language-"] code
+.content pre code,
+.content pre[class*="language-"] code,
+.content .grammar code
 	font-variant-ligatures: normal
 	font-family: "Fira Code", monospace !important
+	font-weight: lighter
+
+.content code {
+    display: inline-block !important
+	direction: ltr !important
+}
 
 a.header-anchor
 	float: right !important
@@ -46,3 +55,57 @@ a.header-anchor
 
 div[class*="language-"].line-numbers-mode .line-numbers-wrapper
 	left: 0
+
+.grammar .content > ul {
+    list-style-type: none;
+	direction: ltr;
+	a {
+		color: #497bb7
+		text-decoration: underline
+		font-weight: normal
+	}
+	& > li {
+		font-weight: normal
+		font-family: "Fira Code", monospace !important
+		margin-bottom: 1.4rem
+		font-size: .9rem
+		text-indent: -4ch
+		h4 {
+			margin-bottom: 0
+		}
+		& > ul > li,
+		&::after{
+			display: block !important
+			width: fit-content
+			margin-left: 1rem
+			margin-top: .4rem
+			background: none
+			font-size: .8rem
+			padding: 0
+		}
+		& > ul > li::before {
+			content: ": "
+			color: #ccc
+		}
+		&::after {
+		    padding-left: calc(1.2em + 1rem)
+			content: ";"
+			color: #ccc
+			margin-left: 0
+		}
+	}
+	a.header-anchor {
+		float: left !important
+		margin-left: -0.87em !important
+		margin-right: unset !important
+		padding-right: 0.23em !important
+		padding-left: unset !important
+	}
+	em {
+		font-style: unset
+		color: #009c00
+		&::before, &::after {
+			content: '"'
+		}
+	}
+}
