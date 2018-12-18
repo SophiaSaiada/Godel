@@ -1,11 +1,13 @@
 module.exports = {
+  title: "Gödel",
   themeConfig: {
     sidebar: [
       '/',
-		'/types/',
+	  '/types/',
       '/functions/',
 	  '/structures/',
-	  '/builtins/',
+	  '/grammar/',
+	  '/architecture/',
     ],
 	displayAllHeaders: true,
 	sidebarDepth: 2,
@@ -13,11 +15,13 @@ module.exports = {
   markdown: {
     lineNumbers: true
   },
+  /*
   base: '/Godel/docs/',
   dest: '../docs/',
   configureWebpack: {
-	  output: {
-	    publicPath: '/Godel/docs/'
-	  }
+    output: {
+	  publicPath: '/Godel/docs/'
+	}
   }
+  */
 }  
