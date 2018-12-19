@@ -1,3 +1,5 @@
 docs2/
 src/compiler/.idea/
+src/compiler/.gradle/
 out/
+src/compiler/compiler.iml
