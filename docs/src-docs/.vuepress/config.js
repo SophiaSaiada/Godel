@@ -4,8 +4,9 @@ module.exports = {
     sidebar: [
       '/',
 	  '/types/',
+	  '/flow/',
       '/functions/',
-	  '/structures/',
+	  '/classes/',
 	  '/grammar/',
 	  '/architecture/',
     ],

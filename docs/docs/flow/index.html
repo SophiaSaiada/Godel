@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>בקרת זרימה | Gödel</title>
+    <meta name="description" content="">
+    <link rel="icon" href="/Godel/docs/Godel/images/icon.png">
+    
+    <link rel="preload" href="/Godel/docs/assets/css/0.styles.65e7a499.css" as="style"><link rel="preload" href="/Godel/docs/assets/js/app.defa2cd9.js" as="script"><link rel="preload" href="/Godel/docs/assets/js/6.71ff29e5.js" as="script"><link rel="prefetch" href="/Godel/docs/assets/js/10.e269a42c.js"><link rel="prefetch" href="/Godel/docs/assets/js/11.7ab04800.js"><link rel="prefetch" href="/Godel/docs/assets/js/2.4aeb4f38.js"><link rel="prefetch" href="/Godel/docs/assets/js/3.96f3f4db.js"><link rel="prefetch" href="/Godel/docs/assets/js/4.9dccd50c.js"><link rel="prefetch" href="/Godel/docs/assets/js/5.117f6486.js"><link rel="prefetch" href="/Godel/docs/assets/js/7.9ed3b0ab.js"><link rel="prefetch" href="/Godel/docs/assets/js/8.2e09619b.js"><link rel="prefetch" href="/Godel/docs/assets/js/9.b052126a.js">
+    <link rel="stylesheet" href="/Godel/docs/assets/css/0.styles.65e7a499.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/Godel/docs/" class="home-link router-link-active"><!----> <span class="site-name">Gödel</span></a> <div class="links" style="max-width:nullpx;"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <!----></div></header> <div class="sidebar-mask"></div> <div class="sidebar"><!---->  <ul class="sidebar-links"><li><a href="/Godel/docs/" class="sidebar-link">התחלה מהירה</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/Godel/docs/#התקנה" class="sidebar-link">התקנה</a></li><li class="sidebar-sub-header"><a href="/Godel/docs/#קומפילציה" class="sidebar-link">קומפילציה</a></li><li class="sidebar-sub-header"><a href="/Godel/docs/#הרצה" class="sidebar-link">הרצה</a></li></ul></li><li><a href="/Godel/docs/types/" class="sidebar-link">סוגי נתונים</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/Godel/docs/types/#הגדרת-משתנים-וערכים" class="sidebar-link">הגדרת משתנים וערכים</a></li><li class="sidebar-sub-header"><a href="/Godel/docs/types/#רשימה" class="sidebar-link">רשימה</a></li><li class="sidebar-sub-header"><a href="/Godel/docs/types/#מפה" class="sidebar-link">מפה</a></li></ul></li><li><a href="/Godel/docs/flow/" class="active sidebar-link">בקרת זרימה</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/Godel/docs/flow/#משפטי-תנאי" class="sidebar-link">משפטי תנאי</a></li><li class="sidebar-sub-header"><a href="/Godel/docs/flow/#משפטי-when" class="sidebar-link">משפטי when</a></li><li class="sidebar-sub-header"><a href="/Godel/docs/flow/#לולאות" class="sidebar-link">לולאות</a></li></ul></li><li><a href="/Godel/docs/functions/" class="sidebar-link">פונקציות</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/Godel/docs/functions/#פונקציות-גנריות" class="sidebar-link">פונקציות גנריות</a></li><li class="sidebar-sub-header"><a href="/Godel/docs/functions/#הרצה" class="sidebar-link">הרצה</a></li><li class="sidebar-sub-header"><a href="/Godel/docs/functions/#פונקציות-הרחבה" class="sidebar-link">פונקציות הרחבה</a></li></ul></li><li><a href="/Godel/docs/classes/" class="sidebar-link">מחלקות</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/Godel/docs/classes/#הגדרה" class="sidebar-link">הגדרה</a></li><li class="sidebar-sub-header"><a href="/Godel/docs/classes/#יצירת-עצם" class="sidebar-link">יצירת עצם</a></li><li class="sidebar-sub-header"><a href="/Godel/docs/classes/#שימוש" class="sidebar-link">שימוש</a></li></ul></li><li><a href="/Godel/docs/grammar/" class="sidebar-link">תחביר</a></li><li><a href="/Godel/docs/architecture/" class="sidebar-link">ארכיטקטורה</a></li></ul> </div> <div class="page"> <div class="content"><h1 id="בקרת-זרימה"><a href="#בקרת-זרימה" aria-hidden="true" class="header-anchor">#</a> בקרת זרימה</h1> <h2 id="משפטי-תנאי"><a href="#משפטי-תנאי" aria-hidden="true" class="header-anchor">#</a> משפטי תנאי</h2> <p><strong>משפט תנאי</strong> מורכב מתנאי כלשהו (משתנה מסוג <code>Bool</code>) ורצף פעולות שירוצו במידה והערך הוא <code>true</code>.</p> <div class="language- line-numbers-mode"><pre class="language-text"><code>val x = 3
+if (x &gt; 2) {
+  println(&quot;x is greater than 2.&quot;)
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br></div></div><p>ניתן לצרף משפטי תנאי רצף פעולו שירוץ במידה והתנאי לא מתקיים באמצעות המילה <code>else</code>.</p> <div class="language- line-numbers-mode"><pre class="language-text"><code>val x = 1
+if (x &gt; 2) {
+  println(&quot;x is greater than 2.&quot;)
+} else {
+  println(&quot;x is less than 2.&quot;)
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br></div></div><p>ניתן להשתמש במשפטי תנאי בהגדרת ערך.</p> <div class="language- line-numbers-mode"><pre class="language-text"><code>val stringToPrint = if (x &gt; 2) &quot;x is greater than 2.&quot; else &quot;x is less than 2.&quot;
+println(stringToPrint)
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><h2 id="משפטי-when"><a href="#משפטי-when" aria-hidden="true" class="header-anchor">#</a> משפטי when</h2> <p>ניתן לקצר  לולאת תנאים ארוכה למשפט when בודד.</p> <div class="language- line-numbers-mode"><pre class="language-text"><code>val x = 1
+val y = 3
+val stringToPrint = when {
+  x &gt; 2 -&gt; &quot;x is greater than 2&quot;
+  y &lt; 4 -&gt; &quot;x is'nt greater than 2 and y is less than 3&quot;
+  else -&gt; &quot;x is'nt greater than 2 and y is'nt less than 3&quot;
+}
+println(stringToPrint)
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br></div></div><h2 id="לולאות"><a href="#לולאות" aria-hidden="true" class="header-anchor">#</a> לולאות</h2> <p>ניתן להגדיר קטע קוד מסויים שירוץ כל עוד ערכו של תנאי (משתנה מסוג <code>Bool</code>) הוא <code>true</code>.</p> <div class="language- line-numbers-mode"><pre class="language-text"><code>var x: Int = 0
+while (x &lt; 10) {
+  x = x + 1
+  println(x)
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br></div></div></div> <div class="page-edit"><!----> <!----></div> <div class="page-nav"><p class="inner"><span class="prev">
+        ←
+        <a href="/Godel/docs/types/" class="prev">
+          סוגי נתונים
+        </a></span> <span class="next"><a href="/Godel/docs/functions/">
+          פונקציות
+        </a>
+        →
+      </span></p></div> </div> <!----></div></div>
+    <script src="/Godel/docs/assets/js/6.71ff29e5.js" defer></script><script src="/Godel/docs/assets/js/app.defa2cd9.js" defer></script>
+  </body>
+</html>
