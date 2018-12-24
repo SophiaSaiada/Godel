@@ -4,4 +4,4 @@ fun main(args: Array<String>) {
     println(helloWorld())
 }
 
-fun helloWorld() = "Hello World! (from Compiler) 1"
+fun helloWorld() = "Hello World! (from Compiler) 2"
