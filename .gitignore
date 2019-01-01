@@ -4,3 +4,4 @@ src/compiler/.gradle/
 src/compiler/out/
 out/
 src/compiler/compiler.iml
+docs/.idea/workspace.xml

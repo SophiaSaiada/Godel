@@ -19,6 +19,7 @@ module.exports = {
   head: [
     ['link', { rel: 'icon', href: '/Godel/images/icon.png' }]
   ],
+  /*
   base: '/Godel/docs/',
   dest: '../docs/',
   configureWebpack: {
@@ -26,4 +27,5 @@ module.exports = {
 	  publicPath: '/Godel/docs/'
 	}
   }
+  */
 }  

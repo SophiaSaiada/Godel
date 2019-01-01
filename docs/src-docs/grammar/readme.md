@@ -4,6 +4,9 @@ pageClass: grammar
 
 # תחביר
 בעמוד הזה יוגדר תחביר השפה בצורה מדוייקת באמצעות הפורמט [EBNF](https://en.wikipedia.org/wiki/Extended_Backus–Naur_form).
+* #### SEMI
+	* *;*
+	* *\n*
 * #### Letter
 	* [*a*..*z*]
 	* [*A*..*Z*]
@@ -11,52 +14,115 @@ pageClass: grammar
 	* [*0*..*9*]
 * #### Underscore
 	* *_*
+* #### Colon
+	* *:*
+* #### Assignment
+	* *=*
+* #### Dot
+	* *.*
+* #### RightArrow
+	* *->*
+* #### Apostrophes
+	* *\\"*
+* #### MathOperator
+	* *-*
+	* *+*
+	* *\**
+	* */*
+	* *%*
+
+* #### OpenBraces
+	* *{*
+* #### CloseBraces
+	* *}*
+	
+* #### OpenParenthesis
+	* *(*
+* #### CloseParenthesis
+	* *)*
+	
+* #### OpenBrokets
+	* *<*
+* #### CloseBrokets
+	* *>*
+
 * #### simpleName
-	* [Underscore](#Underscore)
-	* [Underscore](#Underscore)? [Letter](#Letter) ([Letter](#Letter) | [Digit](#Digit) | [Underscore](#Underscore))*
+	* [Underscore](#underscore)
+	* [Underscore](#underscore)? [Letter](#letter) ([Letter](#letter) | [Digit](#digit) | [Underscore](#underscore))*
 * #### type
 	* \<any type defined in the code\>
 * #### DecimalLiteral
-	* [Digit](#Digit)+
+	* [Digit](#digit)+
 * #### FloatLiteral
-	* [DecimalLiteral](#DecimalLiteral) *.* [DecimalLiteral](#DecimalLiteral)
+	* [DecimalLiteral](#decimalliteral) [Dot](#dot) [DecimalLiteral](#decimalliteral)
 * #### StringLiteral
-	* *\\"* \<any UTF-8 character other than quote or newline\> *\\"*
+	* [Apostrophes](#apostrophes)  
+	\<any UTF-8 character other than quote or newline\>  
+	[Apostrophes](#apostrophes)
 * #### BooleanLiteral
 	* *true*
 	* *false*
-* #### SEMI
-	* *;*
-	* *\n*
 * #### expression
-	* [BooleanLiteral](#BooleanLiteral)
-	* [DecimalLiteral](#DecimalLiteral)
-	* [FloatLiteral](#FloatLiteral)
-	* [StringLiteral](#StringLiteral)
-	* [functionCall](#functionCall)
+	* [BooleanLiteral](#booleanliteral)
+	* [DecimalLiteral](#decimalliteral)
+	* [FloatLiteral](#floatliteral)
+	* [StringLiteral](#stringliteral)
+	* [functionCall](#functioncall)
 	* [block](#block)
+	* [expression](#expression) [MathOperator](#mathoperator) [expression](#expression)
+	* [OpenParenthesis](#openparenthesis)  
+	[expression](#expression)  
+	[CloseParenthesis](#closeparenthesis)
+	* [ifExpression](#ifexpression)
+	* [whenExpression](#whenexpression)
 * #### value
-	* *val* [simpleName](#simpleName) *:* [type](#type) *=* [expression](#expression)
+	* *val* [simpleName](#simplename) [Colon](#colon) [type](#type) [Assignment](#assignment) [expression](#expression)
 * #### declaration
 	* [function](#function)
 	* [value](#value)
 * #### statement
 	* [declaration](#declaration)
 	* [expression](#expression)
+	* [while](#while)
 * #### block
-	* *{* [SEMI](#SEMI)* [statement](#statement) ([SEMI](#SEMI)+ [statement](#statement))* [SEMI](#SEMI)* *}*
+	* [OpenBraces](#openbraces) [SEMI](#semi)*
+	[statement](#statement) ([SEMI](#semi)+ [statement](#statement))*
+	[SEMI](#semi)* [CloseBraces](#closebraces)
 * #### functionParameter
-	* [simpleName](#simpleName) *:* [Type](#Type)
+	* [simpleName](#simplename) [Colon](#colon) [Type](#type)
 * #### function
 	* *fun*  
-	([Type](#Type) *.*)?  
-	[simpleName](#simpleName)     
-	(*<* [Type](#Type) *>*)?  
-	*(* [functionParameter](#functionParameter)* *)*  
-	*:* [Type](#Type)  
-	[functionBody](#functionBody)
+	([Type](#type) [Dot](#dot))?
+	[simpleName](#simplename)
+	([OpenBrokets](#openbrokets) [Type](#type) [CloseBrokets](#closebrokets))?
+	[OpenParenthesis](#openparenthesis) [functionParameter](#functionparameter)* [CloseParenthesis](#closeparenthesis)
+	[Colon](#colon) [Type](#type)
+	[functionBody](#functionbody)
 * #### functionBody
-	* *=* [expression](#expression)
+	* [Assignment](#assignment) [expression](#expression)
 	* [block](#block)
 * #### functionCall
-	* [simpleName](#simpleName) *(* [expression](#expression)* *)* [block](#block)?
+	* [simpleName](#simplename)
+	[block](#block)?
+	[OpenParenthesis](#openparenthesis) [expression](#expression)* [CloseParenthesis](#closeparenthesis)
+
+* #### ifExpression
+	* *if* [OpenParenthesis](#openparenthesis) [expression](#expression) [CloseParenthesis](#closeparenthesis)
+	[SEMI](#semi)* [block](#block)
+	* *if* [OpenParenthesis](#openparenthesis) [expression](#expression) [CloseParenthesis](#closeparenthesis)
+	[SEMI](#semi)* [block](#block) [SEMI](#semi)*
+	*else*  
+	[SEMI](#semi)* [block](#block)
+	
+* #### whileStatement
+	* *while* [OpenParenthesis](#openparenthesis) [expression](#expression) [CloseParenthesis](#closeparenthesis)
+	[SEMI](#semi)* [block](#block)
+
+
+* #### whenEntry
+	* [expression](#expression) [RightArrow](#rightarrow) [statement](#statement)
+* #### whenExpression
+	* *when* [OpenParenthesis](#openparenthesis) [expression](#expression) [CloseParenthesis](#closeparenthesis)
+	[SEMI](#semi)* [OpenBraces](#openbraces)
+	([SEMI](#semi)* [whenEntry](#whenentry))+
+	[SEMI](#semi)* [CloseBraces](#closebraces)
