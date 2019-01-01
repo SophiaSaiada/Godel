@@ -19,6 +19,7 @@ class TestLexer : StringSpec({
         "@@@@23@@4@56@@@7".splitWithoutDeletingSeparator("#".toRegex()) shouldBe
                 listOf("@@@@23@@4@56@@@7")
     }
+
     "tokenize single-line string without classifying each token" {
         val input = "  val list = a.listOf(4, 2, 53, 1)"
         Lexer.tokenizeSourceCode(input) shouldBe
@@ -27,6 +28,7 @@ class TestLexer : StringSpec({
                     "listOf", "(", "4", ",", " ", "2", ",", " ", "53", ",", " ", "1", ")"
                 )
     }
+
     "tokenize multi-line string without classifying each token" {
         val input = "fun main() {\n" +
                 "  val list = listOf(4, 2, 5, 1)\n" +
@@ -43,6 +45,7 @@ class TestLexer : StringSpec({
             "}"
         )
     }
+
     "TokenType.classify actually classify" {
         TokenType.classify("if") shouldBe TokenType.Keyword
         TokenType.classify("pif") shouldBe TokenType.SimpleName
@@ -70,6 +73,7 @@ class TestLexer : StringSpec({
         TokenType.classify("_0a") shouldBe TokenType.Unknown
         TokenType.classify("") shouldBe TokenType.Unknown
     }
+
     "lexing and classifying single line" {
         val input = "  val list = a.listOf(4, 2, 53, 1)"
         Lexer.lex(input) shouldBe
@@ -86,6 +90,7 @@ class TestLexer : StringSpec({
                     ")" to CloseParenthesis
                 )
     }
+
     "lexing and classifying multiple lines" {
         // Useful trick
         // replace Token(content=something, type=SomethingElse) with "something" to somethingElse
@@ -110,6 +115,7 @@ class TestLexer : StringSpec({
                     " " to Whitespace, "}" to CloseBraces
                 )
     }
+
     "exception raised while trying to lex code with a non-closed string" {
         val input = """val a: String = "a; val x: Int = 2"""
         shouldThrow<CompilationError> { Lexer.lex(input) }
