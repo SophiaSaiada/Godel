@@ -41,4 +41,29 @@ class TestLexer : StringSpec({
             "}"
         )
     }
+    "TokenType.classify actually classify" {
+        TokenType.classify("if") shouldBe TokenType.Keyword
+        TokenType.classify("pif") shouldBe TokenType.SimpleName
+
+        TokenType.classify("0") shouldBe TokenType.DecimalLiteral
+        TokenType.classify("23") shouldBe TokenType.DecimalLiteral
+
+        TokenType.classify("_") shouldBe TokenType.SimpleName
+        TokenType.classify("_a0") shouldBe TokenType.SimpleName
+        TokenType.classify("_a") shouldBe TokenType.SimpleName
+        TokenType.classify("_A") shouldBe TokenType.SimpleName
+        TokenType.classify("aBc") shouldBe TokenType.SimpleName
+
+        TokenType.classify("=") shouldBe TokenType.Assignment
+        TokenType.classify(":") shouldBe TokenType.Colon
+        TokenType.classify("{") shouldBe TokenType.OpenBraces
+        TokenType.classify("*") shouldBe TokenType.MathOperator
+
+        TokenType.classify(";") shouldBe TokenType.SEMI
+        TokenType.classify("\n") shouldBe TokenType.SEMI
+
+        TokenType.classify("_0") shouldBe null
+        TokenType.classify("_0a") shouldBe null
+        TokenType.classify("") shouldBe null
+    }
 })
