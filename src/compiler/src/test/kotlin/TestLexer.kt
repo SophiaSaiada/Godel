@@ -47,31 +47,31 @@ class TestLexer : StringSpec({
     }
 
     "TokenType.classify actually classify" {
-        TokenType.classify("if") shouldBe TokenType.Keyword
-        TokenType.classify("pif") shouldBe TokenType.SimpleName
+        Token.classifyString("if") shouldBe TokenType.Keyword
+        Token.classifyString("pif") shouldBe TokenType.SimpleName
 
-        TokenType.classify("0") shouldBe TokenType.DecimalLiteral
-        TokenType.classify("23") shouldBe TokenType.DecimalLiteral
+        Token.classifyString("0") shouldBe TokenType.DecimalLiteral
+        Token.classifyString("23") shouldBe TokenType.DecimalLiteral
 
-        TokenType.classify("_") shouldBe TokenType.SimpleName
-        TokenType.classify("_a0") shouldBe TokenType.SimpleName
-        TokenType.classify("_a") shouldBe TokenType.SimpleName
-        TokenType.classify("_A") shouldBe TokenType.SimpleName
-        TokenType.classify("aBc") shouldBe TokenType.SimpleName
+        Token.classifyString("_") shouldBe TokenType.SimpleName
+        Token.classifyString("_a0") shouldBe TokenType.SimpleName
+        Token.classifyString("_a") shouldBe TokenType.SimpleName
+        Token.classifyString("_A") shouldBe TokenType.SimpleName
+        Token.classifyString("aBc") shouldBe TokenType.SimpleName
 
-        TokenType.classify("=") shouldBe TokenType.Assignment
-        TokenType.classify(":") shouldBe TokenType.Colon
-        TokenType.classify("{") shouldBe TokenType.OpenBraces
-        TokenType.classify("*") shouldBe TokenType.MathOperator
+        Token.classifyString("=") shouldBe TokenType.Assignment
+        Token.classifyString(":") shouldBe TokenType.Colon
+        Token.classifyString("{") shouldBe TokenType.OpenBraces
+        Token.classifyString("*") shouldBe TokenType.MathOperator
 
-        TokenType.classify(";") shouldBe TokenType.SEMI
-        TokenType.classify("\n") shouldBe TokenType.SEMI
+        Token.classifyString(";") shouldBe TokenType.SEMI
+        Token.classifyString("\n") shouldBe TokenType.SEMI
 
-        TokenType.classify(" \t ") shouldBe TokenType.Whitespace
+        Token.classifyString(" \t ") shouldBe TokenType.Whitespace
 
-        TokenType.classify("_0") shouldBe TokenType.Unknown
-        TokenType.classify("_0a") shouldBe TokenType.Unknown
-        TokenType.classify("") shouldBe TokenType.Unknown
+        Token.classifyString("_0") shouldBe TokenType.Unknown
+        Token.classifyString("_0a") shouldBe TokenType.Unknown
+        Token.classifyString("") shouldBe TokenType.Unknown
     }
 
     "lexing and classifying single line" {
@@ -111,13 +111,11 @@ class TestLexer : StringSpec({
                     "(" to OpenParenthesis, "x" to SimpleName, ")" to CloseParenthesis, " " to Whitespace,
                     "{" to OpenBraces, " " to Whitespace,
                     "println" to SimpleName,
-                    "(" to OpenParenthesis, "\"if _0 false _0a\"" to StringLiteral, ")" to CloseParenthesis,
+                    "(" to OpenParenthesis, "\"" to Apostrophes,
+                    "if" to Keyword, " " to Whitespace, "_0" to Unknown, " " to Whitespace,
+                    "false" to Keyword, " " to Whitespace, "_0a" to Unknown,
+                    "\"" to Apostrophes, ")" to CloseParenthesis,
                     " " to Whitespace, "}" to CloseBraces
                 )
-    }
-
-    "exception raised while trying to lex code with a non-closed string" {
-        val input = """val a: String = "a; val x: Int = 2"""
-        shouldThrow<CompilationError> { Lexer.lex(input) }
     }
 })

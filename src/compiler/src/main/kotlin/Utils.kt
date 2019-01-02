@@ -1,7 +1,5 @@
 package com.godel.compiler
 
-const val APOSTROPHES = "\""
-
 fun IntRange.splitByPoints(points: Sequence<Int>): List<IntRange> {
     val rangesBetweenEachPointAndTheirPredecessor =
         points.fold(emptyList()) { ranges: List<IntRange>, currentPoint: Int ->
@@ -34,3 +32,8 @@ fun String.splitWithoutDeletingSeparator(separator: Regex): List<String> {
 
 fun <T> Sequence<T>.lastOrDefault(default: T) = this.lastOrNull() ?: default
 inline fun <T> List<T>.mapLast(transform: (T) -> T) = this.dropLast(1) + transform(this.last())
+
+operator fun String.times(n: Int): String = if (n == 0) "" else (this + this * (n - 1))
+
+fun Int.formattedString() =
+    toString().reversed().chunked(3).joinToString(",").reversed()
