@@ -1,37 +1,37 @@
 package com.godel.compiler
 
-fun IntRange.splitByPoints(points: Sequence<Int>): List<IntRange> {
-    val rangesBetweenEachPointAndTheirPredecessor =
-        points.fold(emptyList()) { ranges: List<IntRange>, currentPoint: Int ->
-            val startIndex = ranges.lastOrNull()?.last ?: 0
-            if (startIndex < currentPoint)
-                ranges + listOf(IntRange(startIndex, currentPoint))
-            else ranges
+fun IntRange.splitByPoints(points: Sequence<Int>) =
+    sequence {
+        var lastIndex = 0
+        points.forEach { currentIndex ->
+            if (lastIndex < currentIndex)
+                yield(IntRange(lastIndex, currentIndex))
+            lastIndex = currentIndex
         }
-    return points.lastOrDefault(0).let { startIndex ->
-        if (startIndex < endInclusive)
-            rangesBetweenEachPointAndTheirPredecessor + listOf(IntRange(startIndex, endInclusive))
-        else rangesBetweenEachPointAndTheirPredecessor
+        if (lastIndex < endInclusive)
+            yield(IntRange(lastIndex, endInclusive))
     }
-}
 
-fun String.splitInIndexes(indexes: Sequence<Int>): List<String> {
-    val substringRanges = IntRange(0, this.length).splitByPoints(indexes)
-    return substringRanges
+fun String.splitInIndexes(indexes: Sequence<Int>): Sequence<String> =
+    IntRange(0, this.length)        // the whole code
+        .splitByPoints(indexes)     // split the whole code line to parts by giving breaking points
         .map {
-            IntRange(it.start, it.endInclusive - 1).let { exclusiveRange -> this.substring(exclusiveRange) }
+            // IntRange are inclusive range, we want to use substring with exclusive range.
+            IntRange(it.start, it.endInclusive - 1).let { exclusiveRange ->
+                this.substring(exclusiveRange)
+            }
         }
-}
 
-fun String.splitWithoutDeletingSeparator(separator: Regex): List<String> {
+fun String.splitWithoutDeletingSeparator(separator: Regex): Sequence<String> {
     val breakingPoints =
         separator.findAll(this)
-            .flatMap { sequenceOf(it.range.first, it.range.endInclusive + 1) }
+            .flatMap {
+                // for each appearance of the separator,
+                // we should split the string before it and after it
+                sequenceOf(it.range.first, it.range.endInclusive + 1)
+            }
     return this.splitInIndexes(breakingPoints)
 }
-
-fun <T> Sequence<T>.lastOrDefault(default: T) = this.lastOrNull() ?: default
-inline fun <T> List<T>.mapLast(transform: (T) -> T) = this.dropLast(1) + transform(this.last())
 
 operator fun String.times(n: Int): String = if (n == 0) "" else (this + this * (n - 1))
 

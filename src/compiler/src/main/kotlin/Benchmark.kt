@@ -9,7 +9,7 @@ object Benchmark {
 
     private fun measureTimeOfOneRun(): Long = measureNanoTime {
         val sourceCode = File("./inputs/veryLongCode.gd").readText()
-        Lexer.lex(sourceCode)
+        Lexer.lex(sourceCode).toList()
     }
 
     @JvmStatic

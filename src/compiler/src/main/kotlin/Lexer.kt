@@ -77,9 +77,14 @@ object Lexer {
     ).map { it.toRegex() }
 
     fun tokenizeSourceCode(sourceCode: String) =
-        splittingRegex.fold(listOf(sourceCode)) { tokenizedCode: List<String>, regex: Regex ->
+        splittingRegex.fold(sequenceOf(sourceCode)) { tokenizedCode: Sequence<String>, regex: Regex ->
+            // tokenize code by each separator regex
+            // (starts with the source code,
+            // split it,
+            // splits any sub-list etc.)
             tokenizedCode.flatMap { it.splitWithoutDeletingSeparator(regex) }
         }
 
-    fun lex(sourceCode: String) = tokenizeSourceCode(sourceCode).map(::Token)
+    fun lex(sourceCode: String) =
+        tokenizeSourceCode(sourceCode).map(::Token)
 }
