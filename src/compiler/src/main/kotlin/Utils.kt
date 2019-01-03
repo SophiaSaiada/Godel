@@ -4,34 +4,28 @@ fun IntRange.splitByPoints(points: Sequence<Int>) =
     sequence {
         var lastIndex = 0
         points.forEach { currentIndex ->
-            if (lastIndex < currentIndex)
+            // for each index,
+            // yield a range from the previous index (or the start) to it.
+            if (lastIndex < currentIndex) { // it's not an empty range
                 yield(IntRange(lastIndex, currentIndex))
-            lastIndex = currentIndex
+                lastIndex = currentIndex
+            }
         }
+        //  yield the range from the last index till the end of the string (if the range exists)
         if (lastIndex < endInclusive)
             yield(IntRange(lastIndex, endInclusive))
     }
 
-fun String.splitInIndexes(indexes: Sequence<Int>): Sequence<String> =
+// Assumption: indexes are sorted in ascending order
+fun String.splitInIndexes(indexes: Sequence<Int>) =
     IntRange(0, this.length)        // the whole code
         .splitByPoints(indexes)     // split the whole code line to parts by giving breaking points
         .map {
-            // IntRange are inclusive range, we want to use substring with exclusive range.
-            IntRange(it.start, it.endInclusive - 1).let { exclusiveRange ->
-                this.substring(exclusiveRange)
-            }
+            // String.toString(IntRange) actually returns
+            // the value of this.substring(it.start, it.endInclusive + 1)
+            this.substring(it.start, it.endInclusive)
         }
 
-fun String.splitWithoutDeletingSeparator(separator: Regex): Sequence<String> {
-    val breakingPoints =
-        separator.findAll(this)
-            .flatMap {
-                // for each appearance of the separator,
-                // we should split the string before it and after it
-                sequenceOf(it.range.first, it.range.endInclusive + 1)
-            }
-    return this.splitInIndexes(breakingPoints)
-}
 
 operator fun String.times(n: Int): String = if (n == 0) "" else (this + this * (n - 1))
 

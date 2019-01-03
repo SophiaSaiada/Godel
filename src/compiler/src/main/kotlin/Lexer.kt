@@ -76,14 +76,17 @@ object Lexer {
         """[{}()<>,.":]"""
     ).map { it.toRegex() }
 
-    fun tokenizeSourceCode(sourceCode: String) =
-        splittingRegex.fold(sequenceOf(sourceCode)) { tokenizedCode: Sequence<String>, regex: Regex ->
-            // tokenize code by each separator regex
-            // (starts with the source code,
-            // split it,
-            // splits any sub-list etc.)
-            tokenizedCode.flatMap { it.splitWithoutDeletingSeparator(regex) }
-        }
+    fun tokenizeSourceCode(sourceCode: String): Sequence<String> {
+        // finds the indexes in which we should split the code and start a new token,
+        // then actually splits the code.
+        val breakingPoints =
+            splittingRegex.fold(emptyList<Int>()) { existedPoints, regex ->
+                existedPoints + regex.findAll(sourceCode).flatMap {
+                    sequenceOf(it.range.first, it.range.endInclusive + 1)
+                }
+            }.toSortedSet().asSequence()
+        return sourceCode.splitInIndexes(breakingPoints)
+    }
 
     fun lex(sourceCode: String) =
         tokenizeSourceCode(sourceCode).map(::Token)
