@@ -20,16 +20,11 @@ class ClassificationByExactStringMatch(private val string: String) : TokenClassi
     override fun matches(token: String) = token == string
 }
 
-enum class TokenType {
-    Whitespace, SEMI, Colon, Dot, Comma, Apostrophes,
-    MathOperator, Keyword, Assignment,
-    OpenBraces, CloseBraces, OpenParenthesis, CloseParenthesis, OpenBrokets, CloseBrokets,
-    DecimalLiteral, SimpleName,
-    Unknown;
-}
-
 data class Token(val content: String, val type: TokenType) {
     constructor(content: String) : this(content, classifyString(content))
+
+    fun equals(keyword: Keyword): Boolean =
+        type == TokenType.Keyword && content == keyword.asString
 
     companion object {
         private val classificationsByExactMatch = mapOf(
@@ -66,6 +61,9 @@ data class Token(val content: String, val type: TokenType) {
 }
 
 fun listOfTokens(vararg list: Pair<String, TokenType>) = list.map { Token(it.first, it.second) }
+
+fun sequenceOfTokens(vararg list: Pair<String, TokenType>) =
+    list.asSequence().map { Token(it.first, it.second) }
 
 
 object Lexer {

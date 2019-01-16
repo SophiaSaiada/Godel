@@ -26,6 +26,22 @@ fun String.splitInIndexes(indexes: Sequence<Int>) =
             this.substring(it.start, it.endInclusive)
         }
 
+// Takes a sequence and a predicate
+// Returns a the original sequence split by the predicate.
+// The labels mainSequence and subSequence are used only by the IDE and aren't necessary to the code
+fun <T : Any> Sequence<T>.split(predicate: (T) -> Boolean): Sequence<Sequence<T>> {
+    val iterator = this@split.iterator()
+    return generateSequence mainSequence@{
+        if (iterator.hasNext())
+            generateSequence subSequence@{
+                val nextValue = iterator.nextOrNull()
+                nextValue?.takeUnless(predicate)
+            }
+        else null
+    }
+}
+
+fun <T> Iterator<T>.nextOrNull() = if (hasNext()) next() else null
 
 operator fun String.times(n: Int): String = if (n == 0) "" else (this + this * (n - 1))
 
