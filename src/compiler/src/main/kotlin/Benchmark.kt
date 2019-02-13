@@ -8,7 +8,11 @@ import kotlin.system.measureNanoTime
 object Benchmark {
 
     private fun measureTimeOfOneRun(): Long = measureNanoTime {
-        val sourceCode = File("./inputs/veryLongCode.gd").readText()
+        val sourceCode =
+            File("./inputs/veryLongCode.gd")
+                .readBytes()
+                .asSequence()
+                .map { it.toChar() }
         Lexer.lex(sourceCode).let { Classifier.classify(it) }.map { it.toList() }.toList()
     }
 
@@ -25,4 +29,9 @@ object Benchmark {
             println("\n\u001B[0mAverage Compile Time For 1000 Lines: ${averageRunTime.formattedString()}ns")
         }
     }
+
+    operator fun String.times(n: Int): String = if (n == 0) "" else (this + this * (n - 1))
+
+    private fun Int.formattedString() =
+        toString().reversed().chunked(3).joinToString(",").reversed()
 }

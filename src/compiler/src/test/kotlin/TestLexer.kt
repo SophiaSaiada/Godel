@@ -8,9 +8,9 @@ class TestLexer : StringSpec({
 
     "tokenize single-line string without classifying each token" {
         val input = "  val list = a.listOf(4, 2, 53, 1)"
-        Lexer.tokenizeSourceCode(input).toList() shouldBe
+        Lexer.tokenizeSourceCode(input.asSequence()).toList() shouldBe
                 listOf(
-                    "  ", "val", " ", "list", " ", "=", " ", "a", ".",
+                    " ", " ", "val", " ", "list", " ", "=", " ", "a", ".",
                     "listOf", "(", "4", ",", " ", "2", ",", " ", "53", ",", " ", "1", ")"
                 )
     }
@@ -21,18 +21,18 @@ class TestLexer : StringSpec({
                 "  val sortedList = mergeSort(list, 0, list.count())\n" +
                 "  println(sortedList)\n" +
                 "}"
-        Lexer.tokenizeSourceCode(input).toList() shouldBe listOf(
+        Lexer.tokenizeSourceCode(input.asSequence()).toList() shouldBe listOf(
             "fun", " ", "main", "(", ")", " ", "{", "\n",
-            "  ", "val", " ", "list", " ", "=", " ",
+            " ", " ", "val", " ", "list", " ", "=", " ",
             "listOf", "(", "4", ",", " ", "2", ",", " ", "5", ",", " ", "1", ")", "\n",
-            "  ", "val", " ", "sortedList", " ", "=", " ",
+            " ", " ", "val", " ", "sortedList", " ", "=", " ",
             "mergeSort", "(", "list", ",", " ", "0", ",", " ", "list", ".", "count", "(", ")", ")", "\n",
-            "  ", "println", "(", "sortedList", ")", "\n",
+            " ", " ", "println", "(", "sortedList", ")", "\n",
             "}"
         )
     }
 
-    "TokenType.classify actually classify" {
+    "TokenType.classify classify correctly" {
         Token.classifyString("if") shouldBe TokenType.Keyword
         Token.classifyString("pif") shouldBe TokenType.SimpleName
 
@@ -62,9 +62,9 @@ class TestLexer : StringSpec({
 
     "lexing and classifying single line" {
         val input = "  val list = a.listOf(4, 2, 53, 1)"
-        Lexer.lex(input).toList() shouldBe
+        Lexer.lex(input.asSequence()).toList() shouldBe
                 listOfTokens(
-                    "  " to Whitespace,
+                    " " to Whitespace, " " to Whitespace,
                     "val" to Keyword, " " to Whitespace, "list" to SimpleName, " " to Whitespace,
                     "=" to Assignment, " " to Whitespace,
                     "a" to SimpleName, "." to Dot, "listOf" to SimpleName,
@@ -86,7 +86,7 @@ class TestLexer : StringSpec({
         val input =
             "val a: Int = 1;val x:Bool=false\n" +
                     """if (x) { println("if _0 false _0a") }"""
-        Lexer.lex(input).toList() shouldBe
+        Lexer.lex(input.asSequence()).toList() shouldBe
                 listOfTokens(
                     "val" to Keyword, " " to Whitespace, "a" to SimpleName,
                     ":" to Colon, " " to Whitespace, "Int" to SimpleName, " " to Whitespace,
