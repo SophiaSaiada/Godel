@@ -2,13 +2,19 @@ package com.godel.compiler
 
 import io.kotlintest.specs.StringSpec
 import com.godel.compiler.TokenType.*
+import io.kotlintest.shouldBe
 
 class TestParser : StringSpec({
 
-    "test val" {
-        // val a: Int = 1
+    "parse val statement" {
+        /*
+        val a: Int = 1
+        should parse into:
+                 val
+             a   Int   1
+         */
         val sourceCode =
-            listOfTokens(
+            sequenceOfTokens(
                 "val" to Keyword, " " to Whitespace, "a" to SimpleName,
                 ":" to Colon, " " to Whitespace, "Int" to SimpleName, " " to Whitespace,
                 "=" to Assignment, " " to Whitespace, "1" to DecimalLiteral
@@ -30,22 +36,23 @@ class TestParser : StringSpec({
                 )
             )
         )
+        Parser.parse(sourceCode) shouldBe expectedResult
     }
 
-    "test if" {
-
-    }
-
-    "test function declaration" {
+    "parse if expression" {
 
     }
 
-    "test block" {
+    "parse function declaration" {
 
     }
 
-
-    "test function call" {
+    "parse block" {
 
     }
+
+    "parse function call" {
+
+    }
+
 })
