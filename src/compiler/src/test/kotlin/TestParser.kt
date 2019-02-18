@@ -2,6 +2,7 @@ package com.godel.compiler
 
 import io.kotlintest.specs.StringSpec
 import com.godel.compiler.TokenType.*
+import io.kotlintest.shouldBe
 
 class TestParser : StringSpec({
 
@@ -12,7 +13,7 @@ class TestParser : StringSpec({
                 "val" to Keyword, " " to Whitespace, "a" to SimpleName,
                 ":" to Colon, " " to Whitespace, "Int" to SimpleName, " " to Whitespace,
                 "=" to Assignment, " " to Whitespace, "1" to DecimalLiteral
-            )
+            ).asSequence()
         val expectedResult = TokenNode(
             value = Token("val", Keyword),
             children = listOf(
@@ -30,6 +31,7 @@ class TestParser : StringSpec({
                 )
             )
         )
+        Parser.parse(sourceCode) shouldBe expectedResult
     }
 
     "test if" {
