@@ -6,10 +6,15 @@ import io.kotlintest.shouldBe
 
 class TestParser : StringSpec({
 
-    "test val" {
-        // val a: Int = 1
+    "parse val statement" {
+        /*
+        val a: Int = 1
+        should parse into:
+                 val
+             a   Int   1
+         */
         val sourceCode =
-            listOfTokens(
+            sequenceOfTokens(
                 "val" to Keyword, " " to Whitespace, "a" to SimpleName,
                 ":" to Colon, " " to Whitespace, "Int" to SimpleName, " " to Whitespace,
                 "=" to Assignment, " " to Whitespace, "1" to DecimalLiteral
@@ -34,20 +39,20 @@ class TestParser : StringSpec({
         Parser.parse(sourceCode) shouldBe expectedResult
     }
 
-    "test if" {
+    "parse if expression" {
 
     }
 
-    "test function declaration" {
+    "parse function declaration" {
 
     }
 
-    "test block" {
+    "parse block" {
 
     }
 
-
-    "test function call" {
+    "parse function call" {
 
     }
+
 })

@@ -59,6 +59,7 @@ data class Token(val content: String, val type: TokenType) {
 }
 
 fun listOfTokens(vararg list: Pair<String, TokenType>) = list.map { Token(it.first, it.second) }
+fun sequenceOfTokens(vararg list: Pair<String, TokenType>) = listOfTokens(*list).asSequence()
 
 object Lexer {
     private val splittingCharacters =

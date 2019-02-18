@@ -5,3 +5,5 @@ src/compiler/out/
 out/
 src/compiler/compiler.iml
 docs/.idea/workspace.xml
+src/compiler/build/
+src/compiler/local.properties
