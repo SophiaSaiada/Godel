@@ -6,22 +6,25 @@ import io.kotlintest.specs.StringSpec
 class TestSequenceSplitter : StringSpec({
 
     "split and keep delimiters" {
-        fun splitAndKeepByExclamationMark(string: String) =
+        fun splitAroundExclamationMark(string: String) =
             SequenceSplitter
-                .splitAndKeepDelimiters(string.toList().asSequence()) { it == '!' }
+                .splitAroundDelimiters(string.toList().asSequence()) { it == '!' }
                 .map { it.joinToString("") }.toList()
-        splitAndKeepByExclamationMark("!!hello !world! what's up?  !a!!") shouldBe
+        splitAroundExclamationMark("!!hello !world! what's up?  !a!!") shouldBe
                 listOf("!", "!", "hello ", "!", "world", "!", " what's up?  ", "!", "a", "!", "!")
     }
 
     "split and join delimiters" {
-        fun splitAndJoinByExclamationMark(string: String) =
+        fun splitBeforeExclamationMark(string: String) =
             SequenceSplitter
-                .splitAndJoinDelimiters(string.toList().asSequence()) { it == '!' }
+                .splitBeforeDelimiters(string.toList().asSequence()) { it == '!' }
                 .map { it.joinToString("") }.toList()
 
-        splitAndJoinByExclamationMark("!!hello !world! what's up?  !a!!") shouldBe
+        splitBeforeExclamationMark("!!hello !world! what's up?  !a!!") shouldBe
                 listOf("!", "!hello ", "!world", "! what's up?  ", "!a", "!", "!")
+
+        splitBeforeExclamationMark("h!!hello !world! what's up?  !a!!") shouldBe
+                listOf("h", "!", "!hello ", "!world", "! what's up?  ", "!a", "!", "!")
     }
 
 })

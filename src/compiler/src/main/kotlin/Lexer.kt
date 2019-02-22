@@ -72,7 +72,7 @@ object Lexer {
 
     fun tokenizeSourceCode(sourceCode: Sequence<Char>): Sequence<String> =
         SequenceSplitter
-            .splitAndKeepDelimiters(sourceCode) { it in splittingCharacters }
+            .splitAroundDelimiters(sourceCode) { it in splittingCharacters }
             .map { it.joinToString("") }
 
     fun lex(sourceCode: Sequence<Char>) =
