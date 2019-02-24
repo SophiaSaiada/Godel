@@ -1,6 +1,8 @@
 package com.godel.compiler
 
-enum class TokenType {
+interface NodeType
+
+enum class TokenType : NodeType {
     Whitespace, SEMI, Colon, Dot, Comma, Apostrophes,
     MathOperator, Keyword, Assignment,
     OpenBraces, CloseBraces, OpenParenthesis, CloseParenthesis, OpenBrokets, CloseBrokets,
@@ -19,4 +21,10 @@ enum class Keyword(val asString: String) {
     Else("else"),
     While("while"),
     When("when"),
+}
+
+enum class InnerNodeType : NodeType {
+    Value, FloatLiteral,
+    Val,
+    If, FunctionCall
 }

@@ -6,6 +6,30 @@ import io.kotlintest.shouldBe
 
 class TestParser : StringSpec({
 
+    "parse decimal literal" {
+        val sourceCode =
+            sequenceOfTokens("23" to DecimalLiteral)
+        val expectedResult =
+            sequenceOf(ASTLeaf(Token("23", DecimalLiteral)))
+        Parser.normalize(sourceCode) seqShouldBe expectedResult
+    }
+
+
+    "parse float literal" {
+        val sourceCode =
+            sequenceOfTokens(
+                "23" to DecimalLiteral, "." to Dot, "1" to DecimalLiteral
+            )
+        val expectedResult = ASTBranchNode(
+            type = InnerNodeType.FloatLiteral,
+            children = listOf(
+                ASTLeaf(Token("23", DecimalLiteral)),
+                ASTLeaf(Token("1", DecimalLiteral))
+            )
+        )
+        Parser.parse(sourceCode) shouldBe expectedResult
+    }
+
     "parse val statement" {
         /*
         val a: Int = 1
@@ -19,21 +43,12 @@ class TestParser : StringSpec({
                 ":" to Colon, " " to Whitespace, "Int" to SimpleName, " " to Whitespace,
                 "=" to Assignment, " " to Whitespace, "1" to DecimalLiteral
             )
-        val expectedResult = TokenNode(
-            value = Token("val", Keyword),
+        val expectedResult = ASTBranchNode(
+            type = InnerNodeType.If,
             children = listOf(
-                TokenNode(
-                    value = Token("a", SimpleName),
-                    children = emptyList()
-                ),
-                TokenNode(
-                    value = Token("Int", SimpleName),
-                    children = emptyList()
-                ),
-                TokenNode(
-                    value = Token("1", DecimalLiteral),
-                    children = emptyList()
-                )
+                ASTLeaf(Token("a", SimpleName)),
+                ASTLeaf(Token("Int", SimpleName)),
+                ASTLeaf(Token("1", DecimalLiteral))
             )
         )
         Parser.parse(sourceCode) shouldBe expectedResult
