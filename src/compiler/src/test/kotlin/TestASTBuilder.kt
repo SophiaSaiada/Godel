@@ -4,30 +4,13 @@ import io.kotlintest.specs.StringSpec
 import com.godel.compiler.TokenType.*
 import io.kotlintest.shouldBe
 
-class TestParser : StringSpec({
+class TestASTBuilder : StringSpec({
 
     "parse decimal literal" {
-        val sourceCode =
-            sequenceOfTokens("23" to DecimalLiteral)
-        val expectedResult =
-            sequenceOf(ASTLeaf(Token("23", DecimalLiteral)))
-        Parser.normalize(sourceCode) seqShouldBe expectedResult
     }
 
 
     "parse float literal" {
-        val sourceCode =
-            sequenceOfTokens(
-                "23" to DecimalLiteral, "." to Dot, "1" to DecimalLiteral
-            )
-        val expectedResult = ASTBranchNode(
-            type = InnerNodeType.FloatLiteral,
-            children = listOf(
-                ASTLeaf(Token("23", DecimalLiteral)),
-                ASTLeaf(Token("1", DecimalLiteral))
-            )
-        )
-        Parser.parse(sourceCode) shouldBe expectedResult
     }
 
     "parse val statement" {
@@ -36,7 +19,6 @@ class TestParser : StringSpec({
         should parse into:
                  val
              a   Int   1
-         */
         val sourceCode =
             sequenceOfTokens(
                 "val" to Keyword, " " to Whitespace, "a" to SimpleName,
@@ -51,7 +33,7 @@ class TestParser : StringSpec({
                 ASTLeaf(Token("1", DecimalLiteral))
             )
         )
-        Parser.parse(sourceCode) shouldBe expectedResult
+         */
     }
 
     "parse if expression" {

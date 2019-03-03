@@ -10,21 +10,24 @@ enum class TokenType : NodeType {
     Unknown;
 }
 
-enum class Keyword(val asString: String) {
-    Val("val"),
-    Var("var"),
-    Fun("fun"),
-    Class("class"),
-    True("true"),
-    False("false"),
-    If("if"),
-    Else("else"),
-    While("while"),
-    When("when"),
+enum class Keyword {
+    Val,
+    Var,
+    Fun,
+    Class,
+    True,
+    False,
+    If,
+    Else,
+    While,
+    When;
+
+    val asString = this.name.toLowerCase()
 }
 
 enum class InnerNodeType : NodeType {
-    Value, FloatLiteral,
+    Value,
+    FloatLiteral, StringLiteral,
     Val,
     If, FunctionCall
 }
