@@ -45,15 +45,15 @@ object ParserGenerator {
 
     private fun generateFunctions(rules: List<Rule>): List<String> {
         fun generateAlternativeParseCalls(alternative: Alternative, isFirst: Boolean): String {
-            fun printLetterParseCall(letter: Letter): String {
+            fun getLetterParseCall(letter: Letter): String {
                 return when (letter) {
                     is Letter.Terminal -> {
                         val tokenType =
                             if (letter.name.startsWith("Keyword")) "Keyword.${letter.name.removePrefix("Keyword")}"
                             else "TokenType.${letter.name}"
-                        "parseToken(nextToken, restOfTokens, $tokenType)"
+                        "parseToken($tokenType)"
                     }
-                    is Letter.NonTerminal -> "parse${letter.name}(nextToken, restOfTokens)"
+                    is Letter.NonTerminal -> "::parse${letter.name}"
                     is Letter.Epsilon -> throw RuntimeException("$EPSILON should'nt appear as a prat of a bigger alternative.")
                 }
             }
@@ -88,22 +88,15 @@ object ParserGenerator {
                     val enterCondition =
                         listOfNotNull(enterConditionEpsilon, enterConditionTokens, enterConditionKeywords)
                             .joinToString(" || ")
-                    val childrenParsing = (alternative.letters.take(1).map {
-                        printLetterParseCall(it)
-                    } + alternative.letters.drop(1).map {
-                        printLetterParseCall(it)
-                    })
-                    val childrenCalls =
-                        (childrenParsing.map {
-                            "$it?.let { children.add(it.node); nextToken = it.nextToken }"
-                        }).joinToString("\n")
-                    """${if (isFirst) "return" else " else"} if ($enterCondition) {
-                            |    val children = mutableListOf<ParseTreeNode>()
-                            |    $childrenCalls
+                    val childrenParseFunctionNames =
+                        alternative.letters.joinToString { getLetterParseCall(it) }
+                    """${if (isFirst) "return" else "else"} if ($enterCondition) {
+                            |    val (children, nextToken) =
+                            |        composeParseCalls($childrenParseFunctionNames).invoke(firstToken, restOfTokens)
                             |    ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeName), nextToken)
                             |}""".trimMargin()
                 }
-                is Alternative.Epsilon -> "else ParseTreeNodeResult(ParseTreeNode.EpsilonLeaf(nodeName), nextToken)"
+                is Alternative.Epsilon -> "else ParseTreeNodeResult(ParseTreeNode.EpsilonLeaf(nodeName), firstToken)"
             }
         }
 
@@ -121,7 +114,6 @@ object ParserGenerator {
             """
                 |$header {
                 |   $declareNodeName
-                |   var nextToken = firstToken
                 |   ${alternativesBranches.joinToString(" ")} $elseBranch
                 |}""".trimMargin()
         }
