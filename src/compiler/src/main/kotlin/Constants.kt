@@ -3,7 +3,7 @@ package com.godel.compiler
 interface NodeType
 
 enum class TokenType : NodeType {
-    Whitespace, SEMI, Colon, Dot, Comma, Apostrophes,
+    WhiteSpace, SemiColon, BreakLine, Colon, Dot, Comma, Apostrophes,
     MathOperator, Keyword, Assignment,
     OpenBraces, CloseBraces, OpenParenthesis, CloseParenthesis, OpenBrokets, CloseBrokets,
     DecimalLiteral, SimpleName,

@@ -1,11 +1,11 @@
 @Tokens
-    SEMI, Whitespace, Dot, Colon, Assignment, Apostrophes, OpenParenthesis, CloseParenthesis,
+    SemiColon, BreakLine, WhiteSpace, Dot, Colon, Assignment, Apostrophes, OpenParenthesis, CloseParenthesis,
     OpenBraces, CloseBraces, DecimalLiteral, KeywordFalse, KeywordTrue, KeywordVal, KeywordIf, KeywordElse, SimpleName,
     Unknown
 
 @Rules
 <Statements> -> <PaddedStatement> <StatementsRest>
-<StatementsRest> -> SEMI <Statements> | ε
+<StatementsRest> -> <SEMI> <Statements> | ε
 
 <PaddedStatement> -> <SpacePlus> <Statement> <SpaceStar> | <Statement> <SpaceStar>
 <Statement> -> <Expression> | <Declaration>
@@ -22,11 +22,14 @@
 <Number> -> DecimalLiteral <NumberRest>
 <NumberRest> -> Dot DecimalLiteral | ε
 <StringLiteral> -> Apostrophes <AnythingEndsWithApostrophes>
-<AnythingButApostrophes> -> SEMI | Whitespace | Dot | Colon | Assignment | OpenParenthesis |
+<AnythingButApostrophes> -> SemiColon | BreakLine | WhiteSpace | Dot | Colon | Assignment | OpenParenthesis |
                             CloseParenthesis | OpenBraces | CloseBraces | DecimalLiteral | KeywordFalse | KeywordTrue | KeywordVal | KeywordIf | KeywordElse | SimpleName | Unknown
 <AnythingEndsWithApostrophes> -> <AnythingButApostrophes> <AnythingEndsWithApostrophes> | Apostrophes
 <IfExpression> -> KeywordIf <SpaceStar> OpenParenthesis <PaddedExpression> CloseParenthesis <SpaceStar>
                   <Block> <SpaceStar> KeywordElse <SpaceStar> <Block>
-<SpacePlus> -> Whitespace <SpacePlusRest>
+
+<SpacePlus> -> <WhiteSpaceOrBreakLine> <SpacePlusRest>
 <SpacePlusRest> -> <SpacePlus> | ε
 <SpaceStar> -> <SpacePlus> | ε
+<WhiteSpaceOrBreakLine> -> WhiteSpace | BreakLine
+<SEMI> -> SemiColon | BreakLine

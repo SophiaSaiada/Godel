@@ -14,7 +14,7 @@ object ParserGenerator {
     }
 
     sealed class Alternative {
-        data class Rules(val letters: List<Letter>) : Alternative()
+        data class NonEpsilon(val letters: List<Letter>) : Alternative()
         object Epsilon : Alternative()
     }
 
@@ -59,7 +59,7 @@ object ParserGenerator {
             }
 
             return when (alternative) {
-                is Alternative.Rules -> {
+                is Alternative.NonEpsilon -> {
                     val firstLetter = alternative.letters.first()
                     val alternativeFirstTerminal =
                         when (firstLetter) {
@@ -122,7 +122,7 @@ object ParserGenerator {
     private fun getFirstLettersFromRule(ruleName: String, rules: List<Rule>): List<Letter.Terminal> {
         val alternatives = rules.find { it.source == ruleName }?.alternatives ?: emptyList()
         val firstLetters =
-            alternatives.mapNotNull { (it as? Alternative.Rules)?.letters?.first() } +
+            alternatives.mapNotNull { (it as? Alternative.NonEpsilon)?.letters?.first() } +
                     alternatives.mapNotNull { if (it is Alternative.Epsilon) Letter.Epsilon else null }
         val terminals = firstLetters.mapNotNull { it as? Letter.Terminal }
         val nonTerminalsNames = firstLetters.mapNotNull { (it as? Letter.NonTerminal)?.name }
@@ -148,7 +148,7 @@ object ParserGenerator {
         return rules.all { rule ->
             rule.alternatives.all { alternative ->
                 when (alternative) {
-                    is Alternative.Rules ->
+                    is Alternative.NonEpsilon ->
                         alternative.letters
                             .filter { it is Letter.NonTerminal }
                             .all {
@@ -168,7 +168,7 @@ object ParserGenerator {
         rules.all { rule ->
             rule.alternatives.all { alternative ->
                 when (alternative) {
-                    is Alternative.Rules ->
+                    is Alternative.NonEpsilon ->
                         alternative.letters.filter { it is Letter.Terminal }.all {
                             if (it.name in tokens) true else {
                                 println("Terminal named ${it.name} is'nt found in tokens list.")
@@ -212,7 +212,7 @@ object ParserGenerator {
                 alternativesAsLists.mapNotNull { alternative ->
                     if (alternative.isEmpty()) null
                     else if (alternative.size == 1 && alternative.first() == Letter.Epsilon) Alternative.Epsilon
-                    else Alternative.Rules(alternative.filterNot { it == Letter.Epsilon })
+                    else Alternative.NonEpsilon(alternative.filterNot { it == Letter.Epsilon })
                 }
 
             Rule(ruleName, alternatives)
