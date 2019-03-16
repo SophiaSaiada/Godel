@@ -40,7 +40,53 @@ object ParserGenerator {
         check(noMissingRulesReferenced(rules))
         check(isLL1Grammar(rules))
         val result = generateFunctions(rules)
+        println("package com.godel.compiler\n")
+        println("data class ParseTreeNodeResult(val node: ParseTreeNode, val nextToken: Token?)\n")
+        println("object Parser {")
+        println(
+            "data class ComposedParseTreeNodeResult(\n" +
+                    "    val children: List<ParseTreeNode>,\n" +
+                    "    val nextToken: Token?\n" +
+                    ")\n" +
+                    "\n" +
+                    "private fun parseToken(tokenType: TokenType) =\n" +
+                    "    { firstToken: Token?, restOfTokens: Iterator<Token> ->\n" +
+                    "        if (firstToken?.type == tokenType)\n" +
+                    "            ParseTreeNodeResult(ParseTreeNode.Leaf(firstToken), restOfTokens.nextOrNull())\n" +
+                    "        else throw CompilationError(\"parseToken: \$firstToken, \$tokenType\")\n" +
+                    "    }\n" +
+                    "\n" +
+                    "private fun parseToken(keyword: Keyword) =\n" +
+                    "    { firstToken: Token?, restOfTokens: Iterator<Token> ->\n" +
+                    "        if (firstToken?.equals(keyword) == true)\n" +
+                    "            ParseTreeNodeResult(ParseTreeNode.Leaf(firstToken), restOfTokens.nextOrNull())\n" +
+                    "        else throw CompilationError(\"parseToken: \$firstToken, \$keyword\")\n" +
+                    "    }\n" +
+                    "\n" +
+                    "private fun composeParseCalls(vararg parseFunctions: (Token?, Iterator<Token>) -> ParseTreeNodeResult?): (Token?, Iterator<Token>) -> ComposedParseTreeNodeResult =\n" +
+                    "    { firstToken: Token?, tokensSequence: Iterator<Token> ->\n" +
+                    "        val (children, nextToken) =\n" +
+                    "            parseFunctions.fold(\n" +
+                    "                ComposedParseTreeNodeResult(emptyList(), firstToken)\n" +
+                    "            ) { (children: List<ParseTreeNode>, nextToken: Token?), parseFunction: (Token?, Iterator<Token>) -> ParseTreeNodeResult? ->\n" +
+                    "                val parseResult = parseFunction(nextToken, tokensSequence)\n" +
+                    "                if (parseResult?.node == null)\n" +
+                    "                    throw RuntimeException(\"Parse Error while parsing \$nextToken with \${parseFunction.javaClass.simpleName}.\")\n" +
+                    "                ComposedParseTreeNodeResult(children + listOf(parseResult.node), parseResult.nextToken)\n" +
+                    "            }\n" +
+                    "        ComposedParseTreeNodeResult(children, nextToken)\n" +
+                    "    }\n" +
+                    "\n" +
+                    "fun parse(tokens: Sequence<Token>): ParseTreeNodeResult {\n" +
+                    "    val iterator = tokens.iterator()\n" +
+                    "    val firstToken = iterator.nextOrNull()\n" +
+                    "    return parseStatements(firstToken, iterator)\n" +
+                    "}\n"
+        )
         print(result.joinToString("\n\n"))
+        println(
+            "\n\nprivate fun <T> Iterator<T>.nextOrNull() = if (hasNext()) next() else null\n}"
+        )
     }
 
     private fun generateFunctions(rules: List<Rule>): List<String> {
@@ -102,7 +148,8 @@ object ParserGenerator {
 
         return rules.map { rule ->
             val ruleName = rule.source
-            val header = "fun parse$ruleName(firstToken: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult?"
+            val header =
+                "private fun parse$ruleName(firstToken: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult"
             val declareNodeName = "val nodeName = \"$ruleName\""
             val existsEpsilonAlternative = rule.alternatives.any { it is Alternative.Epsilon }
             val alternativesBranches = rule.alternatives.take(1).map {
@@ -110,7 +157,9 @@ object ParserGenerator {
             } + rule.alternatives.drop(1).map {
                 generateAlternativeParseCalls(it, false)
             }
-            val elseBranch = if (existsEpsilonAlternative) "" else "else return null"
+            val elseBranch =
+                if (existsEpsilonAlternative) ""
+                else "else throw CompilationError(\"not matching alternative for firstToken \\\"\$firstToken\\\" in parse$ruleName\")"
             """
                 |$header {
                 |   $declareNodeName

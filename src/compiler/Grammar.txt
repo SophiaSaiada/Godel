@@ -1,5 +1,5 @@
 @Tokens
-    SemiColon, BreakLine, WhiteSpace, Dot, Colon, Assignment, Apostrophes, OpenParenthesis, CloseParenthesis,
+    SemiColon, BreakLine, WhiteSpace, Dot, Colon, Assignment, Apostrophes, OpenParenthesis, CloseParenthesis, Underscore,
     OpenBraces, CloseBraces, DecimalLiteral, KeywordFalse, KeywordTrue, KeywordVal, KeywordIf, KeywordElse, SimpleName,
     Unknown
 
@@ -12,12 +12,13 @@
 <Block> -> OpenBraces <Statements> CloseBraces
 
 <Declaration> -> <ValDeclaration>
-<ValDeclaration> -> KeywordVal <SpacePlus> SimpleName <SpaceStar> Colon <SpaceStar> SimpleName
-                    <SpaceStar> Assignment <PaddedExpression>
+<ValDeclaration> -> KeywordVal <SpacePlus> <UnderscoreStar> SimpleName <SpaceStar> <ValDeclarationRest>
+<ValDeclarationRest> -> Colon <SpaceStar> SimpleName <SpaceStar> Assignment <PaddedExpression> |
+                        Assignment <PaddedExpression>
 
 <PaddedExpression> -> <SpaceStar> <Expression> <SpaceStar>
 <Expression> -> <Number> | <BooleanLiteral> | <StringLiteral> | <IfExpression> |
-                OpenParenthesis <PaddedExpression> CloseParenthesis
+                OpenParenthesis <PaddedExpression> CloseParenthesis | SimpleName
 <BooleanLiteral> -> KeywordFalse | KeywordTrue
 <Number> -> DecimalLiteral <NumberRest>
 <NumberRest> -> Dot DecimalLiteral | ε
@@ -32,4 +33,9 @@
 <SpacePlusRest> -> <SpacePlus> | ε
 <SpaceStar> -> <SpacePlus> | ε
 <WhiteSpaceOrBreakLine> -> WhiteSpace | BreakLine
+
+<UnderscoreStar> -> <UnderscorePlus> | ε
+<UnderscorePlus> -> Underscore <UnderscorePlusRest>
+<UnderscorePlusRest> -> <UnderscorePlus> | ε
+
 <SEMI> -> SemiColon | BreakLine
