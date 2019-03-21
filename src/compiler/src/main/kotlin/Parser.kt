@@ -1,46 +1,7 @@
 package com.godel.compiler
 
-data class ParseTreeNodeResult(val node: ParseTreeNode, val nextToken: Token?)
-
-object Parser {
-    data class ComposedParseTreeNodeResult(
-        val children: List<ParseTreeNode>,
-        val nextToken: Token?
-    )
-
-    private fun parseToken(tokenType: TokenType) =
-        { firstToken: Token?, restOfTokens: Iterator<Token> ->
-            if (firstToken?.type == tokenType)
-                ParseTreeNodeResult(ParseTreeNode.Leaf(firstToken), restOfTokens.nextOrNull())
-            else throw CompilationError("parseToken: $firstToken, $tokenType")
-        }
-
-    private fun parseToken(keyword: Keyword) =
-        { firstToken: Token?, restOfTokens: Iterator<Token> ->
-            if (firstToken?.equals(keyword) == true)
-                ParseTreeNodeResult(ParseTreeNode.Leaf(firstToken), restOfTokens.nextOrNull())
-            else throw CompilationError("parseToken: $firstToken, $keyword")
-        }
-
-    private fun composeParseCalls(vararg parseFunctions: (Token?, Iterator<Token>) -> ParseTreeNodeResult?): (Token?, Iterator<Token>) -> ComposedParseTreeNodeResult =
-        { firstToken: Token?, tokensSequence: Iterator<Token> ->
-            val (children, nextToken) =
-                parseFunctions.fold(
-                    ComposedParseTreeNodeResult(emptyList(), firstToken)
-                ) { (children: List<ParseTreeNode>, nextToken: Token?), parseFunction: (Token?, Iterator<Token>) -> ParseTreeNodeResult? ->
-                    val parseResult = parseFunction(nextToken, tokensSequence)
-                    if (parseResult?.node == null)
-                        throw RuntimeException("Parse Error while parsing $nextToken with ${parseFunction.javaClass.simpleName}.")
-                    ComposedParseTreeNodeResult(children + listOf(parseResult.node), parseResult.nextToken)
-                }
-            ComposedParseTreeNodeResult(children, nextToken)
-        }
-
-    fun parse(tokens: Sequence<Token>): ParseTreeNode {
-        val iterator = tokens.iterator()
-        val firstToken = iterator.nextOrNull()
-        return parseStatements(firstToken, iterator).node
-    }
+object Parser : ParserBase() {
+    override val start = ::parseStatements
 
     private fun parseStatements(firstToken: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeName = "Statements"
@@ -404,6 +365,4 @@ object Parser {
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeName), nextToken)
         } else throw CompilationError("not matching alternative for firstToken \"$firstToken\" in parseSEMI")
     }
-
-    private fun <T> Iterator<T>.nextOrNull() = if (hasNext()) next() else null
 }
