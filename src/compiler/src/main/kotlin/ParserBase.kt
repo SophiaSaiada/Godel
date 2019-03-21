@@ -3,6 +3,11 @@ package com.godel.compiler
 abstract class ParserBase {
     abstract val start: (Token?, Iterator<Token>) -> ParseTreeNodeResult
 
+    data class ParseTreeNodeResult(
+        val node: ParseTreeNode,
+        val nextToken: Token?
+    )
+
     data class ComposedParseTreeNodeResult(
         val children: List<ParseTreeNode>,
         val nextToken: Token?
@@ -42,5 +47,3 @@ abstract class ParserBase {
 
     private fun <T> Iterator<T>.nextOrNull() = if (hasNext()) next() else null
 }
-
-data class ParseTreeNodeResult(val node: ParseTreeNode, val nextToken: Token?)
