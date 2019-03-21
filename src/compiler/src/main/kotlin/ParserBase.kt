@@ -47,3 +47,19 @@ abstract class ParserBase {
 
     private fun <T> Iterator<T>.nextOrNull() = if (hasNext()) next() else null
 }
+
+
+sealed class ParseTreeNode {
+    data class Inner(
+        val children: List<ParseTreeNode>,
+        val name: String = ""
+    ) : ParseTreeNode()
+
+    data class Leaf(
+        val token: Token
+    ) : ParseTreeNode()
+
+    data class EpsilonLeaf(
+        val name: String = ""
+    ) : ParseTreeNode()
+}
