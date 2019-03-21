@@ -10,6 +10,7 @@
 <PaddedStatement> -> <SpacePlus> <Statement> <SpaceStar> | <Statement> <SpaceStar>
 <Statement> -> <Expression> | <Declaration>
 <Block> -> OpenBraces <Statements> CloseBraces
+<BlockOrStatement> -> <Block> | <Statement>
 
 <Declaration> -> <ValDeclaration>
 <ValDeclaration> -> KeywordVal <SpacePlus> <UnderscoreStar> SimpleName <SpaceStar> <ValDeclarationRest>
@@ -27,7 +28,8 @@
                             CloseParenthesis | OpenBraces | CloseBraces | DecimalLiteral | KeywordFalse | KeywordTrue | KeywordVal | KeywordIf | KeywordElse | SimpleName | Unknown
 <AnythingEndsWithApostrophes> -> <AnythingButApostrophes> <AnythingEndsWithApostrophes> | Apostrophes
 <IfExpression> -> KeywordIf <SpaceStar> OpenParenthesis <PaddedExpression> CloseParenthesis <SpaceStar>
-                  <Block> <SpaceStar> KeywordElse <SpaceStar> <Block>
+                  <BlockOrStatement> <SpaceStar> <IfExpressionRest>
+<IfExpressionRest> -> KeywordElse <SpaceStar> <BlockOrStatement> | ε
 
 <SpacePlus> -> <WhiteSpaceOrBreakLine> <SpacePlusRest>
 <SpacePlusRest> -> <SpacePlus> | ε

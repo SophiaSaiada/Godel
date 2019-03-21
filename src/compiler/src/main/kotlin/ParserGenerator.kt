@@ -77,10 +77,10 @@ object ParserGenerator {
                     "        ComposedParseTreeNodeResult(children, nextToken)\n" +
                     "    }\n" +
                     "\n" +
-                    "fun parse(tokens: Sequence<Token>): ParseTreeNodeResult {\n" +
+                    "fun parse(tokens: Sequence<Token>): ParseTreeNode {\n" +
                     "    val iterator = tokens.iterator()\n" +
                     "    val firstToken = iterator.nextOrNull()\n" +
-                    "    return parseStatements(firstToken, iterator)\n" +
+                    "    return parseStatements(firstToken, iterator).node\n" +
                     "}\n"
         )
         print(result.joinToString("\n\n"))
