@@ -13,6 +13,8 @@ abstract class ParserBase {
         val nextToken: Token?
     )
 
+    interface NodeType
+
     protected fun parseToken(tokenType: TokenType) =
         { firstToken: Token?, restOfTokens: Iterator<Token> ->
             if (firstToken?.type == tokenType)
@@ -49,10 +51,10 @@ abstract class ParserBase {
 }
 
 
-sealed class ParseTreeNode {
+sealed class ParseTreeNode : ASTBuilder.ParseTreeNodeOrASTNode {
     data class Inner(
         val children: List<ParseTreeNode>,
-        val name: String = ""
+        val type: Parser.InnerNodeType
     ) : ParseTreeNode()
 
     data class Leaf(
@@ -60,6 +62,6 @@ sealed class ParseTreeNode {
     ) : ParseTreeNode()
 
     data class EpsilonLeaf(
-        val name: String = ""
+        val type: Parser.InnerNodeType
     ) : ParseTreeNode()
 }

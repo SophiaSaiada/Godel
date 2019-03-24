@@ -9,7 +9,7 @@ private fun ParseTreeNode.asTreeString(prefix: String, isTail: Boolean): List<St
 
     return when (this) {
         is ParseTreeNode.Inner -> {
-            val header = (prefix + (if (isTail) "└── " else "├── ") + name)
+            val header = (prefix + (if (isTail) "└── " else "├── ") + type.name)
             listOf(header) +
                     children.dropLast(1).flatMap {
                         it.asTreeString(prefix + if (isTail) "    " else "│   ", false)
@@ -23,7 +23,7 @@ private fun ParseTreeNode.asTreeString(prefix: String, isTail: Boolean): List<St
         is ParseTreeNode.Leaf ->
             listOf(prefix + (if (isTail) "└── " else "├── ") + ansiLeaf + token.content + ansiReset)
         is ParseTreeNode.EpsilonLeaf ->
-            listOf(prefix + (if (isTail) "└── " else "├── ") + "$name -> ε")
+            listOf(prefix + (if (isTail) "└── " else "├── ") + "${type.name} -> ε")
     }
 }
 
@@ -44,7 +44,7 @@ private fun ParseTreeNode.asJSONString(maybeTotalDepth: Int? = null, currentDept
     return when (this) {
         is ParseTreeNode.Leaf -> wrapPreChild(token.content, totalDepth - currentDepth)
         is ParseTreeNode.EpsilonLeaf -> wrapPreChild("ε", totalDepth - currentDepth)
-        is ParseTreeNode.Inner -> """{name:"${this.name}", children: [${children.joinToString {
+        is ParseTreeNode.Inner -> """{name:"${type.name}", children: [${children.joinToString {
             it.asJSONString(totalDepth, currentDepth + 1)
         }}]}"""
     }

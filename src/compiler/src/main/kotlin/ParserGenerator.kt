@@ -40,16 +40,25 @@ object ParserGenerator {
         check(noMissingRulesReferenced(rules))
         check(isLL1Grammar(rules))
         val result = generateFunctions(rules)
+        val enum = generateEnum(rules)
         println(
             """|package com.godel.compiler
                |
                |object Parser : ParserBase() {
                |    override val start = ::parse${rules.firstOrNull()?.source}
                |
+               |    $enum
+               |
                |    ${result.joinToString("\n\n")}
                |}""".trimMargin()
         )
     }
+
+    private fun generateEnum(rules: List<ParserGenerator.Rule>) =
+        """enum class InnerNodeType : NodeType {
+            |   ${rules.joinToString(", ") { it.source }}
+            |}
+        """.trimMargin()
 
     private fun generateFunctions(rules: List<Rule>): List<String> {
         fun generateAlternativeParseCalls(alternative: Alternative, isFirst: Boolean): String {
@@ -101,10 +110,10 @@ object ParserGenerator {
                     """${if (isFirst) "return" else "else"} if ($enterCondition) {
                             |    val (children, nextToken) =
                             |        composeParseCalls($childrenParseFunctionNames).invoke(firstToken, restOfTokens)
-                            |    ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeName), nextToken)
+                            |    ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
                             |}""".trimMargin()
                 }
-                is Alternative.Epsilon -> "else ParseTreeNodeResult(ParseTreeNode.EpsilonLeaf(nodeName), firstToken)"
+                is Alternative.Epsilon -> "else ParseTreeNodeResult(ParseTreeNode.EpsilonLeaf(nodeType), firstToken)"
             }
         }
 
@@ -112,7 +121,7 @@ object ParserGenerator {
             val ruleName = rule.source
             val header =
                 "private fun parse$ruleName(firstToken: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult"
-            val declareNodeName = "val nodeName = \"$ruleName\""
+            val declareNodeType = "val nodeType = InnerNodeType.$ruleName"
             val existsEpsilonAlternative = rule.alternatives.any { it is Alternative.Epsilon }
             val alternativesBranches = rule.alternatives.take(1).map {
                 generateAlternativeParseCalls(it, true)
@@ -124,7 +133,7 @@ object ParserGenerator {
                 else "else throw CompilationError(\"not matching alternative for firstToken \\\"\$firstToken\\\" in parse$ruleName\")"
             """
                 |$header {
-                |   $declareNodeName
+                |   $declareNodeType
                 |   ${alternativesBranches.joinToString(" ")} $elseBranch
                 |}""".trimMargin()
         }

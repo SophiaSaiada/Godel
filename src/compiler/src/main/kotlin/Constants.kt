@@ -24,10 +24,3 @@ enum class Keyword {
 
     val asString = this.name.toLowerCase()
 }
-
-enum class InnerNodeType : NodeType {
-    Value,
-    FloatLiteral, StringLiteral,
-    Val,
-    If, FunctionCall
-}
