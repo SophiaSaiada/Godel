@@ -28,7 +28,7 @@ private fun ParseTreeNode.asTreeString(prefix: String, isTail: Boolean): List<St
 }
 
 
-private fun ParseTreeNode.asJSONString(maybeTotalDepth: Int? = null, currentDepth: Int = 0): String {
+fun ParseTreeNode.asJSONString(maybeTotalDepth: Int? = null, currentDepth: Int = 0): String {
     fun ParseTreeNode.height(): Int =
         when (this) {
             is ParseTreeNode.Leaf -> 0
@@ -37,14 +37,15 @@ private fun ParseTreeNode.asJSONString(maybeTotalDepth: Int? = null, currentDept
         }
 
     fun wrapPreChild(content: String, times: Int): String =
-        if (times == 0) """{name:"$content"}"""
-        else """{name: "", type: "ghost-node", children: [${wrapPreChild(content, times - 1)}]}"""
+        if (times == 0) """{"name":"$content"}"""
+        else """{"name": "", "type": "ghost-node", "children": [${wrapPreChild(content, times - 1)}]}"""
 
     val totalDepth = maybeTotalDepth ?: height()
     return when (this) {
         is ParseTreeNode.Leaf -> wrapPreChild(token.content, totalDepth - currentDepth)
-        is ParseTreeNode.EpsilonLeaf -> wrapPreChild("ε", totalDepth - currentDepth)
-        is ParseTreeNode.Inner -> """{name:"${type.name}", children: [${children.joinToString {
+        is ParseTreeNode.EpsilonLeaf ->
+            """{"name":"${type.name}", "children": [${wrapPreChild("ε", totalDepth - currentDepth)}]}"""
+        is ParseTreeNode.Inner -> """{"name":"${type.name}", "children": [${children.joinToString {
             it.asJSONString(totalDepth, currentDepth + 1)
         }}]}"""
     }
