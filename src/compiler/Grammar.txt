@@ -1,6 +1,6 @@
 @Tokens
-    SemiColon, BreakLine, WhiteSpace, Dot, Colon, Assignment, Apostrophes, OpenParenthesis, CloseParenthesis, Underscore,
-    OpenBraces, CloseBraces, DecimalLiteral, KeywordFalse, KeywordTrue, KeywordVal, KeywordIf, KeywordElse, SimpleName,
+    SemiColon, BreakLine, WhiteSpace, Dot, Comma, Colon, Assignment, Apostrophes, OpenParenthesis, CloseParenthesis, Underscore,
+    OpenBraces, CloseBraces,OpenBrokets, CloseBrokets, DecimalLiteral, KeywordFalse, KeywordTrue, KeywordVal, KeywordIf, KeywordElse, KeywordFun, SimpleName,
     Unknown
 
 @Rules
@@ -30,7 +30,13 @@
 <IfExpression> -> KeywordIf <SpaceStar> OpenParenthesis <PaddedExpression> CloseParenthesis <SpaceStar>
                   <BlockOrStatement> <SpaceStar> <IfExpressionRest>
 <IfExpressionRest> -> KeywordElse <SpaceStar> <BlockOrStatement> | ε
-
+//Function Declaration
+<FunctionDeclaration> -> KeywordFun <SpacePlus> SimpleName <SpaceStar> <FunctionGenericType> <SpaceStar> <FunctionParameters> Colon SimpleName <Block>
+<FunctionGenericType> -> OpenBrokets <SpaceStar> SimpleName <SpaceStar> CloseBrokets | ε
+<FunctionParameters> -> OpenParenthesis <ParameterStar> CloseParenthesis
+<ParameterStar> -> <Parameter> <ParameterPlusRest> | ε
+<ParameterPlusRest> -> Comma <ParameterPlus> | ε
+<Parameter> -> SimpleName Colon SimpleName
 <SpacePlus> -> <WhiteSpaceOrBreakLine> <SpacePlusRest>
 <SpacePlusRest> -> <SpacePlus> | ε
 <SpaceStar> -> <SpacePlus> | ε
