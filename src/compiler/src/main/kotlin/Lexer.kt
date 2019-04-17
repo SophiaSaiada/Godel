@@ -38,17 +38,19 @@ data class Token(val content: String, val type: TokenType) {
             ">" to TokenType.CloseBrokets,
             "." to TokenType.Dot,
             "," to TokenType.Comma,
-            "\"" to TokenType.Apostrophes
+            "\"" to TokenType.Apostrophes,
+            ";" to TokenType.SemiColon,
+            "\n" to TokenType.BreakLine,
+            "_" to TokenType.Underscore
         ).mapKeys { ClassificationByExactStringMatch(it.key) }
 
         private val tokensClassification = mapOf(
             ClassificationByGroup("+", "-", "*", "/", "%") to TokenType.MathOperator,
             ClassificationByGroup(Keyword.values().map { it.asString }) to TokenType.Keyword,
-            ClassificationByGroup(";", "\n") to TokenType.SEMI,
-            ClassificationByRegex("[0-9]+") to TokenType.DecimalLiteral,
-            ClassificationByRegex("[ \t]+") to TokenType.Whitespace
+            ClassificationByGroup(" ", "\t") to TokenType.WhiteSpace,
+            ClassificationByRegex("[0-9]+") to TokenType.DecimalLiteral
         ) + classificationsByExactMatch + mapOf(
-            ClassificationByRegex("(_|_?[a-zA-Z][a-zA-Z0-9_]*)") to TokenType.SimpleName
+            ClassificationByRegex("([a-zA-Z][a-zA-Z0-9_]*)") to TokenType.SimpleName
         )
 
         fun classifyString(string: String) =
@@ -66,7 +68,7 @@ object Lexer {
         listOf(
             ' ', ';', '\n', '\t', '\\',
             '%', '*', '/', '-', '+',
-            '=', ',', '.', '"', ':',
+            '=', ',', '.', '"', ':', '_',
             '{', '}', '(', ')', '<', '>'
         )
 

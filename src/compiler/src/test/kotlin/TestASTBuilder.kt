@@ -21,9 +21,9 @@ class TestASTBuilder : StringSpec({
              a   Int   1
         val sourceCode =
             sequenceOfTokens(
-                "val" to Keyword, " " to Whitespace, "a" to SimpleName,
-                ":" to Colon, " " to Whitespace, "Int" to SimpleName, " " to Whitespace,
-                "=" to Assignment, " " to Whitespace, "1" to DecimalLiteral
+                "val" to Keyword, " " to WhiteSpace, "a" to SimpleName,
+                ":" to Colon, " " to WhiteSpace, "Int" to SimpleName, " " to WhiteSpace,
+                "=" to Assignment, " " to WhiteSpace, "1" to DecimalLiteral
             )
         val expectedResult = ASTBranchNode(
             type = InnerNodeType.If,

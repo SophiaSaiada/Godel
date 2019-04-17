@@ -7,10 +7,10 @@ import com.godel.compiler.TokenType.*
 class TestLexer : StringSpec({
 
     "tokenize single-line string without classifying each token" {
-        val input = "  val list = a.listOf(4, 2, 53, 1)"
+        val input = "  val  list = a.listOf(4, 2, 53, 1)"
         Lexer.tokenizeSourceCode(input.asSequence()).toList() shouldBe
                 listOf(
-                    " ", " ", "val", " ", "list", " ", "=", " ", "a", ".",
+                    " ", " ", "val", " ", " ", "list", " ", "=", " ", "a", ".",
                     "listOf", "(", "4", ",", " ", "2", ",", " ", "53", ",", " ", "1", ")"
                 )
     }
@@ -39,10 +39,10 @@ class TestLexer : StringSpec({
         Token.classifyString("0") shouldBe TokenType.DecimalLiteral
         Token.classifyString("23") shouldBe TokenType.DecimalLiteral
 
-        Token.classifyString("_") shouldBe TokenType.SimpleName
-        Token.classifyString("_a0") shouldBe TokenType.SimpleName
-        Token.classifyString("_a") shouldBe TokenType.SimpleName
-        Token.classifyString("_A") shouldBe TokenType.SimpleName
+        Token.classifyString("_") shouldBe TokenType.Underscore
+        Token.classifyString("a_a0") shouldBe TokenType.SimpleName
+        Token.classifyString("a_a") shouldBe TokenType.SimpleName
+        Token.classifyString("a_A") shouldBe TokenType.SimpleName
         Token.classifyString("aBc") shouldBe TokenType.SimpleName
 
         Token.classifyString("=") shouldBe TokenType.Assignment
@@ -50,10 +50,11 @@ class TestLexer : StringSpec({
         Token.classifyString("{") shouldBe TokenType.OpenBraces
         Token.classifyString("*") shouldBe TokenType.MathOperator
 
-        Token.classifyString(";") shouldBe TokenType.SEMI
-        Token.classifyString("\n") shouldBe TokenType.SEMI
+        Token.classifyString(";") shouldBe TokenType.SemiColon
+        Token.classifyString("\n") shouldBe TokenType.BreakLine
 
-        Token.classifyString(" \t ") shouldBe TokenType.Whitespace
+        Token.classifyString("\t") shouldBe TokenType.WhiteSpace
+        Token.classifyString(" ") shouldBe TokenType.WhiteSpace
 
         Token.classifyString("_0") shouldBe TokenType.Unknown
         Token.classifyString("_0a") shouldBe TokenType.Unknown
@@ -64,14 +65,14 @@ class TestLexer : StringSpec({
         val input = "  val list = a.listOf(4, 2, 53, 1)"
         Lexer.lex(input.asSequence()).toList() shouldBe
                 listOfTokens(
-                    " " to Whitespace, " " to Whitespace,
-                    "val" to Keyword, " " to Whitespace, "list" to SimpleName, " " to Whitespace,
-                    "=" to Assignment, " " to Whitespace,
+                    " " to WhiteSpace, " " to WhiteSpace,
+                    "val" to Keyword, " " to WhiteSpace, "list" to SimpleName, " " to WhiteSpace,
+                    "=" to Assignment, " " to WhiteSpace,
                     "a" to SimpleName, "." to Dot, "listOf" to SimpleName,
                     "(" to OpenParenthesis,
-                    "4" to DecimalLiteral, "," to Comma, " " to Whitespace,
-                    "2" to DecimalLiteral, "," to Comma, " " to Whitespace,
-                    "53" to DecimalLiteral, "," to Comma, " " to Whitespace,
+                    "4" to DecimalLiteral, "," to Comma, " " to WhiteSpace,
+                    "2" to DecimalLiteral, "," to Comma, " " to WhiteSpace,
+                    "53" to DecimalLiteral, "," to Comma, " " to WhiteSpace,
                     "1" to DecimalLiteral,
                     ")" to CloseParenthesis
                 )
@@ -88,20 +89,20 @@ class TestLexer : StringSpec({
                     """if (x) { println("if _0 false _0a") }"""
         Lexer.lex(input.asSequence()).toList() shouldBe
                 listOfTokens(
-                    "val" to Keyword, " " to Whitespace, "a" to SimpleName,
-                    ":" to Colon, " " to Whitespace, "Int" to SimpleName, " " to Whitespace,
-                    "=" to Assignment, " " to Whitespace, "1" to DecimalLiteral, ";" to SEMI,
-                    "val" to Keyword, " " to Whitespace, "x" to SimpleName,
-                    ":" to Colon, "Bool" to SimpleName, "=" to Assignment, "false" to Keyword, "\n" to SEMI,
-                    "if" to Keyword, " " to Whitespace,
-                    "(" to OpenParenthesis, "x" to SimpleName, ")" to CloseParenthesis, " " to Whitespace,
-                    "{" to OpenBraces, " " to Whitespace,
+                    "val" to Keyword, " " to WhiteSpace, "a" to SimpleName,
+                    ":" to Colon, " " to WhiteSpace, "Int" to SimpleName, " " to WhiteSpace,
+                    "=" to Assignment, " " to WhiteSpace, "1" to DecimalLiteral, ";" to SemiColon,
+                    "val" to Keyword, " " to WhiteSpace, "x" to SimpleName,
+                    ":" to Colon, "Bool" to SimpleName, "=" to Assignment, "false" to Keyword, "\n" to BreakLine,
+                    "if" to Keyword, " " to WhiteSpace,
+                    "(" to OpenParenthesis, "x" to SimpleName, ")" to CloseParenthesis, " " to WhiteSpace,
+                    "{" to OpenBraces, " " to WhiteSpace,
                     "println" to SimpleName,
                     "(" to OpenParenthesis, "\"" to Apostrophes,
-                    "if" to Keyword, " " to Whitespace, "_0" to Unknown, " " to Whitespace,
-                    "false" to Keyword, " " to Whitespace, "_0a" to Unknown,
+                    "if" to Keyword, " " to WhiteSpace, "_" to Underscore, "0" to DecimalLiteral, " " to WhiteSpace,
+                    "false" to Keyword, " " to WhiteSpace, "_" to Underscore, "0a" to Unknown,
                     "\"" to Apostrophes, ")" to CloseParenthesis,
-                    " " to Whitespace, "}" to CloseBraces
+                    " " to WhiteSpace, "}" to CloseBraces
                 )
     }
 })

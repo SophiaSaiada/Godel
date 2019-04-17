@@ -1,32 +1,43 @@
 @Tokens
-    SEMI, Whitespace, Dot, Colon, Assignment, Apostrophes, OpenParenthesis, CloseParenthesis,
+    SemiColon, BreakLine, WhiteSpace, Dot, Colon, Assignment, Apostrophes, OpenParenthesis, CloseParenthesis, Underscore,
     OpenBraces, CloseBraces, DecimalLiteral, KeywordFalse, KeywordTrue, KeywordVal, KeywordIf, KeywordElse, SimpleName,
     Unknown
 
 @Rules
 <Statements> -> <PaddedStatement> <StatementsRest>
-<StatementsRest> -> SEMI <Statements> | ε
+<StatementsRest> -> <SEMI> <Statements> | ε
 
 <PaddedStatement> -> <SpacePlus> <Statement> <SpaceStar> | <Statement> <SpaceStar>
 <Statement> -> <Expression> | <Declaration>
 <Block> -> OpenBraces <Statements> CloseBraces
+<BlockOrStatement> -> <Block> | <Statement>
 
 <Declaration> -> <ValDeclaration>
-<ValDeclaration> -> KeywordVal <SpacePlus> SimpleName <SpaceStar> Colon <SpaceStar> SimpleName
-                    <SpaceStar> Assignment <PaddedExpression>
+<ValDeclaration> -> KeywordVal <SpacePlus> <UnderscoreStar> SimpleName <SpaceStar> <ValDeclarationRest>
+<ValDeclarationRest> -> Colon <SpaceStar> SimpleName <SpaceStar> Assignment <PaddedExpression> |
+                        Assignment <PaddedExpression>
 
 <PaddedExpression> -> <SpaceStar> <Expression> <SpaceStar>
 <Expression> -> <Number> | <BooleanLiteral> | <StringLiteral> | <IfExpression> |
-                OpenParenthesis <PaddedExpression> CloseParenthesis
+                OpenParenthesis <PaddedExpression> CloseParenthesis | SimpleName
 <BooleanLiteral> -> KeywordFalse | KeywordTrue
 <Number> -> DecimalLiteral <NumberRest>
 <NumberRest> -> Dot DecimalLiteral | ε
 <StringLiteral> -> Apostrophes <AnythingEndsWithApostrophes>
-<AnythingButApostrophes> -> SEMI | Whitespace | Dot | Colon | Assignment | OpenParenthesis |
+<AnythingButApostrophes> -> SemiColon | BreakLine | WhiteSpace | Dot | Colon | Assignment | OpenParenthesis |
                             CloseParenthesis | OpenBraces | CloseBraces | DecimalLiteral | KeywordFalse | KeywordTrue | KeywordVal | KeywordIf | KeywordElse | SimpleName | Unknown
 <AnythingEndsWithApostrophes> -> <AnythingButApostrophes> <AnythingEndsWithApostrophes> | Apostrophes
 <IfExpression> -> KeywordIf <SpaceStar> OpenParenthesis <PaddedExpression> CloseParenthesis <SpaceStar>
-                  <Block> <SpaceStar> KeywordElse <SpaceStar> <Block>
-<SpacePlus> -> Whitespace <SpacePlusRest>
+                  <BlockOrStatement> <SpaceStar> <IfExpressionRest>
+<IfExpressionRest> -> KeywordElse <SpaceStar> <BlockOrStatement> | ε
+
+<SpacePlus> -> <WhiteSpaceOrBreakLine> <SpacePlusRest>
 <SpacePlusRest> -> <SpacePlus> | ε
 <SpaceStar> -> <SpacePlus> | ε
+<WhiteSpaceOrBreakLine> -> WhiteSpace | BreakLine
+
+<UnderscoreStar> -> <UnderscorePlus> | ε
+<UnderscorePlus> -> Underscore <UnderscorePlusRest>
+<UnderscorePlusRest> -> <UnderscorePlus> | ε
+
+<SEMI> -> SemiColon | BreakLine

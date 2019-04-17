@@ -14,7 +14,7 @@ object ParserGenerator {
     }
 
     sealed class Alternative {
-        data class Rules(val letters: List<Letter>) : Alternative()
+        data class NonEpsilon(val letters: List<Letter>) : Alternative()
         object Epsilon : Alternative()
     }
 
@@ -40,8 +40,25 @@ object ParserGenerator {
         check(noMissingRulesReferenced(rules))
         check(isLL1Grammar(rules))
         val result = generateFunctions(rules)
-        print(result.joinToString("\n\n"))
+        val enum = generateEnum(rules)
+        println(
+            """|package com.godel.compiler
+               |
+               |object Parser : ParserBase() {
+               |    override val start = ::parse${rules.firstOrNull()?.source}
+               |
+               |    $enum
+               |
+               |    ${result.joinToString("\n\n")}
+               |}""".trimMargin()
+        )
     }
+
+    private fun generateEnum(rules: List<ParserGenerator.Rule>) =
+        """enum class InnerNodeType : NodeType {
+            |   ${rules.joinToString(", ") { it.source }}
+            |}
+        """.trimMargin()
 
     private fun generateFunctions(rules: List<Rule>): List<String> {
         fun generateAlternativeParseCalls(alternative: Alternative, isFirst: Boolean): String {
@@ -59,7 +76,7 @@ object ParserGenerator {
             }
 
             return when (alternative) {
-                is Alternative.Rules -> {
+                is Alternative.NonEpsilon -> {
                     val firstLetter = alternative.letters.first()
                     val alternativeFirstTerminal =
                         when (firstLetter) {
@@ -93,27 +110,30 @@ object ParserGenerator {
                     """${if (isFirst) "return" else "else"} if ($enterCondition) {
                             |    val (children, nextToken) =
                             |        composeParseCalls($childrenParseFunctionNames).invoke(firstToken, restOfTokens)
-                            |    ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeName), nextToken)
+                            |    ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
                             |}""".trimMargin()
                 }
-                is Alternative.Epsilon -> "else ParseTreeNodeResult(ParseTreeNode.EpsilonLeaf(nodeName), firstToken)"
+                is Alternative.Epsilon -> "else ParseTreeNodeResult(ParseTreeNode.EpsilonLeaf(nodeType), firstToken)"
             }
         }
 
         return rules.map { rule ->
             val ruleName = rule.source
-            val header = "fun parse$ruleName(firstToken: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult?"
-            val declareNodeName = "val nodeName = \"$ruleName\""
+            val header =
+                "private fun parse$ruleName(firstToken: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult"
+            val declareNodeType = "val nodeType = InnerNodeType.$ruleName"
             val existsEpsilonAlternative = rule.alternatives.any { it is Alternative.Epsilon }
             val alternativesBranches = rule.alternatives.take(1).map {
                 generateAlternativeParseCalls(it, true)
             } + rule.alternatives.drop(1).map {
                 generateAlternativeParseCalls(it, false)
             }
-            val elseBranch = if (existsEpsilonAlternative) "" else "else return null"
+            val elseBranch =
+                if (existsEpsilonAlternative) ""
+                else "else throw CompilationError(\"not matching alternative for firstToken \\\"\$firstToken\\\" in parse$ruleName\")"
             """
                 |$header {
-                |   $declareNodeName
+                |   $declareNodeType
                 |   ${alternativesBranches.joinToString(" ")} $elseBranch
                 |}""".trimMargin()
         }
@@ -122,7 +142,7 @@ object ParserGenerator {
     private fun getFirstLettersFromRule(ruleName: String, rules: List<Rule>): List<Letter.Terminal> {
         val alternatives = rules.find { it.source == ruleName }?.alternatives ?: emptyList()
         val firstLetters =
-            alternatives.mapNotNull { (it as? Alternative.Rules)?.letters?.first() } +
+            alternatives.mapNotNull { (it as? Alternative.NonEpsilon)?.letters?.first() } +
                     alternatives.mapNotNull { if (it is Alternative.Epsilon) Letter.Epsilon else null }
         val terminals = firstLetters.mapNotNull { it as? Letter.Terminal }
         val nonTerminalsNames = firstLetters.mapNotNull { (it as? Letter.NonTerminal)?.name }
@@ -148,7 +168,7 @@ object ParserGenerator {
         return rules.all { rule ->
             rule.alternatives.all { alternative ->
                 when (alternative) {
-                    is Alternative.Rules ->
+                    is Alternative.NonEpsilon ->
                         alternative.letters
                             .filter { it is Letter.NonTerminal }
                             .all {
@@ -168,7 +188,7 @@ object ParserGenerator {
         rules.all { rule ->
             rule.alternatives.all { alternative ->
                 when (alternative) {
-                    is Alternative.Rules ->
+                    is Alternative.NonEpsilon ->
                         alternative.letters.filter { it is Letter.Terminal }.all {
                             if (it.name in tokens) true else {
                                 println("Terminal named ${it.name} is'nt found in tokens list.")
@@ -212,7 +232,7 @@ object ParserGenerator {
                 alternativesAsLists.mapNotNull { alternative ->
                     if (alternative.isEmpty()) null
                     else if (alternative.size == 1 && alternative.first() == Letter.Epsilon) Alternative.Epsilon
-                    else Alternative.Rules(alternative.filterNot { it == Letter.Epsilon })
+                    else Alternative.NonEpsilon(alternative.filterNot { it == Letter.Epsilon })
                 }
 
             Rule(ruleName, alternatives)
