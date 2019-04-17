@@ -33,6 +33,7 @@ object ParserGenerator {
         val sourceCode =
             File("./Grammar.txt")
                 .readLines()
+                .filterNot { it.startsWith("//") }
         val (tokensLines, rulesLines) = splitByContext(sourceCode)
         val tokens = parseTokens(tokensLines)
         val rules = parseRules(combineSimilarLines(rulesLines))

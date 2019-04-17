@@ -44,14 +44,18 @@ abstract class ParserBase {
     fun parse(tokens: Sequence<Token>): ParseTreeNode {
         val iterator = tokens.iterator()
         val firstToken = iterator.nextOrNull()
-        return start(firstToken, iterator).node
+        val rootResult = start(firstToken, iterator)
+        if (rootResult.nextToken != null)
+            throw CompilationError("The whole source code can't be parsed from the language grammar.")
+        else
+            return rootResult.node
     }
 
     private fun <T> Iterator<T>.nextOrNull() = if (hasNext()) next() else null
 }
 
 
-sealed class ParseTreeNode : ASTBuilder.ParseTreeNodeOrASTNode {
+sealed class ParseTreeNode {
     data class Inner(
         val children: List<ParseTreeNode>,
         val type: Parser.InnerNodeType
