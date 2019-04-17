@@ -1,6 +1,12 @@
 @Tokens
-    SemiColon, BreakLine, WhiteSpace, Dot, Colon, Assignment, Apostrophes, OpenParenthesis, CloseParenthesis, Underscore,
-    OpenBraces, CloseBraces, DecimalLiteral, KeywordFalse, KeywordTrue, KeywordVal, KeywordIf, KeywordElse, SimpleName,
+    WhiteSpace, SemiColon, BreakLine, Colon, Dot, Comma, Apostrophes, Underscore,
+    Percentage, Backslash, Star, Minus, Plus, ExclamationMark, And, Or,
+    Assignment, OpenBraces, CloseBraces, OpenParenthesis, CloseParenthesis, OpenBrokets, CloseBrokets,
+    DecimalLiteral, SimpleName,
+
+    KeywordVal, KeywordVar, KeywordFun, KeywordClass, KeywordTrue, KeywordFalse,
+    KeywordIf, KeywordElse, KeywordWhile, KeywordWhen,
+
     Unknown
 
 @Rules
@@ -24,8 +30,13 @@
 <Number> -> DecimalLiteral <NumberRest>
 <NumberRest> -> Dot DecimalLiteral | ε
 <StringLiteral> -> Apostrophes <AnythingEndsWithApostrophes>
-<AnythingButApostrophes> -> SemiColon | BreakLine | WhiteSpace | Dot | Colon | Assignment | OpenParenthesis |
-                            CloseParenthesis | OpenBraces | CloseBraces | DecimalLiteral | KeywordFalse | KeywordTrue | KeywordVal | KeywordIf | KeywordElse | SimpleName | Unknown
+<AnythingButApostrophes> -> WhiteSpace | SemiColon | BreakLine | Colon | Dot | Comma | Underscore |
+                            Percentage | Backslash | Star | Minus | Plus | ExclamationMark | And | Or | Assignment |
+                            OpenBraces | CloseBraces | OpenParenthesis | CloseParenthesis | OpenBrokets | CloseBrokets |
+                            DecimalLiteral | SimpleName |
+                            KeywordVal | KeywordVar | KeywordFun | KeywordClass | KeywordTrue | KeywordFalse |
+                            KeywordIf | KeywordElse | KeywordWhile | KeywordWhen |
+                            Unknown
 <AnythingEndsWithApostrophes> -> <AnythingButApostrophes> <AnythingEndsWithApostrophes> | Apostrophes
 <IfExpression> -> KeywordIf <SpaceStar> OpenParenthesis <PaddedExpression> CloseParenthesis <SpaceStar>
                   <BlockOrStatement> <SpaceStar> <IfExpressionRest>

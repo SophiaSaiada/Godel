@@ -48,7 +48,15 @@ class TestLexer : StringSpec({
         Token.classifyString("=") shouldBe TokenType.Assignment
         Token.classifyString(":") shouldBe TokenType.Colon
         Token.classifyString("{") shouldBe TokenType.OpenBraces
-        Token.classifyString("*") shouldBe TokenType.MathOperator
+
+        Token.classifyString("+") shouldBe TokenType.Plus
+        Token.classifyString("-") shouldBe TokenType.Minus
+        Token.classifyString("*") shouldBe TokenType.Star
+        Token.classifyString("/") shouldBe TokenType.Backslash
+        Token.classifyString("%") shouldBe TokenType.Percentage
+        Token.classifyString("!") shouldBe TokenType.ExclamationMark
+        Token.classifyString("|") shouldBe TokenType.Or
+        Token.classifyString("&") shouldBe TokenType.And
 
         Token.classifyString(";") shouldBe TokenType.SemiColon
         Token.classifyString("\n") shouldBe TokenType.BreakLine

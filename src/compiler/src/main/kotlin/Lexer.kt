@@ -27,7 +27,7 @@ data class Token(val content: String, val type: TokenType) {
         type == TokenType.Keyword && content == keyword.asString
 
     companion object {
-        private val classificationsByExactMatch = mapOf(
+        val classificationsByExactMatch = mapOf(
             "=" to TokenType.Assignment,
             ":" to TokenType.Colon,
             "{" to TokenType.OpenBraces,
@@ -41,13 +41,21 @@ data class Token(val content: String, val type: TokenType) {
             "\"" to TokenType.Apostrophes,
             ";" to TokenType.SemiColon,
             "\n" to TokenType.BreakLine,
-            "_" to TokenType.Underscore
+            "_" to TokenType.Underscore,
+            "+" to TokenType.Plus,
+            "-" to TokenType.Minus,
+            "*" to TokenType.Star,
+            "/" to TokenType.Backslash,
+            "%" to TokenType.Percentage,
+            "!" to TokenType.ExclamationMark,
+            "|" to TokenType.Or,
+            "&" to TokenType.And,
+            " " to TokenType.WhiteSpace,
+            "\t" to TokenType.WhiteSpace
         ).mapKeys { ClassificationByExactStringMatch(it.key) }
 
         private val tokensClassification = mapOf(
-            ClassificationByGroup("+", "-", "*", "/", "%") to TokenType.MathOperator,
             ClassificationByGroup(Keyword.values().map { it.asString }) to TokenType.Keyword,
-            ClassificationByGroup(" ", "\t") to TokenType.WhiteSpace,
             ClassificationByRegex("[0-9]+") to TokenType.DecimalLiteral
         ) + classificationsByExactMatch + mapOf(
             ClassificationByRegex("([a-zA-Z][a-zA-Z0-9_]*)") to TokenType.SimpleName
@@ -66,10 +74,8 @@ fun sequenceOfTokens(vararg list: Pair<String, TokenType>) = listOfTokens(*list)
 object Lexer {
     private val splittingCharacters =
         listOf(
-            ' ', ';', '\n', '\t', '\\',
-            '%', '*', '/', '-', '+',
-            '=', ',', '.', '"', ':', '_',
-            '{', '}', '(', ')', '<', '>'
+            '=', ':', '{', '(', '<', '}', ')', '>', '.', ',', '"', ';',
+            '\n', '_', '+', '-', '*', '/', '%', '!', '|', '&', ' ', '\t'
         )
 
     fun tokenizeSourceCode(sourceCode: Sequence<Char>): Sequence<String> =
