@@ -69,7 +69,7 @@
 <FunctionParameterPlusRest> -> Comma <FunctionParameterPlus> | ε
 <FunctionParameter> -> SimpleName Colon SimpleName
 
-// Generic Stuff
+// General Stuff
 <SpacePlus> -> <WhiteSpaceOrBreakLine> <SpacePlusRest>
 <SpacePlusRest> -> <SpacePlus> | ε
 <SpaceStar> -> <SpacePlus> | ε
