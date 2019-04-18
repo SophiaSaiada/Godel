@@ -42,22 +42,23 @@ object ParserGenerator {
         check(isLL1Grammar(rules))
         val result = generateFunctions(rules)
         val enum = generateEnum(rules)
-        println(
+        val resultCode =
             """|package com.godel.compiler
                |
                |object Parser : ParserBase() {
                |    override val start = ::parse${rules.firstOrNull()?.source}
                |
-               |    $enum
+               |${enum.indent()}
                |
-               |    ${result.joinToString("\n\n")}
+               |${result.joinToString("\n\n").indent()}
                |}""".trimMargin()
-        )
+        File("./src/main/kotlin/Parser.kt").writeText(resultCode)
+        println("Happy Coding! ✨")
     }
 
     private fun generateEnum(rules: List<ParserGenerator.Rule>) =
         """enum class InnerNodeType : NodeType {
-            |   ${rules.joinToString(", ") { it.source }}
+            |${rules.joinToString(", ") { it.source }.indent()}
             |}
         """.trimMargin()
 
@@ -131,11 +132,11 @@ object ParserGenerator {
             }
             val elseBranch =
                 if (existsEpsilonAlternative) ""
-                else "else throw CompilationError(\"not matching alternative for firstToken \\\"\$firstToken\\\" in parse$ruleName\")"
+                else " else throw CompilationError(\"not matching alternative for firstToken \\\"\$firstToken\\\" in parse$ruleName\")"
             """
                 |$header {
-                |   $declareNodeType
-                |   ${alternativesBranches.joinToString(" ")} $elseBranch
+                |${declareNodeType.indent()}
+                |${alternativesBranches.joinToString(" ").indent()}$elseBranch
                 |}""".trimMargin()
         }
     }
@@ -257,4 +258,12 @@ object ParserGenerator {
             if (acc.isEmpty() || line.contains(RIGHT_ARROW)) acc + listOf(line)
             else acc.dropLast(1) + listOf("${acc.last()} $line")
         }
+
+    private fun String.indent(length: Int = 1): String =
+        if (length == 0)
+            this
+        else
+            this.indent(length - 1).split("\n").joinToString("\n") {
+                if (it.isBlank()) it else "    $it"
+            }
 }

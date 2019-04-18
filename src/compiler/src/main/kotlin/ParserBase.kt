@@ -19,14 +19,14 @@ abstract class ParserBase {
         { firstToken: Token?, restOfTokens: Iterator<Token> ->
             if (firstToken?.type == tokenType)
                 ParseTreeNodeResult(ParseTreeNode.Leaf(firstToken), restOfTokens.nextOrNull())
-            else throw CompilationError("parseToken: $firstToken, $tokenType")
+            else throw CompilationError("The token $firstToken doesn't fit the expected token type \"$tokenType\"")
         }
 
     protected fun parseToken(keyword: Keyword) =
         { firstToken: Token?, restOfTokens: Iterator<Token> ->
             if (firstToken?.equals(keyword) == true)
                 ParseTreeNodeResult(ParseTreeNode.Leaf(firstToken), restOfTokens.nextOrNull())
-            else throw CompilationError("parseToken: $firstToken, $keyword")
+            else throw CompilationError("The token $firstToken doesn't fit expected keyword \"$keyword\"")
         }
 
     protected fun composeParseCalls(vararg parseFunctions: (Token?, Iterator<Token>) -> ParseTreeNodeResult): (Token?, Iterator<Token>) -> ComposedParseTreeNodeResult =
