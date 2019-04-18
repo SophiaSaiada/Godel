@@ -61,6 +61,14 @@
 <MultiplicativeExpression> -> <SimpleExpression> <SpaceStar> <MultiplicativeExpressionRest>
 <MultiplicativeExpressionRest> -> <MultiplicativeOperator> <SpaceStar> <MultiplicativeExpression> | ε
 
+// Function Declaration
+<FunctionDeclaration> -> KeywordFun <SpacePlus> SimpleName <SpaceStar> <TypeParameters> <SpaceStar> <FunctionParameters> Colon SimpleName <Block>
+<TypeParameters> -> OpenBrokets <SpaceStar> SimpleName <SpaceStar> CloseBrokets | ε
+<FunctionParameters> -> OpenParenthesis <FunctionParameterStar> CloseParenthesis
+<FunctionParameterStar> -> <FunctionParameter> <FunctionParameterPlusRest> | ε
+<FunctionParameterPlusRest> -> Comma <FunctionParameterPlus> | ε
+<FunctionParameter> -> SimpleName Colon SimpleName
+
 // Generic Stuff
 <SpacePlus> -> <WhiteSpaceOrBreakLine> <SpacePlusRest>
 <SpacePlusRest> -> <SpacePlus> | ε
