@@ -93,4 +93,45 @@ class TestGrammar : StringSpec({
         )
     }
 
+    "classes" {
+        shouldAccept(
+            """class A {}""",
+            """class A { private val x=1 }""",
+            """class A { public val x=1;}""",
+            """class A { public fun x() {} }""",
+            """class A { private val x = 1; public fun x() {} }""",
+            """class A { private val x=1 ; public val z=2; public val h=3;}""",
+            """class A { public fun x(){} ; private fun z(){}; public fun f(){} }""",
+            """class A {
+                |   public val x=1;
+                |   public val z=2;
+                |   private val h: Float=3.2;
+                |}
+            """.trimMargin(),
+            """class A {
+                |   public fun x() {}
+                |   private fun z() {}
+                |   public fun h() {}
+                |}
+            """.trimMargin(),
+            """class A {
+                |   private val x=1;  public fun x() {}
+                |   private fun z() {};
+                |   private val z=2;
+                |   public fun h() {}
+                |   private val h: Float=3.2;
+                |}
+            """.trimMargin()
+        )
+        shouldReject(
+            """class A { private val x: int }""",
+            """class A""",
+            """class A()""",
+            """class A{""",
+            """class A { val x }""",
+            """class A ( val x = 1; )""",
+            """class A { val x=1 val z=2 }"""
+        )
+    }
+
 })

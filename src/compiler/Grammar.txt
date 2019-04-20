@@ -5,12 +5,12 @@
     DecimalLiteral, SimpleName,
 
     KeywordVal, KeywordVar, KeywordFun, KeywordClass, KeywordTrue, KeywordFalse,
-    KeywordIf, KeywordElse, KeywordWhile, KeywordWhen,
+    KeywordIf, KeywordElse, KeywordWhile, KeywordPrivate, KeywordPublic, KeywordWhen,
 
     Unknown
 
 @Rules
-<Statements> -> <PaddedStatement> <StatementsRest>
+<Statements> -> <PaddedStatement> <StatementsRest> | ε
 <StatementsRest> -> <SEMI> <Statements> | ε
 
 <PaddedStatement> -> <SpacePlus> <Statement> <SpaceStar> | <Statement> <SpaceStar>
@@ -18,7 +18,7 @@
 <Block> -> OpenBraces <Statements> CloseBraces
 <BlockOrStatement> -> <Block> | <Statement>
 
-<Declaration> -> <ValDeclaration>
+<Declaration> -> <ValDeclaration> | <ClassDeclaration>
 <ValDeclaration> -> KeywordVal <SpacePlus> <UnderscoreStar> SimpleName <SpaceStar> <ValDeclarationRest>
 <ValDeclarationRest> -> Colon <SpaceStar> SimpleName <SpaceStar> Assignment <PaddedExpression> |
                         Assignment <PaddedExpression>
@@ -43,6 +43,19 @@
                   <BlockOrStatement> <SpaceStar> <IfExpressionRest>
 <IfExpressionRest> -> KeywordElse <SpaceStar> <BlockOrStatement> | ε
 
+
+// Class
+<ClassDeclaration> -> KeywordClass <SpacePlus> SimpleName <SpaceStar> OpenBraces
+                      <SpaceStar> <MemberDeclarationStar> CloseBraces
+<MemberDeclarationStar> -> <MemberDeclaration> <WhitespaceStar> <MemberDeclarationStarRest> | ε
+<MemberDeclarationStarRest> -> <SEMI> <SpaceStar> <MemberDeclarationStar> | ε
+
+<MemberDeclaration> -> <PrivateOrPublic> <SpacePlus> <MemberDeclarationRest>
+<MemberDeclarationRest> -> <ValDeclaration> | <FunctionDeclaration>
+
+<PrivateOrPublic> -> KeywordPrivate | KeywordPublic
+
+
 // Binary Operators
 <DisjunctionExpression> -> <ConjunctionExpression> <SpaceStar> <DisjunctionExpressionRest>
 <DisjunctionExpressionRest> -> Or Or <SpaceStar> <ConjunctionExpression> | ε
@@ -61,22 +74,28 @@
 <MultiplicativeExpression> -> <SimpleExpression> <SpaceStar> <MultiplicativeExpressionRest>
 <MultiplicativeExpressionRest> -> <MultiplicativeOperator> <SpaceStar> <MultiplicativeExpression> | ε
 
+
 // Function Declaration
-<FunctionDeclaration> -> KeywordFun <SpacePlus> SimpleName <SpaceStar> <TypeParameters> <SpaceStar> <FunctionParameters> Colon SimpleName <Block>
+<FunctionDeclaration> -> KeywordFun <SpacePlus> SimpleName <SpaceStar> <TypeParameters> <SpaceStar>
+                         <FunctionParameters> <SpaceStar> <ReturnTypeOptional> <SpaceStar> <Block>
+<ReturnTypeOptional> -> Colon SimpleName | ε
 <TypeParameters> -> OpenBrokets <SpaceStar> SimpleName <SpaceStar> CloseBrokets | ε
 <FunctionParameters> -> OpenParenthesis <FunctionParameterStar> CloseParenthesis
-<FunctionParameterStar> -> <FunctionParameter> <FunctionParameterPlusRest> | ε
-<FunctionParameterPlusRest> -> Comma <FunctionParameterPlus> | ε
+<FunctionParameterStar> -> <FunctionParameter> <FunctionParameterStarRest> | ε
+<FunctionParameterStarRest> -> Comma <FunctionParameterStar> | ε
 <FunctionParameter> -> SimpleName Colon SimpleName
 
+
 // General Stuff
-<SpacePlus> -> <WhiteSpaceOrBreakLine> <SpacePlusRest>
-<SpacePlusRest> -> <SpacePlus> | ε
-<SpaceStar> -> <SpacePlus> | ε
 <WhiteSpaceOrBreakLine> -> WhiteSpace | BreakLine
 
-<UnderscoreStar> -> <UnderscorePlus> | ε
-<UnderscorePlus> -> Underscore <UnderscorePlusRest>
-<UnderscorePlusRest> -> <UnderscorePlus> | ε
+<SpaceStar> -> <WhiteSpaceOrBreakLine> <SpaceStar> | ε
+<SpacePlus> -> <WhiteSpaceOrBreakLine> <SpaceStar>
+
+<WhitespaceStar> -> WhiteSpace <WhitespaceStar> | ε
+
+<UnderscoreStar> -> Underscore <UnderscoreStar> | ε
+<UnderscorePlus> -> Underscore <UnderscoreStar>
 
 <SEMI> -> SemiColon | BreakLine
+<SEMIOptional> -> <SEMI> | ε

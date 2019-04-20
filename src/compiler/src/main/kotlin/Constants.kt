@@ -21,6 +21,8 @@ enum class Keyword {
     If,
     Else,
     While,
+    Public,
+    Private,
     When;
 
     val asString = this.name.toLowerCase()
