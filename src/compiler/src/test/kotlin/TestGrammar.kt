@@ -72,6 +72,7 @@ class TestGrammar : StringSpec({
     }
 
     "binary operators" {
+        // TODO: check that the AST created respects action precedences
         shouldAccept(
             "3.2 * 4",
             "3.2 * 4 * 2",
@@ -81,7 +82,14 @@ class TestGrammar : StringSpec({
             "3.2 +3.2 + 2",
             "true ||3.2",
             "true|| false && 3.2",
-            "true || false && 3.2+4"
+            "true || false && 3.2+4",
+            "true || false.asString() && 3.2+4",
+            "true.name || false.asString() && 3.2+4",
+            "true || false && 3.2+4.toShort()",
+            "(true || false && 3.2+4.toShort()).z",
+            """(true || (
+                |false &&
+                |3.2).as() +4.toShort()).z""".trimMargin()
         )
 
         shouldReject(
@@ -93,7 +101,14 @@ class TestGrammar : StringSpec({
             "3.2 +3 2 + 2",
             "true |3.2",
             "true|-| false && 3.2",
-            "true |*| false && 3.2+4"
+            "true |*| false && 3.2+4",
+            "true (|| false.asString() && 3.2+4",
+            "true.name || false.1asString() && 3.2+4",
+            "true || false && 3.2+4._toShort()",
+            "(true) || false && 3.2+4.toShort()).z",
+            """(true || (
+                |false && 1
+                |3.2).as() +4.toShort()).z""".trimMargin()
         )
     }
 

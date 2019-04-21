@@ -1,6 +1,6 @@
 @Tokens
     WhiteSpace, SemiColon, BreakLine, Colon, Dot, Comma, Apostrophes, Underscore,
-    Percentage, Backslash, Star, Minus, Plus, ExclamationMark, And, Or,
+    Percentage, Backslash, Star, Minus, Plus, ExclamationMark, QuestionMark, And, Or,
     Assignment, OpenBraces, CloseBraces, OpenParenthesis, CloseParenthesis, OpenBrokets, CloseBrokets,
     DecimalLiteral, SimpleName,
 
@@ -22,18 +22,20 @@
 <ValDeclarationRest> -> Colon <SpaceStar> SimpleName <SpaceStar> Assignment <PaddedExpression> |
                         Assignment <PaddedExpression>
 
+<ParenthesizedExpression> -> OpenParenthesis <SpaceStar> <Expression> <SpaceStar> CloseParenthesis
 <PaddedExpression> -> <SpaceStar> <Expression> <WhitespaceStar>
-<Expression> -> <IfExpression> | <DisjunctionExpression>
+<Expression> -> <IfExpression> | <ElvisExpression>
 <SimpleExpression> -> <Number> | <BooleanLiteral> | <StringLiteral> |
                       OpenParenthesis <PaddedExpression> <SpaceStar> CloseParenthesis | SimpleName
 <BooleanLiteral> -> KeywordFalse | KeywordTrue
 <Number> -> DecimalLiteral <NumberRest>
-<NumberRest> -> Dot DecimalLiteral | ε
+<NumberRest> -> Dot <DecimalLiteralOrMemberAccess> | ε
+<DecimalLiteralOrMemberAccess> -> DecimalLiteral | <MemberAccess>
 <StringLiteral> -> Apostrophes <AnythingEndsWithApostrophes>
 <AnythingButApostrophes> -> WhiteSpace | SemiColon | BreakLine | Colon | Dot | Comma | Underscore |
-                            Percentage | Backslash | Star | Minus | Plus | ExclamationMark | And | Or | Assignment |
-                            OpenBraces | CloseBraces | OpenParenthesis | CloseParenthesis | OpenBrokets | CloseBrokets |
-                            DecimalLiteral | SimpleName |
+                            Percentage | Backslash | Star | Minus | Plus | ExclamationMark | QuestionMark | And | Or |
+                            Assignment | OpenBraces | CloseBraces | OpenParenthesis | CloseParenthesis | OpenBrokets |
+                            CloseBrokets | DecimalLiteral | SimpleName |
                             KeywordVal | KeywordVar | KeywordFun | KeywordClass | KeywordTrue | KeywordFalse |
                             KeywordIf | KeywordElse | KeywordWhile | KeywordWhen |
                             Unknown
@@ -56,23 +58,38 @@
 
 
 // Binary Operators
+<ElvisExpression> -> <DisjunctionExpression> <WhitespaceStar> <ElvisExpressionRest>
+<ElvisExpressionRest> -> Colon QuestionMark <SpaceStar> <ElvisExpression> | ε
+
 <DisjunctionExpression> -> <ConjunctionExpression> <WhitespaceStar> <DisjunctionExpressionRest>
-<DisjunctionExpressionRest> -> Or Or <SpaceStar> <ConjunctionExpression> | ε
+<DisjunctionExpressionRest> -> Or Or <SpaceStar> <DisjunctionExpression> | ε
 
 <ConjunctionExpression> -> <EqualityExpression> <WhitespaceStar> <ConjunctionExpressionRest>
-<ConjunctionExpressionRest> -> And And <SpaceStar> <EqualityExpression> | ε
+<ConjunctionExpressionRest> -> And And <SpaceStar> <ConjunctionExpression> | ε
 
-<EqualityExpression> -> <AdditiveExpression> <WhitespaceStar> <EqualityExpressionRest>
+<EqualityExpression> -> <ComparisonExpression> <WhitespaceStar> <EqualityExpressionRest>
 <EqualityExpressionRest> -> Assignment Assignment <SpaceStar> <EqualityExpression> | ε
+
+<ComparisonExpression> -> <AdditiveExpression> <WhitespaceStar> <ComparisonExpressionRest>
+<ComparisonExpressionRest> -> Assignment Assignment <SpaceStar> <ComparisonExpression> | ε
 
 <AdditiveOperator> -> Plus | Minus
 <AdditiveExpression> -> <MultiplicativeExpression> <WhitespaceStar> <AdditiveExpressionRest>
 <AdditiveExpressionRest> -> <AdditiveOperator> <SpaceStar> <AdditiveExpression> | ε
 
 <MultiplicativeOperator> -> Star | Backslash | Percentage
-<MultiplicativeExpression> -> <SimpleExpression> <WhitespaceStar> <MultiplicativeExpressionRest>
+<MultiplicativeExpression> -> <Invocation> <WhitespaceStar> <MultiplicativeExpressionRest>
 <MultiplicativeExpressionRest> -> <MultiplicativeOperator> <SpaceStar> <MultiplicativeExpression> | ε
 
+<Invocation> -> <SimpleExpression> <WhitespaceStar> <InvocationRest> |
+                <ParenthesizedExpression> <WhitespaceStar> <InvocationRest>
+// TODO: null-aware invocation (remember to solve the clash with elvis operator)
+<InvocationRest> -> Dot <SpaceStar> <MemberAccess> | ε
+<MemberAccess> -> SimpleName <MaybeFunctionArguments>
+<MaybeFunctionArguments> -> <FunctionArguments> | ε
+<FunctionArguments> -> OpenParenthesis <ArgumentStar> CloseParenthesis
+<ArgumentStar> -> <Expression> <ArgumentStarRest> | ε
+<ArgumentStarRest> -> Comma <ArgumentStar> | ε
 
 // Function Declaration
 <FunctionDeclaration> -> KeywordFun <SpacePlus> SimpleName <SpaceStar> <TypeParameters> <SpaceStar>

@@ -48,6 +48,7 @@ data class Token(val content: String, val type: TokenType) {
             "/" to TokenType.Backslash,
             "%" to TokenType.Percentage,
             "!" to TokenType.ExclamationMark,
+            "?" to TokenType.QuestionMark,
             "|" to TokenType.Or,
             "&" to TokenType.And,
             " " to TokenType.WhiteSpace,
