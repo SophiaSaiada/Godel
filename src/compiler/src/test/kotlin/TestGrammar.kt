@@ -42,7 +42,7 @@ class TestGrammar : StringSpec({
             }
         }
 
-    "grammar accepts val declaration" {
+    "val declaration" {
         shouldAccept(
             "val x: Int = 3.2",
             "val x = 3.2",
@@ -63,7 +63,7 @@ class TestGrammar : StringSpec({
         )
     }
 
-    "grammar accepts simple expressions" {
+    "simple expression" {
         shouldAccept(
             "3.2",
             "4",
@@ -71,11 +71,13 @@ class TestGrammar : StringSpec({
         )
     }
 
-    "grammar accepts binary operators" {
+    "binary operators" {
         shouldAccept(
             "3.2 * 4",
             "3.2 * 4 * 2",
             "3.2 + 4 * 2",
+            """3.2 +
+                |   4 * 2""".trimMargin(),
             "3.2 +3.2 + 2",
             "true ||3.2",
             "true|| false && 3.2",
@@ -85,11 +87,39 @@ class TestGrammar : StringSpec({
         shouldReject(
             "3.2  4",
             "3.2 * 4  2",
+            """3.2
+                |* 4 + 2""".trimMargin(),
             "3.2  4 * 2",
             "3.2 +3 2 + 2",
             "true |3.2",
             "true|-| false && 3.2",
             "true |*| false && 3.2+4"
+        )
+    }
+
+    "multiple statements" {
+        shouldAccept(
+            """
+                |val x: Int = 2.3
+                |val y = 4
+            """.trimMargin(),
+            """
+                |val x: Int = 2.3 ;
+                |val y = 4
+            """.trimMargin(),
+            """
+                |val x: Int = 2.3
+                |       ;
+                |val y = 4
+            """.trimMargin(),
+            """
+                |val x: Int = 2.3
+                |       ;val y = 4
+            """.trimMargin(),
+            """
+                |val x: Int = 2.3
+                |;val y = 4
+            """.trimMargin()
         )
     }
 
@@ -113,6 +143,20 @@ class TestGrammar : StringSpec({
                 |   private fun z() {}
                 |   public fun h() {}
                 |}
+            """.trimMargin(),
+            """class A {
+                |   public fun x() {}
+                |   ;
+                |   private fun z() {}   ;
+                |   public fun f() {}
+                |   public fun h() {};
+                |   public val z=2
+                |   public fun y() {}
+                |
+                |   ;
+                |
+                |}
+                |
             """.trimMargin(),
             """class A {
                 |   private val x=1;  public fun x() {}

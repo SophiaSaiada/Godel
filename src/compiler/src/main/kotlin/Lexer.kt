@@ -68,6 +68,14 @@ data class Token(val content: String, val type: TokenType) {
     }
 }
 
+@JvmName("TokenTypeListContains")
+operator fun List<TokenType>.contains(token: Token?) =
+    token?.type in this
+
+@JvmName("KeywordListContains")
+operator fun List<Keyword>.contains(token: Token?) =
+    token?.type == TokenType.Keyword && token.content in this.map { it.asString }
+
 fun listOfTokens(vararg list: Pair<String, TokenType>) = list.map { Token(it.first, it.second) }
 fun sequenceOfTokens(vararg list: Pair<String, TokenType>) = listOfTokens(*list).asSequence()
 

@@ -56,7 +56,7 @@ object ParserGenerator {
         println("Happy Coding! ✨")
     }
 
-    private fun generateEnum(rules: List<ParserGenerator.Rule>) =
+    private fun generateEnum(rules: List<Rule>) =
         """enum class InnerNodeType : NodeType {
             |${rules.joinToString(", ") { it.source }.indent()}
             |}
@@ -96,12 +96,12 @@ object ParserGenerator {
                         nonEpsilonAlternatives.filter { it.name.startsWith("Keyword") }
                     val enterConditionTokens =
                         if (alternativeFirstTerminalTokens.isNotEmpty())
-                            "firstToken?.type in listOf(${alternativeFirstTerminalTokens.joinToString { "TokenType.${it.name}" }})"
+                            "firstToken in listOf(${alternativeFirstTerminalTokens.joinToString { "TokenType.${it.name}" }})"
                         else null
                     val enterConditionKeywords =
                         if (alternativeFirstTerminalKeywords.isNotEmpty())
-                            "firstToken?.type == TokenType.Keyword && firstToken.content in listOf(${alternativeFirstTerminalKeywords.joinToString {
-                                "Keyword.${it.name.removePrefix("Keyword")}.asString"
+                            "firstToken in listOf(${alternativeFirstTerminalKeywords.joinToString {
+                                "Keyword.${it.name.removePrefix("Keyword")}"
                             }})"
                         else null
                     val enterCondition =

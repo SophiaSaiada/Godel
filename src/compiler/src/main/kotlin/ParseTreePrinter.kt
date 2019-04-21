@@ -1,6 +1,6 @@
 package com.godel.compiler
 
-private fun ParseTreeNode.asTreeString() =
+fun ParseTreeNode.asTreeString() =
     this.asTreeString("", true).joinToString("\n")
 
 private fun ParseTreeNode.asTreeString(prefix: String, isTail: Boolean): List<String> {
@@ -20,8 +20,11 @@ private fun ParseTreeNode.asTreeString(prefix: String, isTail: Boolean): List<St
                     ) ?: emptyList())
 
         }
-        is ParseTreeNode.Leaf ->
-            listOf(prefix + (if (isTail) "└── " else "├── ") + ansiLeaf + token.content + ansiReset)
+        is ParseTreeNode.Leaf -> {
+            val content =
+                if (token.content == " ") "Whitespace" else if (token.content == "\n") "BreakLine" else token.content
+            listOf(prefix + (if (isTail) "└── " else "├── ") + ansiLeaf + content + ansiReset)
+        }
         is ParseTreeNode.EpsilonLeaf ->
             listOf(prefix + (if (isTail) "└── " else "├── ") + "${type.name} -> ε")
     }

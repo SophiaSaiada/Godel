@@ -45,9 +45,20 @@ abstract class ParserBase {
         val iterator = tokens.iterator()
         val firstToken = iterator.nextOrNull()
         val rootResult = start(firstToken, iterator)
-        if (rootResult.nextToken != null)
-            throw CompilationError("The whole source code can't be parsed from the language grammar.")
-        else
+        if (rootResult.nextToken != null) {
+            val leftTokens =
+                sequence {
+                    yield(rootResult.nextToken)
+                    while (iterator.hasNext()) yield(iterator.next())
+                }.joinToString("\n")
+            throw CompilationError(
+                """
+                    |The whole source code can't be parsed from the language grammar.
+                    |Left tokens:
+                    |$leftTokens
+                """.trimMargin()
+            )
+        } else
             return rootResult.node
     }
 
