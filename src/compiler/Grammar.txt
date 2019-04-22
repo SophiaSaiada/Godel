@@ -59,7 +59,7 @@
 
 // Binary Operators
 <ElvisExpression> -> <DisjunctionExpression> <WhitespaceStar> <ElvisExpressionRest>
-<ElvisExpressionRest> -> Colon QuestionMark <SpaceStar> <ElvisExpression> | ε
+<ElvisExpressionRest> -> Elvis <SpaceStar> <ElvisExpression> | ε
 
 <DisjunctionExpression> -> <ConjunctionExpression> <WhitespaceStar> <DisjunctionExpressionRest>
 <DisjunctionExpressionRest> -> Or Or <SpaceStar> <DisjunctionExpression> | ε
@@ -83,10 +83,11 @@
 
 <Invocation> -> <SimpleExpression> <WhitespaceStar> <InvocationRest> |
                 <ParenthesizedExpression> <WhitespaceStar> <InvocationRest>
-// TODO: null-aware invocation (remember to solve the clash with elvis operator)
-<InvocationRest> -> Dot <SpaceStar> <MemberAccess> | ε
-<MemberAccess> -> SimpleName <MaybeFunctionArguments>
-<MaybeFunctionArguments> -> <FunctionArguments> | ε
+
+<InvocationRest> -> <DotOrQuestionedDot> <SpaceStar> <MemberAccess> | ε
+<DotOrQuestionedDot> -> Dot | QuestionedDot
+<MemberAccess> -> SimpleName <FunctionArgumentsOptional>
+<FunctionArgumentsOptional> -> <FunctionArguments> | ε
 <FunctionArguments> -> OpenParenthesis <ArgumentStar> CloseParenthesis
 <ArgumentStar> -> <Expression> <ArgumentStarRest> | ε
 <ArgumentStarRest> -> Comma <ArgumentStar> | ε
