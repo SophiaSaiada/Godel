@@ -83,7 +83,7 @@ fun sequenceOfTokens(vararg list: Pair<String, TokenType>) = listOfTokens(*list)
 object Lexer {
     private val splittingCharacters =
         listOf(
-            '=', ':', '{', '(', '<', '}', ')', '>', '.', ',', '"', ';',
+            '=', ':', '{', '(', '<', '}', ')', '>', '.', ',', '"', ';', '?',
             '\n', '_', '+', '-', '*', '/', '%', '!', '|', '&', ' ', '\t'
         )
 
@@ -93,5 +93,23 @@ object Lexer {
             .map { it.joinToString("") }
 
     fun lex(sourceCode: Sequence<Char>) =
-        tokenizeSourceCode(sourceCode).map(::Token)
+        combineNullAwareOperators(tokenizeSourceCode(sourceCode).map(::Token))
+
+    private fun combineNullAwareOperators(tokens: Sequence<Token>) =
+        sequence {
+            var nextTokenToYield: Token? = null
+            tokens.forEach { token ->
+                if (nextTokenToYield?.type == TokenType.QuestionMark)
+                    if (token.type == TokenType.Dot) {
+                        nextTokenToYield = Token("?.", TokenType.QuestionedDot)
+                        return@forEach
+                    } else if (token.type == TokenType.Colon) {
+                        nextTokenToYield = Token("?:", TokenType.Elvis)
+                        return@forEach
+                    }
+                nextTokenToYield?.let { yield(it) }
+                nextTokenToYield = token
+            }
+            nextTokenToYield?.let { yield(it) }
+        }
 }

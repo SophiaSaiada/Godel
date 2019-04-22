@@ -2,7 +2,7 @@
     WhiteSpace, SemiColon, BreakLine, Colon, Dot, Comma, Apostrophes, Underscore,
     Percentage, Backslash, Star, Minus, Plus, ExclamationMark, QuestionMark, And, Or,
     Assignment, OpenBraces, CloseBraces, OpenParenthesis, CloseParenthesis, OpenBrokets, CloseBrokets,
-    DecimalLiteral, SimpleName,
+    DecimalLiteral, SimpleName, QuestionedDot, Elvis,
 
     KeywordVal, KeywordVar, KeywordFun, KeywordClass, KeywordTrue, KeywordFalse,
     KeywordIf, KeywordElse, KeywordWhile, KeywordPrivate, KeywordPublic, KeywordWhen,
@@ -35,7 +35,7 @@
 <AnythingButApostrophes> -> WhiteSpace | SemiColon | BreakLine | Colon | Dot | Comma | Underscore |
                             Percentage | Backslash | Star | Minus | Plus | ExclamationMark | QuestionMark | And | Or |
                             Assignment | OpenBraces | CloseBraces | OpenParenthesis | CloseParenthesis | OpenBrokets |
-                            CloseBrokets | DecimalLiteral | SimpleName |
+                            CloseBrokets | DecimalLiteral | SimpleName | QuestionedDot | Elvis |
                             KeywordVal | KeywordVar | KeywordFun | KeywordClass | KeywordTrue | KeywordFalse |
                             KeywordIf | KeywordElse | KeywordWhile | KeywordWhen |
                             Unknown

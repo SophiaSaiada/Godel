@@ -5,7 +5,7 @@ interface NodeType
 enum class TokenType : NodeType {
     WhiteSpace, SemiColon, BreakLine, Colon, Dot, Comma, Apostrophes, Underscore,
     Percentage, Backslash, Star, Minus, Plus, ExclamationMark, QuestionMark, And, Or,
-    Keyword, Assignment,
+    Keyword, Assignment, QuestionedDot, Elvis,
     OpenBraces, CloseBraces, OpenParenthesis, CloseParenthesis, OpenBrokets, CloseBrokets,
     DecimalLiteral, SimpleName,
     Unknown;
