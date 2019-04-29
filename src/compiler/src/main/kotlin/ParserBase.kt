@@ -19,14 +19,14 @@ abstract class ParserBase {
         { firstToken: Token?, restOfTokens: Iterator<Token> ->
             if (firstToken?.type == tokenType)
                 ParseTreeNodeResult(ParseTreeNode.Leaf(firstToken), restOfTokens.nextOrNull())
-            else throw CompilationError("parseToken: $firstToken, $tokenType")
+            else throw CompilationError("The token $firstToken doesn't fit the expected token type \"$tokenType\"")
         }
 
     protected fun parseToken(keyword: Keyword) =
         { firstToken: Token?, restOfTokens: Iterator<Token> ->
             if (firstToken?.equals(keyword) == true)
                 ParseTreeNodeResult(ParseTreeNode.Leaf(firstToken), restOfTokens.nextOrNull())
-            else throw CompilationError("parseToken: $firstToken, $keyword")
+            else throw CompilationError("The token $firstToken doesn't fit expected keyword \"$keyword\"")
         }
 
     protected fun composeParseCalls(vararg parseFunctions: (Token?, Iterator<Token>) -> ParseTreeNodeResult): (Token?, Iterator<Token>) -> ComposedParseTreeNodeResult =
@@ -44,14 +44,29 @@ abstract class ParserBase {
     fun parse(tokens: Sequence<Token>): ParseTreeNode {
         val iterator = tokens.iterator()
         val firstToken = iterator.nextOrNull()
-        return start(firstToken, iterator).node
+        val rootResult = start(firstToken, iterator)
+        if (rootResult.nextToken != null) {
+            val leftTokens =
+                sequence {
+                    yield(rootResult.nextToken)
+                    while (iterator.hasNext()) yield(iterator.next())
+                }.joinToString("\n")
+            throw CompilationError(
+                """
+                    |The whole source code can't be parsed from the language grammar.
+                    |Left tokens:
+                    |$leftTokens
+                """.trimMargin()
+            )
+        } else
+            return rootResult.node
     }
 
     private fun <T> Iterator<T>.nextOrNull() = if (hasNext()) next() else null
 }
 
 
-sealed class ParseTreeNode : ASTBuilder.ParseTreeNodeOrASTNode {
+sealed class ParseTreeNode {
     data class Inner(
         val children: List<ParseTreeNode>,
         val type: Parser.InnerNodeType

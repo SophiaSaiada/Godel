@@ -4,7 +4,8 @@ interface NodeType
 
 enum class TokenType : NodeType {
     WhiteSpace, SemiColon, BreakLine, Colon, Dot, Comma, Apostrophes, Underscore,
-    MathOperator, Keyword, Assignment,
+    Percentage, Backslash, Star, Minus, Plus, ExclamationMark, QuestionMark, And, Or,
+    Keyword, Assignment, QuestionedDot, Elvis,
     OpenBraces, CloseBraces, OpenParenthesis, CloseParenthesis, OpenBrokets, CloseBrokets,
     DecimalLiteral, SimpleName,
     Unknown;
@@ -20,6 +21,8 @@ enum class Keyword {
     If,
     Else,
     While,
+    Public,
+    Private,
     When;
 
     val asString = this.name.toLowerCase()

@@ -1,6 +1,9 @@
 docs2/
 src/compiler/.idea/
 src/compiler/.gradle/
+src/compiler/gradle/
+src/compiler/gradlew
+src/compiler/gradlew.bat
 src/compiler/out/
 out/
 src/compiler/compiler.iml

@@ -27,7 +27,7 @@ data class Token(val content: String, val type: TokenType) {
         type == TokenType.Keyword && content == keyword.asString
 
     companion object {
-        private val classificationsByExactMatch = mapOf(
+        val classificationsByExactMatch = mapOf(
             "=" to TokenType.Assignment,
             ":" to TokenType.Colon,
             "{" to TokenType.OpenBraces,
@@ -41,13 +41,22 @@ data class Token(val content: String, val type: TokenType) {
             "\"" to TokenType.Apostrophes,
             ";" to TokenType.SemiColon,
             "\n" to TokenType.BreakLine,
-            "_" to TokenType.Underscore
+            "_" to TokenType.Underscore,
+            "+" to TokenType.Plus,
+            "-" to TokenType.Minus,
+            "*" to TokenType.Star,
+            "/" to TokenType.Backslash,
+            "%" to TokenType.Percentage,
+            "!" to TokenType.ExclamationMark,
+            "?" to TokenType.QuestionMark,
+            "|" to TokenType.Or,
+            "&" to TokenType.And,
+            " " to TokenType.WhiteSpace,
+            "\t" to TokenType.WhiteSpace
         ).mapKeys { ClassificationByExactStringMatch(it.key) }
 
         private val tokensClassification = mapOf(
-            ClassificationByGroup("+", "-", "*", "/", "%") to TokenType.MathOperator,
             ClassificationByGroup(Keyword.values().map { it.asString }) to TokenType.Keyword,
-            ClassificationByGroup(" ", "\t") to TokenType.WhiteSpace,
             ClassificationByRegex("[0-9]+") to TokenType.DecimalLiteral
         ) + classificationsByExactMatch + mapOf(
             ClassificationByRegex("([a-zA-Z][a-zA-Z0-9_]*)") to TokenType.SimpleName
@@ -60,16 +69,22 @@ data class Token(val content: String, val type: TokenType) {
     }
 }
 
+@JvmName("TokenTypeListContains")
+operator fun List<TokenType>.contains(token: Token?) =
+    token?.type in this
+
+@JvmName("KeywordListContains")
+operator fun List<Keyword>.contains(token: Token?) =
+    token?.type == TokenType.Keyword && token.content in this.map { it.asString }
+
 fun listOfTokens(vararg list: Pair<String, TokenType>) = list.map { Token(it.first, it.second) }
 fun sequenceOfTokens(vararg list: Pair<String, TokenType>) = listOfTokens(*list).asSequence()
 
 object Lexer {
     private val splittingCharacters =
         listOf(
-            ' ', ';', '\n', '\t', '\\',
-            '%', '*', '/', '-', '+',
-            '=', ',', '.', '"', ':', '_',
-            '{', '}', '(', ')', '<', '>'
+            '=', ':', '{', '(', '<', '}', ')', '>', '.', ',', '"', ';', '?',
+            '\n', '_', '+', '-', '*', '/', '%', '!', '|', '&', ' ', '\t'
         )
 
     fun tokenizeSourceCode(sourceCode: Sequence<Char>): Sequence<String> =
@@ -78,5 +93,23 @@ object Lexer {
             .map { it.joinToString("") }
 
     fun lex(sourceCode: Sequence<Char>) =
-        tokenizeSourceCode(sourceCode).map(::Token)
+        combineNullAwareOperators(tokenizeSourceCode(sourceCode).map(::Token))
+
+    private fun combineNullAwareOperators(tokens: Sequence<Token>) =
+        sequence {
+            var nextTokenToYield: Token? = null
+            tokens.forEach { token ->
+                if (nextTokenToYield?.type == TokenType.QuestionMark)
+                    if (token.type == TokenType.Dot) {
+                        nextTokenToYield = Token("?.", TokenType.QuestionedDot)
+                        return@forEach
+                    } else if (token.type == TokenType.Colon) {
+                        nextTokenToYield = Token("?:", TokenType.Elvis)
+                        return@forEach
+                    }
+                nextTokenToYield?.let { yield(it) }
+                nextTokenToYield = token
+            }
+            nextTokenToYield?.let { yield(it) }
+        }
 }
