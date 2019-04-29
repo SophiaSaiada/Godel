@@ -31,12 +31,14 @@
                   <BlockOrStatement> <SpaceStar> <IfExpressionRest>
 <IfExpressionRest> -> KeywordElse <SpaceStar> <BlockOrStatement> | ε
 //Function Declaration
-<FunctionDeclaration> -> KeywordFun <SpacePlus> SimpleName <SpaceStar> <FunctionGenericType> <SpaceStar> <FunctionParameters> Colon SimpleName <Block>
+<FunctionDeclaration> -> KeywordFun <SpacePlus> SimpleName <SpaceStar> <FunctionGenericType> <SpaceStar> <FunctionParameters> <FunctionReturnType> <Block>
+<FunctionReturnType> -> <SpaceStar> Colon <SpaceStar> SimpleName <SpaceStar> | ε
 <FunctionGenericType> -> OpenBrokets <SpaceStar> SimpleName <SpaceStar> CloseBrokets | ε
-<FunctionParameters> -> OpenParenthesis <ParameterStar> CloseParenthesis
-<ParameterStar> -> <Parameter> <ParameterPlusRest> | ε
+<FunctionParameters> -> OpenParenthesis <SpaceStar> <ParameterStar> <SpaceStar> CloseParenthesis
+<ParameterStar> -> <ParameterPlus> | ε
+<ParameterPlus> -> <Parameter> <ParameterPlusRest>
 <ParameterPlusRest> -> Comma <ParameterPlus> | ε
-<Parameter> -> SimpleName Colon SimpleName
+<Parameter> -> <SpaceStar> SimpleName <SpaceStar> Colon <SpaceStar> SimpleName <SpaceStar>
 <SpacePlus> -> <WhiteSpaceOrBreakLine> <SpacePlusRest>
 <SpacePlusRest> -> <SpacePlus> | ε
 <SpaceStar> -> <SpacePlus> | ε

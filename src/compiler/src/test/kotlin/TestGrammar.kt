@@ -26,4 +26,17 @@ class TestGrammar : StringSpec({
         shouldThrowCompilationError { lexThenParse("val _ = y") }
     }
 
+    "grammar accepts function declaration"{
+        lexThenParse("""fun myfun (){
+            val x: Int = 3.2
+            x = 4
+            }""".trimIndent())shouldNotBe null
+        lexThenParse("""fun myfun<Int  > (x:Int,y:double){
+            val x: Int = 3.2
+            x = 4
+            }
+        """.trimIndent())shouldNotBe null
+
+    }
+
 })
