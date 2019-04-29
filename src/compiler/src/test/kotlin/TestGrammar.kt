@@ -230,15 +230,35 @@ class TestGrammar : StringSpec({
         )
     }
     "grammar accepts function declaration"{
-        lexThenParse("""fun myfun (){
-            val x: Int = 3.2
-            x = 4
-            }""".trimIndent())shouldNotBe null
-        lexThenParse("""fun myfun<Int  > (x:Int,y:double){
-            val x: Int = 3.2
-            x = 4
-            }
-        """.trimIndent())shouldNotBe null
+        shouldAccept(
+            """ fun myfun (){
+                    val x: Int = 3.2
+                }""",
+            """fun myfun<Int  > (x:Int,y:double){
+                    val x: Int = 3.2
+                }""",
+            """fun myfun<Int > () : Int{
+                    val x: Int = 4
+                    fun myfun<Int  > (x:Int,y:double){
+                    val x: Int = 3.2
+                }
+                }"""
+        )
+        shouldReject(
+            """ fun! myfun (){
+                    val x: Int = 3.2
+                }""",
+            """fun myfun<Int  > (x:Int,y:double,!){
+                    val x: Int = 3.2
+                }""",
+            """fun myfun<Int > (!) : Int{
+                    val x: Int = 3.2
+                    x=4
+                }""",
+            """fun myfun<Int,Double > (!) : Int{
+                    val x: Int = 3.2
+                }"""
+        )
 
     }
 

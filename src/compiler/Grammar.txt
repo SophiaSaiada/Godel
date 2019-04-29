@@ -18,7 +18,7 @@
 <Block> -> OpenBraces <Program> CloseBraces
 <BlockOrStatement> -> <Block> | <Statement>
 
-<Declaration> -> <ValDeclaration> | <ClassDeclaration>
+<Declaration> -> <ValDeclaration> | <ClassDeclaration> | <FunctionDeclaration>
 <ValDeclaration> -> KeywordVal <SpacePlus> <UnderscoreStar> SimpleName <SpaceStar> <ValDeclarationRest>
 <ValDeclarationRest> -> Colon <SpaceStar> <Type> <SpaceStar> Assignment <PaddedExpression> |
                         Assignment <PaddedExpression>
@@ -107,7 +107,7 @@
 // Function Declaration
 <FunctionDeclaration> -> KeywordFun <SpacePlus> SimpleName <SpaceStar> <TypeParameters> <SpaceStar>
                          <FunctionParameters> <SpaceStar> <ReturnTypeOptional> <SpaceStar> <Block>
-<ReturnTypeOptional> -> Colon SimpleName | ε
+<ReturnTypeOptional> -> Colon <SpaceStar> SimpleName | ε
 <FunctionParameters> -> OpenParenthesis <FunctionParameterStar> CloseParenthesis
 <FunctionParameterStar> -> <FunctionParameter> <FunctionParameterStarRest> | ε
 <FunctionParameterStarRest> -> Comma <FunctionParameterStar> | ε
