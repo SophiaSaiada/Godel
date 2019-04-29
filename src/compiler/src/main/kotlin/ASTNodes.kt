@@ -69,7 +69,8 @@ class ASTNode {
 
     enum class BinaryOperator {
         Elvis, Or, And, Equal, NotEqual, GreaterThanEqual, LessThanEqual, GreaterThan, LessThan,
-        Plus, Minus, Modulo, Times, Division
+        Plus, Minus, Modulo, Times, Division,
+        Dot, NullAwareDot
     }
 
     class BinaryExpression<L, R>(val left: L, val operator: BinaryOperator, val right: R) : Expression {
