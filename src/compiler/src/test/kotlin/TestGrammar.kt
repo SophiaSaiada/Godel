@@ -45,14 +45,30 @@ class TestGrammar : StringSpec({
     "val declaration" {
         shouldAccept(
             "val x: Int = 3.2",
+            "val x: Int<T: Int, X> = 3.2", // valid by the grammar, invalid by the AST level
+            "val x: Int<Int, String> = 3.2",
             "val x = 3.2",
             "val _xYz = \"hello world!\"",
             "val _xyz = 4",
-            "val x = y"
+            "val x = y",
+            """val x = if (x) 1 else 2""",
+            """val x =
+                |if (x) { 1 } else { 2 }""".trimMargin(),
+            """val x = if (x)
+                |{ 1} else 2""".trimMargin(),
+            """val x = if (x) 1 +
+                |3 else 2""".trimMargin()
         )
 
         shouldReject(
             "val x Int = 3.2",
+            "val x: Int<Int,> = 3.2",
+            "val x: Int<,> = 3.2",
+            "val x: Int<, = 3.2",
+            "val x: Int, = 3.2",
+            "val x: Int<> = 3.2",
+            "val x: Int<=> = 3.2",
+            "val x: Int<?> = 3.2",
             "val .x = 4",
             "val x = .4",
             "val x = .4",
@@ -198,5 +214,19 @@ class TestGrammar : StringSpec({
             """class A { val x=1 val z=2 }"""
         )
     }
-
+    "if" {
+        shouldAccept(
+            """if (x) 1 else 2""",
+            """if (x) { 1 } else { 2 }""",
+            """if (x) { 1} else 2""",
+            """if (x) 1 + 3 else 2"""
+        )
+    }
+    "general programs" {
+        shouldAccept(
+            """    val x: Int   = 1 * 2 ?: 4 *   3""",
+            """if (x) {     val x: Int   = 1 * 2 ?: 4 *   3}""",
+            """if (x) {     val x: Int   = 1 * 2 ?: 4 *   3} else {}"""
+        )
+    }
 })
