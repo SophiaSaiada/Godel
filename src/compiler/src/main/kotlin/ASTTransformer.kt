@@ -217,8 +217,13 @@ object ASTTransformer {
         if (rootNode.last() is ParseTreeNode.EpsilonLeaf)
             transformMultiplicativeExpression(rootNode[0] as ParseTreeNode.Inner)
         else
-            ASTNode.Addition(
+            ASTNode.BinaryExpression(
                 transformMultiplicativeExpression(rootNode[0] as ParseTreeNode.Inner),
+                when (((rootNode[1] as ParseTreeNode.Inner)[0] as ParseTreeNode.Leaf).token.type) {
+                    TokenType.Plus -> ASTNode.BinaryOperator.Plus
+                    TokenType.Minus -> ASTNode.BinaryOperator.Minus
+                    else -> throwInvalidParseError()
+                },
                 transformAdditiveExpression((rootNode.last() as ParseTreeNode.Inner).last() as ParseTreeNode.Inner)
             )
 
@@ -226,8 +231,14 @@ object ASTTransformer {
         if (rootNode.last() is ParseTreeNode.EpsilonLeaf)
             transformInvocation(rootNode[0] as ParseTreeNode.Inner)
         else
-            ASTNode.Multiplication(
+            ASTNode.BinaryExpression(
                 transformInvocation(rootNode[0] as ParseTreeNode.Inner),
+                when (((rootNode[1] as ParseTreeNode.Inner)[0] as ParseTreeNode.Leaf).token.type) {
+                    TokenType.Percentage -> ASTNode.BinaryOperator.Modulo
+                    TokenType.Star -> ASTNode.BinaryOperator.Times
+                    TokenType.Backslash -> ASTNode.BinaryOperator.Division
+                    else -> throwInvalidParseError()
+                },
                 transformMultiplicativeExpression((rootNode.last() as ParseTreeNode.Inner).last() as ParseTreeNode.Inner)
             )
 
@@ -326,7 +337,11 @@ object ASTTransformer {
                     is ParseTreeNode.Inner -> {
                         val member = ASTNode.IntLiteral(firstTokenContent.toInt())
                         val propertyName = (decimalOrMemberAccess[1] as ParseTreeNode.Leaf).token.content
-                        ASTNode.MemberAccess(member, false, propertyName)
+                        ASTNode.BinaryExpression(
+                            member,
+                            ASTNode.BinaryOperator.Dot,
+                            propertyName
+                        )
                     }
                     else -> throwInvalidParseError()
                 }
