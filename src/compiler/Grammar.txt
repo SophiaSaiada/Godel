@@ -80,8 +80,9 @@
 <EqualityExpression> -> <ComparisonExpression> <WhitespaceStar> <EqualityExpressionRest>
 <EqualityExpressionRest> -> <EqualityOperator> <SpaceStar> <EqualityExpression> | ε
 
+<ComparisonOperator> -> OpenBrokets <AssignmentOptional> | CloseBrokets <AssignmentOptional>
 <ComparisonExpression> -> <AdditiveExpression> <WhitespaceStar> <ComparisonExpressionRest>
-<ComparisonExpressionRest> -> Assignment Assignment <SpaceStar> <ComparisonExpression> | ε
+<ComparisonExpressionRest> -> <ComparisonOperator> <SpaceStar> <ComparisonExpression> | ε
 
 <AdditiveOperator> -> Plus | Minus
 <AdditiveExpression> -> <MultiplicativeExpression> <WhitespaceStar> <AdditiveExpressionRest>
@@ -133,3 +134,4 @@
 
 <BreakLineOptional> -> BreakLine | ε
 <SemiColonOptional> -> SemiColon | ε
+<AssignmentOptional> -> Assignment | ε

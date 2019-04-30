@@ -73,9 +73,7 @@ class ASTNode {
         Dot, NullAwareDot
     }
 
-    class BinaryExpression<L, R>(val left: L, val operator: BinaryOperator, val right: R) : Expression {
-    }
-
+    class BinaryExpression<L, R>(val left: L, val operator: BinaryOperator, val right: R) : Expression
     class Invocation(val function: Expression, val arguments: List<FunctionArgument>) : Expression
     class FunctionArgument(val name: String?, val value: Expression) : Serializable
 
