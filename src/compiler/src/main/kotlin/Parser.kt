@@ -18,7 +18,7 @@ object Parser : ParserBase() {
 
     private fun parseStatements(firstToken: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.Statements
-        return if (firstToken in listOf(TokenType.SimpleName, TokenType.DecimalLiteral, TokenType.Apostrophes, TokenType.OpenParenthesis) || firstToken in listOf(Keyword.If, Keyword.False, Keyword.True, Keyword.Val, Keyword.Class)) {
+        return if (firstToken in listOf(TokenType.SimpleName, TokenType.DecimalLiteral, TokenType.Apostrophes, TokenType.OpenParenthesis) || firstToken in listOf(Keyword.If, Keyword.False, Keyword.True, Keyword.Val, Keyword.Class, Keyword.Fun)) {
             val (children, nextToken) =
                 composeParseCalls(::parseStatement, ::parseWhitespaceStar, ::parseStatementsRest).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
@@ -40,7 +40,7 @@ object Parser : ParserBase() {
             val (children, nextToken) =
                 composeParseCalls(::parseExpression).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
-        } else if (firstToken in listOf(Keyword.Val, Keyword.Class)) {
+        } else if (firstToken in listOf(Keyword.Val, Keyword.Class, Keyword.Fun)) {
             val (children, nextToken) =
                 composeParseCalls(::parseDeclaration).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
@@ -62,7 +62,7 @@ object Parser : ParserBase() {
             val (children, nextToken) =
                 composeParseCalls(::parseBlock).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
-        } else if (firstToken in listOf(TokenType.SimpleName, TokenType.DecimalLiteral, TokenType.Apostrophes, TokenType.OpenParenthesis) || firstToken in listOf(Keyword.If, Keyword.False, Keyword.True, Keyword.Val, Keyword.Class)) {
+        } else if (firstToken in listOf(TokenType.SimpleName, TokenType.DecimalLiteral, TokenType.Apostrophes, TokenType.OpenParenthesis) || firstToken in listOf(Keyword.If, Keyword.False, Keyword.True, Keyword.Val, Keyword.Class, Keyword.Fun)) {
             val (children, nextToken) =
                 composeParseCalls(::parseStatement).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
@@ -78,6 +78,10 @@ object Parser : ParserBase() {
         } else if (firstToken in listOf(Keyword.Class)) {
             val (children, nextToken) =
                 composeParseCalls(::parseClassDeclaration).invoke(firstToken, restOfTokens)
+            ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
+        } else if (firstToken in listOf(Keyword.Fun)) {
+            val (children, nextToken) =
+                composeParseCalls(::parseFunctionDeclaration).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
         } else throw CompilationError("not matching alternative for firstToken \"$firstToken\" in parseDeclaration")
     }
@@ -806,7 +810,7 @@ object Parser : ParserBase() {
         val nodeType = InnerNodeType.ReturnTypeOptional
         return if (firstToken in listOf(TokenType.Colon)) {
             val (children, nextToken) =
-                composeParseCalls(parseToken(TokenType.Colon), parseToken(TokenType.SimpleName)).invoke(firstToken, restOfTokens)
+                composeParseCalls(parseToken(TokenType.Colon), ::parseSpaceStar, parseToken(TokenType.SimpleName)).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
         } else ParseTreeNodeResult(ParseTreeNode.EpsilonLeaf(nodeType), firstToken)
     }
