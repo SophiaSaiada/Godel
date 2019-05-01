@@ -229,4 +229,37 @@ class TestGrammar : StringSpec({
             """if (x) {     val x: Int   = 1 * 2 ?: 4 *   3} else {}"""
         )
     }
+    "grammar accepts function declaration"{
+        shouldAccept(
+            """ fun myfun (){
+                    val x: Int = 3.2
+                }""",
+            """fun myfun<Int  > (x:Int,y:double){
+                    val x: Int = 3.2
+                }""",
+            """fun myfun<Int > () : Int{
+                    val x: Int = 4
+                    fun myfun<Int  > (x:Int,y:double){
+                    val x: Int = 3.2
+                }
+                }"""
+        )
+        shouldReject(
+            """ fun! myfun (){
+                    val x: Int = 3.2
+                }""",
+            """fun myfun<Int  > (x:Int,y:double,!){
+                    val x: Int = 3.2
+                }""",
+            """fun myfun<Int > (!) : Int{
+                    val x: Int = 3.2
+                    x=4
+                }""",
+            """fun myfun<Int,Double > (!) : Int{
+                    val x: Int = 3.2
+                }"""
+        )
+
+    }
+
 })
