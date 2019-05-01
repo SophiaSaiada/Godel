@@ -93,10 +93,10 @@
 <MultiplicativeExpressionRest> -> <MultiplicativeOperator> <SpaceStar> <MultiplicativeExpression> | ε
 
 <Invocation> -> <MemberAccess> <WhitespaceStar> <InvocationArgumentsStar>
-<InvocationArgumentsStar> -> <InvocationArguments> <InvocationArgumentsStar> | ε
-<InvocationArguments> -> OpenParenthesis <WhitespaceStar> <ArgumentStar> CloseParenthesis
-<ArgumentStar> -> <Expression> <ArgumentStarRest> | ε
-<ArgumentStarRest> -> Comma <WhitespaceStar> <ArgumentStar> | ε
+<InvocationArgumentsStar> -> <InvocationArguments> <WhitespaceStar> <InvocationArgumentsStar> | ε
+<InvocationArguments> -> OpenParenthesis <SpaceStar> <ArgumentStar> CloseParenthesis
+<ArgumentStar> -> <Expression> <SpaceStar> <ArgumentStarRest> | ε
+<ArgumentStarRest> -> Comma <SpaceStar> <ArgumentStar> | ε
 
 <DotOrQuestionedDot> -> Dot | QuestionedDot
 <MemberAccess> -> <SimpleOrParenthesizedExpression> <WhitespaceStar> <MemberAccessRest>

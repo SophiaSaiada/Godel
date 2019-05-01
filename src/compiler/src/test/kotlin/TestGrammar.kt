@@ -134,6 +134,40 @@ class TestGrammar : StringSpec({
         )
     }
 
+    "invocations" {
+        shouldAccept(
+            "3.2()",
+            "x()",
+            "f(1, 2.3, \"hello\")",
+            "f(1, 2.3, \"hello\",)",
+            "x(f(x,),)",
+            "(x()())()",
+            "(x()())(y )",
+            "(x()())( y )()",
+            """(x()   () )( y)(
+                |3, 2,
+                |1,
+                |2.3 == 4
+                |)""".trimMargin()
+        )
+
+        shouldReject(
+            "3.2(-)",
+            "x(!)",
+            "f(1!, 2.3, \"hello\")",
+            "f(1, 2.3, \"hello\",,)",
+            "x(,f(x,))",
+            "(x(),,())()",
+            "(x()())(,y )",
+            "(x(1@1)())( y )()",
+            """(1x()   () )( y)(
+                |3, 2,
+                |1,
+                |2.3 == 4
+                |)""".trimMargin()
+        )
+    }
+
     "multiple statements" {
         shouldAccept(
             """

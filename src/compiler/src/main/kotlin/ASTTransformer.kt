@@ -133,7 +133,7 @@ object ASTTransformer {
     }
 
     private fun transformParenthesizedExpression(rootNode: ParseTreeNode.Inner): ASTNode.Expression =
-        transformExpression(rootNode.children[3] as ParseTreeNode.Inner)
+        transformExpression(rootNode.children[2] as ParseTreeNode.Inner)
 
     private fun transformExpression(rootNode: ParseTreeNode.Inner): ASTNode.Expression {
         val singleChild =
@@ -281,7 +281,7 @@ object ASTTransformer {
                                 name = null,
                                 value = transformExpression(node[0] as ParseTreeNode.Inner)
                             )
-                        )
+                        ) + transformInvocationArguments(node.last())
                     Parser.InnerNodeType.ArgumentStarRest -> transformInvocationArguments(node.last())
                     else -> throwInvalidParseError()
                 }
@@ -303,7 +303,7 @@ object ASTTransformer {
                 is ParseTreeNode.Inner -> {
                     when (node.type) {
                         Parser.InnerNodeType.InvocationArgumentsStar ->
-                            listOf(transformInvocationArguments(node[1])) + getFunctionArguments(node.last())
+                            listOf(transformInvocationArguments(node[0])) + getFunctionArguments(node.last())
                         else -> throwInvalidParseError()
                     }
                 }
