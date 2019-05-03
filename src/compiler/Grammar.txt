@@ -10,7 +10,7 @@
     Unknown
 
 @Rules
-<Program> -> <SpaceStar> <Statements>
+<Program> -> <SpaceStar> <Statements> <SpaceStar>
 <Statements> -> <Statement> <WhitespaceStar> <StatementsRest> | ε
 <StatementsRest> -> <SEMI> <Statements> | ε
 

@@ -13,17 +13,20 @@ object ASTTransformer {
         transformStatements(rootNode[1] as ParseTreeNode.Inner)
 
     private fun transformStatements(rootNode: ParseTreeNode.Inner): ASTNode.Statements {
-        fun getStatementsParseTreeNodes(currentNode: ParseTreeNode): List<ParseTreeNode.Inner> =
-            (currentNode as? ParseTreeNode.Inner)?.let { innerNode ->
-                requireByGrammar(innerNode.type == Parser.InnerNodeType.Statements)
-                listOfNotNull(innerNode[0] as? ParseTreeNode.Inner) +
-                        (innerNode.children.getOrNull(2) as? ParseTreeNode.Inner)
-                            ?.takeIf { it.type == Parser.InnerNodeType.Statements }
-                            ?.let { getStatementsParseTreeNodes(it) }.orEmpty()
-            }.orEmpty()
-        return ASTNode.Statements(
-            getStatementsParseTreeNodes(rootNode).map(::transformStatement)
-        )
+        fun getStatements(currentNode: ParseTreeNode): List<ASTNode.Statement> =
+            when (currentNode) {
+                is ParseTreeNode.EpsilonLeaf -> emptyList()
+                is ParseTreeNode.Inner ->
+                    when (currentNode.type) {
+                        Parser.InnerNodeType.Statements ->
+                            listOf(transformStatement(currentNode[0] as ParseTreeNode.Inner)) +
+                                    getStatements(currentNode.last())
+                        Parser.InnerNodeType.StatementsRest -> getStatements(currentNode.last())
+                        else -> throwInvalidParseError()
+                    }
+                else -> throwInvalidParseError()
+            }
+        return ASTNode.Statements(getStatements(rootNode))
     }
 
     private fun transformStatement(rootNode: ParseTreeNode.Inner): ASTNode.Statement {
@@ -100,7 +103,7 @@ object ASTTransformer {
         val positiveBranch = transformBlockOrStatement(rootNode[4] as ParseTreeNode.Inner)
         val negativeBranch = when (val ifExpressionRest = rootNode.last()) {
             is ParseTreeNode.EpsilonLeaf -> null
-            is ParseTreeNode.Inner -> transformBlockOrStatement(ifExpressionRest)
+            is ParseTreeNode.Inner -> transformBlockOrStatement(ifExpressionRest.last() as ParseTreeNode.Inner)
             else -> throwInvalidParseError()
         }
         return if (positiveBranch is ASTNode.Block.WithValue && negativeBranch is ASTNode.Block.WithValue)
@@ -119,7 +122,7 @@ object ASTTransformer {
     }
 
     private fun transformBlock(rootNode: ParseTreeNode.Inner): ASTNode.Block {
-        val statements = transformStatements(rootNode[1] as ParseTreeNode.Inner)
+        val statements = transformProgram(rootNode[1] as ParseTreeNode.Inner)
         val returnValue = statements.statements.last()
         return if (returnValue is ASTNode.Expression)
             ASTNode.Block.WithValue(
@@ -144,6 +147,9 @@ object ASTTransformer {
                 }}")
         return when (singleChild.type) {
             Parser.InnerNodeType.ElvisExpression -> transformElvisExpression(singleChild)
+            Parser.InnerNodeType.IfExpression ->
+                transformIf(singleChild) as? ASTNode.If.Expression
+                    ?: throwInvalidParseError("Got If statement instead of if expression")
             else -> throwInvalidParseError("singleChild.type is ${singleChild.type}")
         }
     }

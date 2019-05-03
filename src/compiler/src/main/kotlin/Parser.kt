@@ -11,7 +11,7 @@ object Parser : ParserBase() {
         val nodeType = InnerNodeType.Program
         return if (true || firstToken in listOf(TokenType.WhiteSpace, TokenType.BreakLine)) {
             val (children, nextToken) =
-                composeParseCalls(::parseSpaceStar, ::parseStatements).invoke(firstToken, restOfTokens)
+                composeParseCalls(::parseSpaceStar, ::parseStatements, ::parseSpaceStar).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
         } else throw CompilationError("not matching alternative for firstToken \"$firstToken\" in parseProgram")
     }
