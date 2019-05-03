@@ -2,22 +2,20 @@ import java.io.*
 import java.lang.RuntimeException
 
 object Godelizer {
-    @ExperimentalUnsignedTypes
     fun toGodelNumber(obj: Any?): String {
         val outputStream = ByteArrayOutputStream()
         ObjectOutputStream(outputStream).use { it.writeObject(obj) }
-        return outputStream.toByteArray().fold("") { acc, uByte ->
-            acc + uByte.toUByte().toString(16).padStart(2, '0')
+        return outputStream.toByteArray().joinToString("") { byte ->
+            byte.absoluteValue.toString(16).padStart(2, '0')
         }
     }
 
-    @ExperimentalUnsignedTypes
     inline fun <reified T> recoverFromGodelNumber(hexNumber: String): T {
         val bytesArray =
             hexNumber
                 .asSequence()
                 .chunked(2)
-                .map { "${it.first()}${it.last()}".toUByte(16).toByte() }
+                .map { parseUnsignedHexNumber("${it.first()}${it.last()}") }
                 .toList()
                 .toByteArray()
         return ObjectInputStream(ByteArrayInputStream(bytesArray)).use {
@@ -26,5 +24,20 @@ object Godelizer {
                 else -> throw RuntimeException("Deserialization failed")
             }
         }
+    }
+
+    private val Byte.absoluteValue
+        get() = java.lang.Byte.toUnsignedInt(this)
+
+    fun parseUnsignedHexNumber(string: String): Byte {
+        val digits = ('0'..'9')
+        val letters = ('a'..'f')
+        require(string.length == 2 && string.all { it in digits + letters })
+
+        fun valueOfHex(char: Char) =
+            if (char in digits) char - '0'
+            else char - 'a' + 10
+
+        return (valueOfHex(string[0]) * 16 + valueOfHex(string[1])).toByte()
     }
 }
