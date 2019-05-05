@@ -30,8 +30,8 @@ object Godelizer {
         get() = java.lang.Byte.toUnsignedInt(this)
 
     fun parseUnsignedHexNumber(string: String): Byte {
-        val digits = ('0'..'9')
-        val letters = ('a'..'f')
+        val digits = '0'..'9'
+        val letters = 'a'..'f'
         require(string.length == 2 && string.all { it in digits + letters })
 
         fun valueOfHex(char: Char) =
