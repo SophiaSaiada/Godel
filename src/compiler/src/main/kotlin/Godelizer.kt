@@ -15,7 +15,7 @@ object Godelizer {
             hexNumber
                 .asSequence()
                 .chunked(2)
-                .map { parseUnsignedHexNumber("${it.first()}${it.last()}") }
+                .map { parseUnsignedHexNumber(it.joinToString("")) }
                 .toList()
                 .toByteArray()
         return ObjectInputStream(ByteArrayInputStream(bytesArray)).use {
