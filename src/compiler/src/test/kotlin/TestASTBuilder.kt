@@ -2,42 +2,14 @@ package com.godel.compiler
 
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
-import io.kotlintest.shouldThrow
-import java.lang.AssertionError
 
 @ExperimentalUnsignedTypes
 class TestASTBuilder : StringSpec({
     fun lexThenParseThenTransform(sourceCode: String) =
         ASTTransformer.transformAST(Parser.parse(Lexer.lex(sourceCode.asSequence())))
 
-    fun shouldThrowCompilationError(block: () -> Any?) =
-        shouldThrow<CompilationError> { block() }
-
-    fun shouldAccept(sourceCode: String) =
-        try {
-            Godelizer.toGodelNumber(lexThenParseThenTransform(sourceCode))
-        } catch (error: CompilationError) {
-            println(
-                """An error occurred while parsing the program:
-                   |$sourceCode
-                   """.trimMargin()
-            )
-            throw error
-        }
-
-    fun shouldReject(vararg lines: String) =
-        lines.forEach {
-            try {
-                shouldThrowCompilationError { lexThenParseThenTransform(it) }
-            } catch (assertionError: AssertionError) {
-                println(
-                    """An error *didn't* occurred while parsing the program:
-                        |$it
-                    """.trimMargin()
-                )
-                throw assertionError
-            }
-        }
+    infix fun String.astShouldBe(json: String) =
+        ASTJSONizer.toJSON(lexThenParseThenTransform(this)) shouldBe json
 
     "transform if expression" {
         val ast = lexThenParseThenTransform("""if (x) { val x = 1; 3 } else { 2 }""")
@@ -45,47 +17,8 @@ class TestASTBuilder : StringSpec({
         ast shouldBe b
     }
 
-
-    "parse float literal" {
+    "operations precedence" {
+        "1 + 2 + 3 * 4 + 5" astShouldBe
+                "{\"name\": \"Statements\", \"statements\": [{\"name\": \"BinaryExpression\", \"props\": {\"left\": {\"name\": \"BinaryExpression\", \"props\": {\"left\": {\"name\": \"BinaryExpression\", \"props\": {\"left\": {\"name\": \"IntLiteral\", \"props\": {\"value\": 1}}, \"operator\": \"Plus\", \"right\": {\"name\": \"IntLiteral\", \"props\": {\"value\": 2}}}}, \"operator\": \"Plus\", \"right\": {\"name\": \"BinaryExpression\", \"props\": {\"left\": {\"name\": \"IntLiteral\", \"props\": {\"value\": 3}}, \"operator\": \"Times\", \"right\": {\"name\": \"IntLiteral\", \"props\": {\"value\": 4}}}}}}, \"operator\": \"Plus\", \"right\": {\"name\": \"IntLiteral\", \"props\": {\"value\": 5}}}}]}"
     }
-
-    "parse val statement" {
-        /*
-        val a: Int = 1
-        should parse into:
-                 val
-             a   Int   1
-        val sourceCode =
-            sequenceOfTokens(
-                "val" to Keyword, " " to WhiteSpace, "a" to SimpleName,
-                ":" to Colon, " " to WhiteSpace, "Int" to SimpleName, " " to WhiteSpace,
-                "=" to Assignment, " " to WhiteSpace, "1" to DecimalLiteral
-            )
-        val expectedResult = ASTBranchNode(
-            type = InnerNodeType.If,
-            children = listOf(
-                ASTLeaf(Token("a", SimpleName)),
-                ASTLeaf(Token("Int", SimpleName)),
-                ASTLeaf(Token("1", DecimalLiteral))
-            )
-        )
-         */
-    }
-
-    "parse if expression" {
-
-    }
-
-    "parse function declaration" {
-
-    }
-
-    "parse block" {
-
-    }
-
-    "parse function call" {
-
-    }
-
 })

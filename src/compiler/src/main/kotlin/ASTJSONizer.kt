@@ -5,7 +5,8 @@ object ASTJSONizer {
     private fun Any?.toJSON(): String =
         when (this) {
             is ASTNode.Statement,
-            is ASTNode.Expression ->
+            is ASTNode.Expression,
+            is ASTNode.FunctionArgument ->
                 this::class.memberProperties.map {
                     it.name to it.getter.call(this)
                 }.joinToString(", ") { (name, value) ->
@@ -15,6 +16,7 @@ object ASTJSONizer {
                 "{\"name\": \"Statements\", \"statements\": ${this.joinToString(", ") { it.toJSON() }.let { "[$it]" }}}"
             is List<Any?> ->
                 this.joinToString(", ") { it.toJSON() }.let { "[$it]" }
+            is ASTNode.BinaryOperator -> "\"${this.name}\""
             is String -> "\"$this\""
             is Int -> this.toString()
             is Map<*, *> ->
