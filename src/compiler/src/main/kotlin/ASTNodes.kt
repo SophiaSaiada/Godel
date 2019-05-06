@@ -5,7 +5,7 @@ import java.io.Serializable
 class ASTNode {
     interface ExpressionOrStatements
     interface Statement : Serializable
-    class Statements(val statements: List<Statement>) : Serializable, ExpressionOrStatements
+    class Statements(statements: List<Statement>) : List<Statement> by statements, Serializable, ExpressionOrStatements
 
     interface Expression : Statement, ExpressionOrStatements
     sealed class Block(val statements: Statements) : Statement {
@@ -35,12 +35,6 @@ class ASTNode {
         val type: Type?,
         val value: Expression
     ) : Statement
-
-    class IfStatement(
-        val condition: Expression,
-        val positiveBranch: Statements
-    ) : Statement
-
 
     // ------------- Expressions ------------- //
 

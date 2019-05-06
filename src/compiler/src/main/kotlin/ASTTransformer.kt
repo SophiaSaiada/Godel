@@ -123,11 +123,11 @@ object ASTTransformer {
 
     private fun transformBlock(rootNode: ParseTreeNode.Inner): ASTNode.Block {
         val statements = transformProgram(rootNode[1] as ParseTreeNode.Inner)
-        val returnValue = statements.statements.last()
+        val returnValue = statements.last()
         return if (returnValue is ASTNode.Expression)
             ASTNode.Block.WithValue(
                 ASTNode.Statements(
-                    statements.statements.dropLast(1)
+                    statements.dropLast(1)
                 ),
                 returnValue
             )
