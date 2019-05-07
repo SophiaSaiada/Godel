@@ -160,10 +160,10 @@ object ASTTransformer {
     private fun ASTNode.BinaryExpression<*, *>.rotated(): ASTNode.BinaryExpression<*, *> =
         when (right) {
             is ASTNode.BinaryExpression<*, *> -> {
-                if (right.operator == this.operator)
+                if (right.operator.group == this.operator.group)
                     ASTNode.BinaryExpression(
                         left = ASTNode.BinaryExpression(left, operator, right.left).rotated(),
-                        operator = operator,
+                        operator = right.operator,
                         right = right.right
                     )
                 else this
@@ -171,7 +171,7 @@ object ASTTransformer {
             else -> this
         }
 
-    private fun ASTNode.InfixExpression<*, *>.rotated(): ASTNode.InfixExpression<*,*> =
+    private fun ASTNode.InfixExpression<*, *>.rotated(): ASTNode.InfixExpression<*, *> =
         when (right) {
             is ASTNode.InfixExpression<*, *> -> {
                 if (right.function == this.function)

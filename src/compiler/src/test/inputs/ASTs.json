@@ -1,0 +1,163 @@
+{
+  "val declaration": {
+    "name": "Statements",
+    "statements": [
+      {
+        "name": "ValDeclaration",
+        "props": {
+          "name": "x",
+          "type": null,
+          "value": {
+            "name": "FloatLiteral",
+            "props": {
+              "value": 3.14
+            }
+          }
+        }
+      }
+    ]
+  },
+  "operations precedence": {
+    "name": "Statements",
+    "statements": [
+      {
+        "name": "InfixExpression",
+        "props": {
+          "function": "to",
+          "left": {
+            "name": "BinaryExpression",
+            "props": {
+              "left": {
+                "name": "BinaryExpression",
+                "props": {
+                  "left": {
+                    "name": "BinaryExpression",
+                    "props": {
+                      "left": {
+                        "name": "IntLiteral",
+                        "props": {
+                          "value": 1
+                        }
+                      },
+                      "operator": "Plus",
+                      "right": {
+                        "name": "BinaryExpression",
+                        "props": {
+                          "left": {
+                            "name": "BinaryExpression",
+                            "props": {
+                              "left": {
+                                "name": "IntLiteral",
+                                "props": {
+                                  "value": 2
+                                }
+                              },
+                              "operator": "Division",
+                              "right": {
+                                "name": "IntLiteral",
+                                "props": {
+                                  "value": 3
+                                }
+                              }
+                            }
+                          },
+                          "operator": "Times",
+                          "right": {
+                            "name": "IntLiteral",
+                            "props": {
+                              "value": 4
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "operator": "Plus",
+                  "right": {
+                    "name": "FloatLiteral",
+                    "props": {
+                      "value": 4.2
+                    }
+                  }
+                }
+              },
+              "operator": "Elvis",
+              "right": {
+                "name": "BinaryExpression",
+                "props": {
+                  "left": {
+                    "name": "BinaryExpression",
+                    "props": {
+                      "left": {
+                        "name": "BinaryExpression",
+                        "props": {
+                          "left": {
+                            "name": "BinaryExpression",
+                            "props": {
+                              "left": {
+                                "name": "IntLiteral",
+                                "props": {
+                                  "value": 5
+                                }
+                              },
+                              "operator": "LessThanEqual",
+                              "right": {
+                                "name": "IntLiteral",
+                                "props": {
+                                  "value": 6
+                                }
+                              }
+                            }
+                          },
+                          "operator": "Equal",
+                          "right": {
+                            "name": "BinaryExpression",
+                            "props": {
+                              "left": {
+                                "name": "IntLiteral",
+                                "props": {
+                                  "value": 7
+                                }
+                              },
+                              "operator": "GreaterThan",
+                              "right": {
+                                "name": "IntLiteral",
+                                "props": {
+                                  "value": 8
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "operator": "And",
+                      "right": {
+                        "name": "IntLiteral",
+                        "props": {
+                          "value": 9
+                        }
+                      }
+                    }
+                  },
+                  "operator": "Or",
+                  "right": {
+                    "name": "IntLiteral",
+                    "props": {
+                      "value": 10
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "right": {
+            "name": "IntLiteral",
+            "props": {
+              "value": 11
+            }
+          }
+        }
+      }
+    ]
+  }
+}

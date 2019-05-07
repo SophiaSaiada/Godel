@@ -93,6 +93,9 @@ class TestGrammar : StringSpec({
             "3.2 * 4",
             "3.2 * 4 * 2",
             "3.2 + 4 * 2",
+            "3.2 + 4 * 2 to 4.2",
+            "3.2 a 4 To 2 B 4.2",
+            "3.2 a 4 To4 2 B4 4.2",
             """3.2 +
                 |   4 * 2""".trimMargin(),
             "3.2 +3.2 + 2",
@@ -101,16 +104,17 @@ class TestGrammar : StringSpec({
             "true || false && 3.2+4",
             "true || false && 3.2+4 ?: 2",
             "true || false ?: false && 3.2+4 ?: 2",
-            "true || false.asString() && 3.2+4",
+            "true || false.asString() to x && 3.2+4",
             "true.name || false.asString() && 3.2+4",
             "true || false.asString() && 3.2+4 ?: true",
-            "true.name || (false ?: true).asString() && 3.2+4",
+            "true.name || (false ?: true as x).asString() && 3.2+4",
             "true.x || false?.asString() && 3.2+4 ?: true",
             "true?.name || (false ?: true)?.asString() && 3.2+4",
             "true || false && 3.2+4.toShort()",
             "(true || false && 3.2+4.toShort()).z",
             """(true || (
                 |false &&
+                |x to
                 |3.2).as() +4.toShort()).z""".trimMargin()
         )
 
@@ -121,6 +125,9 @@ class TestGrammar : StringSpec({
                 |* 4 + 2""".trimMargin(),
             "3.2  4 * 2",
             "3.2 +3 2 + 2",
+            "3.2 + 4 * 2 to 4.2 x",
+            "3.2 a 4 To 2 B 4.2 y d t",
+            "3.2 a 4 To4 2 B4 4.2 _ x",
             "true |3.2",
             "true|-| false && 3.2",
             "true |*| false && 3.2+4",

@@ -1,6 +1,7 @@
 package com.godel.compiler
 
 import java.io.Serializable
+import java.lang.RuntimeException
 
 class ASTNode {
     interface ExpressionOrStatements
@@ -64,7 +65,19 @@ class ASTNode {
     enum class BinaryOperator {
         Elvis, Or, And, Equal, NotEqual, GreaterThanEqual, LessThanEqual, GreaterThan, LessThan,
         Plus, Minus, Modulo, Times, Division,
-        Dot, NullAwareDot
+        Dot, NullAwareDot;
+
+        enum class Group(val operators: Set<BinaryOperator>) {
+            Elvis(setOf(BinaryOperator.Elvis)),
+            Disjunction(setOf(Or)),
+            Conjunction(setOf(And)),
+            Equality(setOf(Equal, NotEqual)),
+            Comparison(setOf(GreaterThanEqual, LessThanEqual, GreaterThan, LessThan)),
+            Additive(setOf(Plus, Minus)),
+            Multiplicative(setOf(Minus, Modulo, Times, Division)),
+            MemberAccess(setOf(Dot, NullAwareDot)),
+        }
+
     }
 
     class BinaryExpression<L, R>(val left: L, val operator: BinaryOperator, val right: R) : Expression
@@ -74,3 +87,8 @@ class ASTNode {
 
     interface FunctionCall
 }
+
+val ASTNode.BinaryOperator.group
+    get() =
+        ASTNode.BinaryOperator.Group.values().find { this in it.operators }
+            ?: throw RuntimeException("BinaryOperator.${this.name} has no group!")
