@@ -32,7 +32,7 @@
 
 <ParenthesizedExpression> -> OpenParenthesis <SpaceStar> <Expression> <SpaceStar> CloseParenthesis
 <PaddedExpression> -> <SpaceStar> <Expression> <WhitespaceStar>
-<Expression> -> <IfExpression> | <InfixExpression>
+<Expression> -> <IfExpression> | <ElvisExpression>
 <SimpleExpression> -> <Number> | <BooleanLiteral> | <StringLiteral> | SimpleName
 <BooleanLiteral> -> KeywordFalse | KeywordTrue
 <Number> -> DecimalLiteral <NumberRest>
@@ -67,11 +67,11 @@
 
 
 // Binary Operators
-<InfixExpression> -> <ElvisExpression> <WhitespaceStar> <InfixExpressionRest>
-<InfixExpressionRest> -> SimpleName <SpaceStar> <InfixExpression> | ε
-
-<ElvisExpression> -> <DisjunctionExpression> <WhitespaceStar> <ElvisExpressionRest>
+<ElvisExpression> -> <InfixExpression> <WhitespaceStar> <ElvisExpressionRest>
 <ElvisExpressionRest> -> Elvis <SpaceStar> <ElvisExpression> | ε
+
+<InfixExpression> -> <DisjunctionExpression> <WhitespaceStar> <InfixExpressionRest>
+<InfixExpressionRest> -> SimpleName <SpaceStar> <InfixExpression> | ε
 
 <DisjunctionExpression> -> <ConjunctionExpression> <WhitespaceStar> <DisjunctionExpressionRest>
 <DisjunctionExpressionRest> -> Or Or <SpaceStar> <DisjunctionExpression> | ε

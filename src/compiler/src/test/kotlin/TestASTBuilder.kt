@@ -18,10 +18,8 @@ class TestASTBuilder : StringSpec({
         result shouldBe inputs.obj(expectedResultName)
     }
 
-    "transform if expression" {
-        val ast = lexThenParseThenTransform("""if (x) { val x = 1; 3 } else { 2 }""")
-        val b = Godelizer.recoverFromGodelNumber<ASTNode.Statements>(Godelizer.toGodelNumber(ast))
-        ast shouldBe b
+    "val declaration" {
+        "val x = 3.14" astShouldBe "val declaration"
     }
 
     "operations precedence" {

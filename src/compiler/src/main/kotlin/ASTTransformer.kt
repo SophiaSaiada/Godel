@@ -146,7 +146,7 @@ object ASTTransformer {
                     ?: "Epsilon"
                 }}")
         return when (singleChild.type) {
-            Parser.InnerNodeType.InfixExpression -> transformInfixExpression(singleChild)
+            Parser.InnerNodeType.ElvisExpression -> transformElvisExpression(singleChild)
             Parser.InnerNodeType.IfExpression ->
                 transformIf(singleChild) as? ASTNode.If.Expression
                     ?: throwInvalidParseError("Got If statement instead of if expression")
@@ -185,27 +185,27 @@ object ASTTransformer {
             else -> this
         }
 
+    private fun transformElvisExpression(rootNode: ParseTreeNode.Inner): ASTNode.Expression =
+        if (rootNode.last() is ParseTreeNode.EpsilonLeaf)
+            transformInfixExpression(rootNode[0] as ParseTreeNode.Inner)
+        else
+            ASTNode.BinaryExpression(
+                transformInfixExpression(rootNode[0] as ParseTreeNode.Inner),
+                ASTNode.BinaryOperator.Elvis,
+                transformElvisExpression((rootNode.last() as ParseTreeNode.Inner).last() as ParseTreeNode.Inner)
+            ).rotated()
+
     private fun transformInfixExpression(rootNode: ParseTreeNode.Inner): ASTNode.Expression =
         if (rootNode.last() is ParseTreeNode.EpsilonLeaf)
-            transformElvisExpression(rootNode[0] as ParseTreeNode.Inner)
+            transformDisjunctionExpression(rootNode[0] as ParseTreeNode.Inner)
         else {
             val infixExpressionRest = rootNode.last() as ParseTreeNode.Inner
             ASTNode.InfixExpression(
-                transformElvisExpression(rootNode[0] as ParseTreeNode.Inner),
+                transformDisjunctionExpression(rootNode[0] as ParseTreeNode.Inner),
                 (infixExpressionRest[0] as ParseTreeNode.Leaf).token.content,
                 transformInfixExpression(infixExpressionRest.last() as ParseTreeNode.Inner)
             ).rotated()
         }
-
-    private fun transformElvisExpression(rootNode: ParseTreeNode.Inner): ASTNode.Expression =
-        if (rootNode.last() is ParseTreeNode.EpsilonLeaf)
-            transformDisjunctionExpression(rootNode[0] as ParseTreeNode.Inner)
-        else
-            ASTNode.BinaryExpression(
-                transformDisjunctionExpression(rootNode[0] as ParseTreeNode.Inner),
-                ASTNode.BinaryOperator.Elvis,
-                transformElvisExpression((rootNode.last() as ParseTreeNode.Inner).last() as ParseTreeNode.Inner)
-            ).rotated()
 
     private fun transformDisjunctionExpression(rootNode: ParseTreeNode.Inner): ASTNode.Expression =
         if (rootNode.last() is ParseTreeNode.EpsilonLeaf)

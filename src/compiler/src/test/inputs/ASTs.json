@@ -21,9 +21,8 @@
     "name": "Statements",
     "statements": [
       {
-        "name": "InfixExpression",
+        "name": "BinaryExpression",
         "props": {
-          "function": "to",
           "left": {
             "name": "BinaryExpression",
             "props": {
@@ -31,58 +30,59 @@
                 "name": "BinaryExpression",
                 "props": {
                   "left": {
-                    "name": "BinaryExpression",
+                    "name": "IntLiteral",
                     "props": {
-                      "left": {
-                        "name": "IntLiteral",
-                        "props": {
-                          "value": 1
-                        }
-                      },
-                      "operator": "Plus",
-                      "right": {
-                        "name": "BinaryExpression",
-                        "props": {
-                          "left": {
-                            "name": "BinaryExpression",
-                            "props": {
-                              "left": {
-                                "name": "IntLiteral",
-                                "props": {
-                                  "value": 2
-                                }
-                              },
-                              "operator": "Division",
-                              "right": {
-                                "name": "IntLiteral",
-                                "props": {
-                                  "value": 3
-                                }
-                              }
-                            }
-                          },
-                          "operator": "Times",
-                          "right": {
-                            "name": "IntLiteral",
-                            "props": {
-                              "value": 4
-                            }
-                          }
-                        }
-                      }
+                      "value": 1
                     }
                   },
                   "operator": "Plus",
                   "right": {
-                    "name": "FloatLiteral",
+                    "name": "BinaryExpression",
                     "props": {
-                      "value": 4.2
+                      "left": {
+                        "name": "BinaryExpression",
+                        "props": {
+                          "left": {
+                            "name": "IntLiteral",
+                            "props": {
+                              "value": 2
+                            }
+                          },
+                          "operator": "Division",
+                          "right": {
+                            "name": "IntLiteral",
+                            "props": {
+                              "value": 3
+                            }
+                          }
+                        }
+                      },
+                      "operator": "Times",
+                      "right": {
+                        "name": "IntLiteral",
+                        "props": {
+                          "value": 4
+                        }
+                      }
                     }
                   }
                 }
               },
-              "operator": "Elvis",
+              "operator": "Plus",
               "right": {
+                "name": "FloatLiteral",
+                "props": {
+                  "value": 4.2
+                }
+              }
+            }
+          },
+          "operator": "Elvis",
+          "right": {
+            "name": "InfixExpression",
+            "props": {
+              "function": "to",
+              "left": {
                 "name": "BinaryExpression",
                 "props": {
                   "left": {
@@ -147,13 +147,13 @@
                     }
                   }
                 }
+              },
+              "right": {
+                "name": "IntLiteral",
+                "props": {
+                  "value": 11
+                }
               }
-            }
-          },
-          "right": {
-            "name": "IntLiteral",
-            "props": {
-              "value": 11
             }
           }
         }
