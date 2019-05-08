@@ -389,7 +389,7 @@ object ASTTransformer {
                 },
                 transformMemberAccess(rest.last() as ParseTreeNode.Inner)
             ).rotated()
-                .also { assert(it.left is String) }
+                .also { assert(it.right is ASTNode.Identifier) }
         }
     }
 

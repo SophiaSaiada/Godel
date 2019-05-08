@@ -141,9 +141,28 @@
                                         }
                                       ],
                                       "function": {
-                                        "name": "IntLiteral",
+                                        "name": "BinaryExpression",
                                         "props": {
-                                          "value": 5
+                                          "left": {
+                                            "name": "BinaryExpression",
+                                            "props": {
+                                              "left": {
+                                                "name": "IntLiteral",
+                                                "props": {
+                                                  "value": 5
+                                                }
+                                              },
+                                              "operator": "Dot",
+                                              "right": "y"
+                                            }
+                                          },
+                                          "operator": "Dot",
+                                          "right": {
+                                            "name": "Identifier",
+                                            "props": {
+                                              "value": "z"
+                                            }
+                                          }
                                         }
                                       }
                                     }
