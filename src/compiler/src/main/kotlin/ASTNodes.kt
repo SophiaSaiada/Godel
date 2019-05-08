@@ -78,6 +78,10 @@ class ASTNode {
             MemberAccess(setOf(Dot, NullAwareDot)),
         }
 
+        val group by lazy {
+            Group.values().find { this in it.operators }
+                ?: throw RuntimeException("BinaryOperator.${this.name} has no group!")
+        }
     }
 
     class BinaryExpression<L, R>(val left: L, val operator: BinaryOperator, val right: R) : Expression
@@ -87,8 +91,3 @@ class ASTNode {
 
     interface FunctionCall
 }
-
-val ASTNode.BinaryOperator.group
-    get() =
-        ASTNode.BinaryOperator.Group.values().find { this in it.operators }
-            ?: throw RuntimeException("BinaryOperator.${this.name} has no group!")
