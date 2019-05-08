@@ -32,9 +32,8 @@ object ASTTransformer {
     private fun transformStatement(rootNode: ParseTreeNode.Inner): ASTNode.Statement {
         val firstChild = rootNode[0] as ParseTreeNode.Inner
         return when (firstChild.type) {
-            Parser.InnerNodeType.Expression -> transformExpression(firstChild)
+            Parser.InnerNodeType.Expression -> transformExpressionOrStatement(firstChild)
             Parser.InnerNodeType.Declaration -> transformDeclaration(firstChild)
-            Parser.InnerNodeType.IfExpression -> transformIf(firstChild)
             else -> throwInvalidParseError("firstChild.type is ${rootNode.type}")
         }
     }
@@ -109,7 +108,11 @@ object ASTTransformer {
         return if (positiveBranch is ASTNode.Block.WithValue && negativeBranch is ASTNode.Block.WithValue)
             ASTNode.If.Expression(condition, positiveBranch, negativeBranch)
         else
-            ASTNode.If.Statement(condition, positiveBranch, negativeBranch)
+            ASTNode.If.Statement(
+                condition,
+                (positiveBranch as? ASTNode.Block)?.toBlockWithoutValue() ?: positiveBranch,
+                (negativeBranch as? ASTNode.Block)?.toBlockWithoutValue() ?: negativeBranch
+            )
     }
 
     private fun transformBlockOrStatement(rootNode: ParseTreeNode.Inner): ASTNode.Statement {
@@ -150,6 +153,20 @@ object ASTTransformer {
             Parser.InnerNodeType.IfExpression ->
                 transformIf(singleChild) as? ASTNode.If.Expression
                     ?: throwInvalidParseError("Got If statement instead of if expression")
+            else -> throwInvalidParseError("singleChild.type is ${singleChild.type}")
+        }
+    }
+
+    private fun transformExpressionOrStatement(rootNode: ParseTreeNode.Inner): ASTNode.Statement {
+        val singleChild =
+            rootNode.children.singleOrNull() as? ParseTreeNode.Inner
+                ?: throwInvalidParseError("rootNode.children: ${rootNode.children.joinToString {
+                    (it as? ParseTreeNode.Inner)?.type?.name ?: (it as? ParseTreeNode.Leaf)?.token?.type?.name
+                    ?: "Epsilon"
+                }}")
+        return when (singleChild.type) {
+            Parser.InnerNodeType.ElvisExpression -> transformElvisExpression(singleChild)
+            Parser.InnerNodeType.IfExpression -> transformIf(singleChild)
             else -> throwInvalidParseError("singleChild.type is ${singleChild.type}")
         }
     }

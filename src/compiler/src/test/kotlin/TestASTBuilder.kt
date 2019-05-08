@@ -23,6 +23,11 @@ class TestASTBuilder : StringSpec({
     }
 
     "operations precedence" {
-        "1 + 2 / 3 * 4 + 4.2 ?: 5 <= 6 == 7 > 8 && 9 || 10 to 11" astShouldBe "operations precedence"
+        "val x = 1 + 2 / 3 * 4 + 4.2 ?: 5(a, b, c) <= 6 == 7 > 8 && 9 || 10 to 11" astShouldBe "operations precedence"
+    }
+
+    "if" {
+        """if (x) { val x = 3.14 } else { 2 }""" astShouldBe "if statement"
+        """if (x) { val x = 3.14; "hello" } else { 2 }""" astShouldBe "if expression"
     }
 })

@@ -10,8 +10,16 @@ class ASTNode {
 
     interface Expression : Statement, ExpressionOrStatements
     sealed class Block(val statements: Statements) : Statement {
-        class WithValue(statements: Statements, val returnValue: Expression) : Block(statements), Expression
-        class WithoutValue(statements: Statements) : Block(statements), Statement
+        abstract fun toBlockWithoutValue(): WithoutValue
+
+        class WithValue(statements: Statements, val returnValue: Expression) : Block(statements), Expression {
+            override fun toBlockWithoutValue() =
+                WithoutValue(Statements(statements + returnValue))
+        }
+
+        class WithoutValue(statements: Statements) : Block(statements), Statement {
+            override fun toBlockWithoutValue() = this
+        }
     }
 
     class Type(
