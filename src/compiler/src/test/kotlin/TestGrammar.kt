@@ -88,7 +88,6 @@ class TestGrammar : StringSpec({
     }
 
     "binary operators" {
-        // TODO: check that the AST created respects action precedences
         shouldAccept(
             "3.2 * 4",
             "3.2 * 4 * 2",
