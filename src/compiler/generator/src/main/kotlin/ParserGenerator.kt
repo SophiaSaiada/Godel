@@ -96,17 +96,19 @@ object ParserGenerator {
                         nonEpsilonAlternatives.filter { it.name.startsWith("Keyword") }
                     val enterConditionTokens =
                         if (alternativeFirstTerminalTokens.isNotEmpty())
-                            "firstToken in listOf(${alternativeFirstTerminalTokens.joinToString { "TokenType.${it.name}" }})"
+                            "firstToken in setOf(${alternativeFirstTerminalTokens.joinToString { "TokenType.${it.name}" }})"
                         else null
                     val enterConditionKeywords =
                         if (alternativeFirstTerminalKeywords.isNotEmpty())
-                            "firstToken in listOf(${alternativeFirstTerminalKeywords.joinToString {
+                            "firstToken in setOf(${alternativeFirstTerminalKeywords.joinToString {
                                 "Keyword.${it.name.removePrefix("Keyword")}"
                             }})"
                         else null
                     val enterCondition =
-                        listOfNotNull(enterConditionEpsilon, enterConditionTokens, enterConditionKeywords)
-                            .joinToString(" || ")
+                        enterConditionEpsilon ?: listOfNotNull(
+                            enterConditionTokens,
+                            enterConditionKeywords
+                        ).joinToString(" || ")
                     val childrenParseFunctionNames =
                         alternative.letters.joinToString { getLetterParseCall(it) }
                     """${if (isFirst) "return" else "else"} if ($enterCondition) {
