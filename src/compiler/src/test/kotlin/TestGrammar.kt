@@ -144,6 +144,18 @@ class TestGrammar : StringSpec({
         shouldAccept(
             "3.2()",
             "x()",
+            "x()()",
+            "x(y)(z)",
+            "x(y)()",
+            "x()(z)",
+            "x()(z)()",
+            "x()(z).c()",
+            "x().a.b(z).c()",
+            "x().a.b + 1(z).c()",
+            "(x().a.b + 1)(z).c()",
+            "(x().a.b + 1)(z).c()()()(1, 2, 3)",
+            "(x().a.b + 1)(z).c()()()(1, 2, 3, 4)",
+            "(x().a.b + 1)(z).(c())", // Should be prevented when building AST
             "f(1, 2.3, \"hello\")",
             "f(1, 2.3, \"hello\",)",
             "x(f(x,),)",
@@ -266,7 +278,17 @@ class TestGrammar : StringSpec({
         shouldAccept(
             """    val x: Int   = 1 * 2 ?: 4 *   3""",
             """if (x) {     val x: Int   = 1 * 2 ?: 4 *   3}""",
-            """if (x) {     val x: Int   = 1 * 2 ?: 4 *   3} else {}"""
+            """if (x) {     val x: Int   = 1 * 2 ?: 4 *   3} else {}""",
+            "val x = 3.14",
+            "val x = 1 + 2 / 3 * 4 + 4.2 ?: 5.y.z(a, b, c) <= 6 == 7 > 8 && 9 || 10 to 11",
+            "(1.a.b.c()).d(x)(y)(z)",
+            """if (x) { val x = 3.14 } else { 2 }""",
+            """if (x) { val x = 3.14; "hello" } else { 2 }""",
+            """if (true) "hello" else val x = 2""",
+            """if (true) "hello" else 2""",
+            """if (true) if(x) "hello" else 2""",
+            """if (true) if(x) 1 else 2 else 3""",
+            """if (true) val x = if(x) 1 else 2 else 3"""
         )
     }
     "grammar accepts function declaration"{

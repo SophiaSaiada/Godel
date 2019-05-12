@@ -1,224 +1,228 @@
 {
   "val declaration": {
     "name": "Statements",
-    "statements": [
-      {
-        "name": "ValDeclaration",
-        "props": {
-          "name": "x",
-          "type": null,
-          "value": {
-            "name": "FloatLiteral",
-            "props": {
-              "value": 3.14
+    "props": {
+      "statements": [
+        {
+          "name": "ValDeclaration",
+          "props": {
+            "name": "x",
+            "type": null,
+            "value": {
+              "name": "FloatLiteral",
+              "props": {
+                "value": 3.14
+              }
             }
           }
         }
-      }
-    ]
+      ]
+    }
   },
   "operations precedence": {
     "name": "Statements",
-    "statements": [
-      {
-        "name": "ValDeclaration",
-        "props": {
-          "name": "x",
-          "type": null,
-          "value": {
-            "name": "BinaryExpression",
-            "props": {
-              "left": {
-                "name": "BinaryExpression",
-                "props": {
-                  "left": {
-                    "name": "BinaryExpression",
-                    "props": {
-                      "left": {
-                        "name": "IntLiteral",
-                        "props": {
-                          "value": 1
-                        }
-                      },
-                      "operator": "Plus",
-                      "right": {
-                        "name": "BinaryExpression",
-                        "props": {
-                          "left": {
-                            "name": "BinaryExpression",
-                            "props": {
-                              "left": {
-                                "name": "IntLiteral",
-                                "props": {
-                                  "value": 2
-                                }
-                              },
-                              "operator": "Division",
-                              "right": {
-                                "name": "IntLiteral",
-                                "props": {
-                                  "value": 3
+    "props": {
+      "statements": [
+        {
+          "name": "ValDeclaration",
+          "props": {
+            "name": "x",
+            "type": null,
+            "value": {
+              "name": "BinaryExpression",
+              "props": {
+                "left": {
+                  "name": "BinaryExpression",
+                  "props": {
+                    "left": {
+                      "name": "BinaryExpression",
+                      "props": {
+                        "left": {
+                          "name": "IntLiteral",
+                          "props": {
+                            "value": 1
+                          }
+                        },
+                        "operator": "Plus",
+                        "right": {
+                          "name": "BinaryExpression",
+                          "props": {
+                            "left": {
+                              "name": "BinaryExpression",
+                              "props": {
+                                "left": {
+                                  "name": "IntLiteral",
+                                  "props": {
+                                    "value": 2
+                                  }
+                                },
+                                "operator": "Division",
+                                "right": {
+                                  "name": "IntLiteral",
+                                  "props": {
+                                    "value": 3
+                                  }
                                 }
                               }
-                            }
-                          },
-                          "operator": "Times",
-                          "right": {
-                            "name": "IntLiteral",
-                            "props": {
-                              "value": 4
+                            },
+                            "operator": "Times",
+                            "right": {
+                              "name": "IntLiteral",
+                              "props": {
+                                "value": 4
+                              }
                             }
                           }
                         }
                       }
-                    }
-                  },
-                  "operator": "Plus",
-                  "right": {
-                    "name": "FloatLiteral",
-                    "props": {
-                      "value": 4.2
+                    },
+                    "operator": "Plus",
+                    "right": {
+                      "name": "FloatLiteral",
+                      "props": {
+                        "value": 4.2
+                      }
                     }
                   }
-                }
-              },
-              "operator": "Elvis",
-              "right": {
-                "name": "InfixExpression",
-                "props": {
-                  "function": "to",
-                  "left": {
-                    "name": "BinaryExpression",
-                    "props": {
-                      "left": {
-                        "name": "BinaryExpression",
-                        "props": {
-                          "left": {
-                            "name": "BinaryExpression",
-                            "props": {
-                              "left": {
-                                "name": "BinaryExpression",
-                                "props": {
-                                  "left": {
-                                    "name": "Invocation",
-                                    "props": {
-                                      "arguments": [
-                                        {
-                                          "name": "FunctionArgument",
-                                          "props": {
-                                            "name": null,
-                                            "value": {
-                                              "name": "Identifier",
-                                              "props": {
-                                                "value": "a"
-                                              }
-                                            }
-                                          }
-                                        },
-                                        {
-                                          "name": "FunctionArgument",
-                                          "props": {
-                                            "name": null,
-                                            "value": {
-                                              "name": "Identifier",
-                                              "props": {
-                                                "value": "b"
-                                              }
-                                            }
-                                          }
-                                        },
-                                        {
-                                          "name": "FunctionArgument",
-                                          "props": {
-                                            "name": null,
-                                            "value": {
-                                              "name": "Identifier",
-                                              "props": {
-                                                "value": "c"
-                                              }
-                                            }
-                                          }
-                                        }
-                                      ],
-                                      "function": {
-                                        "name": "BinaryExpression",
-                                        "props": {
-                                          "left": {
-                                            "name": "BinaryExpression",
+                },
+                "operator": "Elvis",
+                "right": {
+                  "name": "InfixExpression",
+                  "props": {
+                    "function": "to",
+                    "left": {
+                      "name": "BinaryExpression",
+                      "props": {
+                        "left": {
+                          "name": "BinaryExpression",
+                          "props": {
+                            "left": {
+                              "name": "BinaryExpression",
+                              "props": {
+                                "left": {
+                                  "name": "BinaryExpression",
+                                  "props": {
+                                    "left": {
+                                      "name": "Invocation",
+                                      "props": {
+                                        "arguments": [
+                                          {
+                                            "name": "FunctionArgument",
                                             "props": {
-                                              "left": {
-                                                "name": "IntLiteral",
+                                              "name": null,
+                                              "value": {
+                                                "name": "Identifier",
                                                 "props": {
-                                                  "value": 5
+                                                  "value": "a"
                                                 }
-                                              },
-                                              "operator": "Dot",
-                                              "right": "y"
+                                              }
                                             }
                                           },
-                                          "operator": "Dot",
-                                          "right": {
-                                            "name": "Identifier",
+                                          {
+                                            "name": "FunctionArgument",
                                             "props": {
-                                              "value": "z"
+                                              "name": null,
+                                              "value": {
+                                                "name": "Identifier",
+                                                "props": {
+                                                  "value": "b"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "name": "FunctionArgument",
+                                            "props": {
+                                              "name": null,
+                                              "value": {
+                                                "name": "Identifier",
+                                                "props": {
+                                                  "value": "c"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        ],
+                                        "function": {
+                                          "name": "BinaryExpression",
+                                          "props": {
+                                            "left": {
+                                              "name": "BinaryExpression",
+                                              "props": {
+                                                "left": {
+                                                  "name": "IntLiteral",
+                                                  "props": {
+                                                    "value": 5
+                                                  }
+                                                },
+                                                "operator": "Dot",
+                                                "right": "y"
+                                              }
+                                            },
+                                            "operator": "Dot",
+                                            "right": {
+                                              "name": "Identifier",
+                                              "props": {
+                                                "value": "z"
+                                              }
                                             }
                                           }
                                         }
                                       }
-                                    }
-                                  },
-                                  "operator": "LessThanEqual",
-                                  "right": {
-                                    "name": "IntLiteral",
-                                    "props": {
-                                      "value": 6
+                                    },
+                                    "operator": "LessThanEqual",
+                                    "right": {
+                                      "name": "IntLiteral",
+                                      "props": {
+                                        "value": 6
+                                      }
                                     }
                                   }
-                                }
-                              },
-                              "operator": "Equal",
-                              "right": {
-                                "name": "BinaryExpression",
-                                "props": {
-                                  "left": {
-                                    "name": "IntLiteral",
-                                    "props": {
-                                      "value": 7
-                                    }
-                                  },
-                                  "operator": "GreaterThan",
-                                  "right": {
-                                    "name": "IntLiteral",
-                                    "props": {
-                                      "value": 8
+                                },
+                                "operator": "Equal",
+                                "right": {
+                                  "name": "BinaryExpression",
+                                  "props": {
+                                    "left": {
+                                      "name": "IntLiteral",
+                                      "props": {
+                                        "value": 7
+                                      }
+                                    },
+                                    "operator": "GreaterThan",
+                                    "right": {
+                                      "name": "IntLiteral",
+                                      "props": {
+                                        "value": 8
+                                      }
                                     }
                                   }
                                 }
                               }
-                            }
-                          },
-                          "operator": "And",
-                          "right": {
-                            "name": "IntLiteral",
-                            "props": {
-                              "value": 9
+                            },
+                            "operator": "And",
+                            "right": {
+                              "name": "IntLiteral",
+                              "props": {
+                                "value": 9
+                              }
                             }
                           }
-                        }
-                      },
-                      "operator": "Or",
-                      "right": {
-                        "name": "IntLiteral",
-                        "props": {
-                          "value": 10
+                        },
+                        "operator": "Or",
+                        "right": {
+                          "name": "IntLiteral",
+                          "props": {
+                            "value": 10
+                          }
                         }
                       }
-                    }
-                  },
-                  "right": {
-                    "name": "IntLiteral",
-                    "props": {
-                      "value": 11
+                    },
+                    "right": {
+                      "name": "IntLiteral",
+                      "props": {
+                        "value": 11
+                      }
                     }
                   }
                 }
@@ -226,122 +230,463 @@
             }
           }
         }
-      }
-    ]
+      ]
+    }
   },
   "if statement": {
     "name": "Statements",
-    "statements": [
-      {
-        "name": "If.Statement",
-        "props": {
-          "condition": {
-            "name": "Identifier",
-            "props": {
-              "value": "x"
-            }
-          },
-          "negativeBranch": {
-            "name": "Block.WithoutValue",
-            "props": {
-              "statements": {
-                "name": "Statements",
-                "statements": [
-                  {
-                    "name": "IntLiteral",
-                    "props": {
-                      "value": 2
-                    }
-                  }
-                ]
+    "props": {
+      "statements": [
+        {
+          "name": "If.Statement",
+          "props": {
+            "condition": {
+              "name": "Identifier",
+              "props": {
+                "value": "x"
               }
-            }
-          },
-          "positiveBranch": {
-            "name": "Block.WithoutValue",
-            "props": {
-              "statements": {
-                "name": "Statements",
-                "statements": [
-                  {
-                    "name": "ValDeclaration",
-                    "props": {
-                      "name": "x",
-                      "type": null,
-                      "value": {
-                        "name": "FloatLiteral",
+            },
+            "negativeBranch": {
+              "name": "Block.WithoutValue",
+              "props": {
+                "statements": {
+                  "name": "Statements",
+                  "props": {
+                    "statements": [
+                      {
+                        "name": "IntLiteral",
                         "props": {
-                          "value": 3.14
+                          "value": 2
                         }
                       }
-                    }
+                    ]
                   }
-                ]
+                }
+              }
+            },
+            "positiveBranch": {
+              "name": "Block.WithoutValue",
+              "props": {
+                "statements": {
+                  "name": "Statements",
+                  "props": {
+                    "statements": [
+                      {
+                        "name": "ValDeclaration",
+                        "props": {
+                          "name": "x",
+                          "type": null,
+                          "value": {
+                            "name": "FloatLiteral",
+                            "props": {
+                              "value": 3.14
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
               }
             }
           }
         }
-      }
-    ]
+      ]
+    }
   },
   "if expression": {
     "name": "Statements",
-    "statements": [
-      {
-        "name": "If.Expression",
-        "props": {
-          "condition": {
-            "name": "Identifier",
-            "props": {
-              "value": "x"
-            }
-          },
-          "negativeBranch": {
-            "name": "Block.WithValue",
-            "props": {
-              "returnValue": {
-                "name": "IntLiteral",
-                "props": {
-                  "value": 2
-                }
-              },
-              "statements": {
-                "name": "Statements",
-                "statements": []
+    "props": {
+      "statements": [
+        {
+          "name": "If.Expression",
+          "props": {
+            "condition": {
+              "name": "Identifier",
+              "props": {
+                "value": "x"
               }
-            }
-          },
-          "positiveBranch": {
-            "name": "Block.WithValue",
-            "props": {
-              "returnValue": {
-                "name": "StringLiteral",
-                "props": {
-                  "value": "hello"
+            },
+            "negativeBranch": {
+              "name": "Block.WithValue",
+              "props": {
+                "returnValue": {
+                  "name": "IntLiteral",
+                  "props": {
+                    "value": 2
+                  }
+                },
+                "statements": {
+                  "name": "Statements",
+                  "props": {
+                    "statements": []
+                  }
                 }
-              },
-              "statements": {
-                "name": "Statements",
-                "statements": [
-                  {
-                    "name": "ValDeclaration",
-                    "props": {
-                      "name": "x",
-                      "type": null,
-                      "value": {
-                        "name": "FloatLiteral",
+              }
+            },
+            "positiveBranch": {
+              "name": "Block.WithValue",
+              "props": {
+                "returnValue": {
+                  "name": "StringLiteral",
+                  "props": {
+                    "value": "hello"
+                  }
+                },
+                "statements": {
+                  "name": "Statements",
+                  "props": {
+                    "statements": [
+                      {
+                        "name": "ValDeclaration",
                         "props": {
-                          "value": 3.14
+                          "name": "x",
+                          "type": null,
+                          "value": {
+                            "name": "FloatLiteral",
+                            "props": {
+                              "value": 3.14
+                            }
+                          }
                         }
                       }
-                    }
+                    ]
                   }
-                ]
+                }
               }
             }
           }
         }
-      }
-    ]
+      ]
+    }
+  },
+  "if expression single expression": {
+    "name": "Statements",
+    "props": {
+      "statements": [
+        {
+          "name": "If.Expression",
+          "props": {
+            "condition": {
+              "name": "BooleanLiteral",
+              "props": {
+                "value": true
+              }
+            },
+            "negativeBranch": {
+              "name": "IntLiteral",
+              "props": {
+                "value": 2
+              }
+            },
+            "positiveBranch": {
+              "name": "StringLiteral",
+              "props": {
+                "value": "hello"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "if expression single statement": {
+    "name": "Statements",
+    "props": {
+      "statements": [
+        {
+          "name": "If.Statement",
+          "props": {
+            "condition": {
+              "name": "BooleanLiteral",
+              "props": {
+                "value": true
+              }
+            },
+            "negativeBranch": {
+              "name": "ValDeclaration",
+              "props": {
+                "name": "x",
+                "type": null,
+                "value": {
+                  "name": "IntLiteral",
+                  "props": {
+                    "value": 2
+                  }
+                }
+              }
+            },
+            "positiveBranch": {
+              "name": "StringLiteral",
+              "props": {
+                "value": "hello"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "nested ifs": {
+    "name": "Statements",
+    "props": {
+      "statements": [
+        {
+          "name": "If.Statement",
+          "props": {
+            "condition": {
+              "name": "BooleanLiteral",
+              "props": {
+                "value": true
+              }
+            },
+            "negativeBranch": null,
+            "positiveBranch": {
+              "name": "If.Expression",
+              "props": {
+                "condition": {
+                  "name": "Identifier",
+                  "props": {
+                    "value": "x"
+                  }
+                },
+                "negativeBranch": {
+                  "name": "IntLiteral",
+                  "props": {
+                    "value": 2
+                  }
+                },
+                "positiveBranch": {
+                  "name": "StringLiteral",
+                  "props": {
+                    "value": "hello"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "nested if expressions": {
+    "name": "Statements",
+    "props": {
+      "statements": [
+        {
+          "name": "If.Expression",
+          "props": {
+            "condition": {
+              "name": "BooleanLiteral",
+              "props": {
+                "value": true
+              }
+            },
+            "negativeBranch": {
+              "name": "IntLiteral",
+              "props": {
+                "value": 3
+              }
+            },
+            "positiveBranch": {
+              "name": "If.Expression",
+              "props": {
+                "condition": {
+                  "name": "Identifier",
+                  "props": {
+                    "value": "x"
+                  }
+                },
+                "negativeBranch": {
+                  "name": "IntLiteral",
+                  "props": {
+                    "value": 2
+                  }
+                },
+                "positiveBranch": {
+                  "name": "IntLiteral",
+                  "props": {
+                    "value": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "val with if inside if": {
+    "name": "Statements",
+    "props": {
+      "statements": [
+        {
+          "name": "If.Statement",
+          "props": {
+            "condition": {
+              "name": "BooleanLiteral",
+              "props": {
+                "value": true
+              }
+            },
+            "negativeBranch": {
+              "name": "IntLiteral",
+              "props": {
+                "value": 3
+              }
+            },
+            "positiveBranch": {
+              "name": "ValDeclaration",
+              "props": {
+                "name": "x",
+                "type": null,
+                "value": {
+                  "name": "If.Expression",
+                  "props": {
+                    "condition": {
+                      "name": "Identifier",
+                      "props": {
+                        "value": "x"
+                      }
+                    },
+                    "negativeBranch": {
+                      "name": "IntLiteral",
+                      "props": {
+                        "value": 2
+                      }
+                    },
+                    "positiveBranch": {
+                      "name": "IntLiteral",
+                      "props": {
+                        "value": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "multiple member accesses and invocations": {
+    "name": "Statements",
+    "props": {
+      "statements": [
+        {
+          "name": "Invocation",
+          "props": {
+            "arguments": [
+              {
+                "name": "FunctionArgument",
+                "props": {
+                  "name": null,
+                  "value": {
+                    "name": "Identifier",
+                    "props": {
+                      "value": "z"
+                    }
+                  }
+                }
+              }
+            ],
+            "function": {
+              "name": "Invocation",
+              "props": {
+                "arguments": [
+                  {
+                    "name": "FunctionArgument",
+                    "props": {
+                      "name": null,
+                      "value": {
+                        "name": "Identifier",
+                        "props": {
+                          "value": "y"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "function": {
+                  "name": "Invocation",
+                  "props": {
+                    "arguments": [
+                      {
+                        "name": "FunctionArgument",
+                        "props": {
+                          "name": null,
+                          "value": {
+                            "name": "Identifier",
+                            "props": {
+                              "value": "x"
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "function": {
+                      "name": "BinaryExpression",
+                      "props": {
+                        "left": {
+                          "name": "Invocation",
+                          "props": {
+                            "arguments": [],
+                            "function": {
+                              "name": "BinaryExpression",
+                              "props": {
+                                "left": {
+                                  "name": "BinaryExpression",
+                                  "props": {
+                                    "left": {
+                                      "name": "BinaryExpression",
+                                      "props": {
+                                        "left": {
+                                          "name": "IntLiteral",
+                                          "props": {
+                                            "value": 1
+                                          }
+                                        },
+                                        "operator": "Dot",
+                                        "right": "a"
+                                      }
+                                    },
+                                    "operator": "Dot",
+                                    "right": {
+                                      "name": "Identifier",
+                                      "props": {
+                                        "value": "b"
+                                      }
+                                    }
+                                  }
+                                },
+                                "operator": "Dot",
+                                "right": {
+                                  "name": "Identifier",
+                                  "props": {
+                                    "value": "c"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "operator": "Dot",
+                        "right": {
+                          "name": "Identifier",
+                          "props": {
+                            "value": "d"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
   }
 }

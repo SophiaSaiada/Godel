@@ -92,18 +92,18 @@
 <AdditiveExpressionRest> -> <AdditiveOperator> <SpaceStar> <AdditiveExpression> | ε
 
 <MultiplicativeOperator> -> Star | Backslash | Percentage
-<MultiplicativeExpression> -> <Invocation> <WhitespaceStar> <MultiplicativeExpressionRest>
+<MultiplicativeExpression> -> <MemberAccess> <WhitespaceStar> <MultiplicativeExpressionRest>
 <MultiplicativeExpressionRest> -> <MultiplicativeOperator> <SpaceStar> <MultiplicativeExpression> | ε
 
-<Invocation> -> <MemberAccess> <WhitespaceStar> <InvocationArgumentsStar>
+<DotOrQuestionedDot> -> Dot | QuestionedDot
+<MemberAccess> -> <Invocation> <WhitespaceStar> <MemberAccessRest>
+<MemberAccessRest> -> <DotOrQuestionedDot> <SpaceStar> <MemberAccess> | ε
+
+<Invocation> -> <SimpleOrParenthesizedExpression> <WhitespaceStar> <InvocationArgumentsStar>
 <InvocationArgumentsStar> -> <InvocationArguments> <WhitespaceStar> <InvocationArgumentsStar> | ε
 <InvocationArguments> -> OpenParenthesis <SpaceStar> <ArgumentStar> CloseParenthesis
 <ArgumentStar> -> <Expression> <SpaceStar> <ArgumentStarRest> | ε
 <ArgumentStarRest> -> Comma <SpaceStar> <ArgumentStar> | ε
-
-<DotOrQuestionedDot> -> Dot | QuestionedDot
-<MemberAccess> -> <SimpleOrParenthesizedExpression> <WhitespaceStar> <MemberAccessRest>
-<MemberAccessRest> -> <DotOrQuestionedDot> <SpaceStar> <MemberAccess> | ε
 
 <SimpleOrParenthesizedExpression> -> <SimpleExpression> | <ParenthesizedExpression>
 
