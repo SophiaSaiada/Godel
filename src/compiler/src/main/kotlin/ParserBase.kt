@@ -50,12 +50,16 @@ abstract class ParserBase {
                 sequence {
                     yield(rootResult.nextToken)
                     while (iterator.hasNext()) yield(iterator.next())
-                }.joinToString("\n")
+                }.toList()
             throw CompilationError(
                 """
                     |The whole source code can't be parsed from the language grammar.
+                    |
+                    |Left code:
+                    |${leftTokens.joinToString("") { it?.content.orEmpty() }}
+                    |
                     |Left tokens:
-                    |$leftTokens
+                    |${leftTokens.joinToString("\n")}
                 """.trimMargin()
             )
         } else

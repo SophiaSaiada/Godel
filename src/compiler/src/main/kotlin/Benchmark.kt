@@ -10,10 +10,8 @@ object Benchmark {
     private fun measureTimeOfOneRun(): Long = measureNanoTime {
         val sourceCode =
             File("./inputs/veryLongCode.gd")
-                .readBytes()
-                .asSequence()
-                .map { it.toChar() }
-        Lexer.lex(sourceCode).let { Classifier.classify(it) }.map { it.toList() }.toList()
+                .readLines().joinToString("\n").asSequence()
+        compile(sourceCode)
     }
 
     @JvmStatic

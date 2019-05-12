@@ -271,11 +271,39 @@ class TestGrammar : StringSpec({
             """if (x) 1 else 2""",
             """if (x) { 1 } else { 2 }""",
             """if (x) { 1} else 2""",
-            """if (x) 1 + 3 else 2"""
+            """if (x) 1 + 3 else 2""",
+            """if (x) 1         else 2""",
+            """if (x) { 1
+                |}         else { 2 }""".trimMargin(),
+            """if (x) { 1}         else 2""",
+            """if (x) 1 + 3         else {2}"""
+        )
+
+
+        // is'nt ideal but a constraint of the grammar
+        shouldReject(
+            """if (x) 1
+                |else 2""".trimMargin(),
+            """if (x) { 1 }
+                |else { 2 }""".trimMargin(),
+            """if (x) { 1}
+                |else 2""".trimMargin(),
+            """if (x) 1 + 3
+                |else 2""".trimMargin(),
+            """if (x) 1
+                |else 2""".trimMargin(),
+            """if (x) { 1
+                |}
+                |else { 2 }""".trimMargin(),
+            """if (x) { 1}
+                |else 2""".trimMargin(),
+            """if (x) 1 + 3
+                |else {2}""".trimMargin()
         )
     }
+
     "general programs" {
-        shouldAccept(
+        val generalPrograms = arrayOf(
             """    val x: Int   = 1 * 2 ?: 4 *   3""",
             """if (x) {     val x: Int   = 1 * 2 ?: 4 *   3}""",
             """if (x) {     val x: Int   = 1 * 2 ?: 4 *   3} else {}""",
@@ -289,6 +317,10 @@ class TestGrammar : StringSpec({
             """if (true) if(x) "hello" else 2""",
             """if (true) if(x) 1 else 2 else 3""",
             """if (true) val x = if(x) 1 else 2 else 3"""
+        )
+        shouldAccept(
+            *generalPrograms,
+            generalPrograms.joinToString("\n")
         )
     }
     "grammar accepts function declaration"{

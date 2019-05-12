@@ -50,7 +50,7 @@
                             Unknown
 <AnythingEndsWithApostrophes> -> <AnythingButApostrophes> <AnythingEndsWithApostrophes> | Apostrophes
 <IfExpression> -> KeywordIf <SpaceStar> <ParenthesizedExpression> <SpaceStar>
-                  <BlockOrStatement> <SpaceStar> <IfExpressionRest>
+                  <BlockOrStatement> <WhitespaceStar> <IfExpressionRest>
 <IfExpressionRest> -> KeywordElse <SpaceStar> <BlockOrStatement> | ε
 
 

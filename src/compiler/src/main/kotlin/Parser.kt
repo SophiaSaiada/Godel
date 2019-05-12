@@ -450,7 +450,7 @@ object Parser : ParserBase() {
         val nodeType = InnerNodeType.IfExpression
         return if (firstToken in setOf(Keyword.If)) {
             val (children, nextToken) =
-                composeParseCalls(parseToken(Keyword.If), ::parseSpaceStar, ::parseParenthesizedExpression, ::parseSpaceStar, ::parseBlockOrStatement, ::parseSpaceStar, ::parseIfExpressionRest).invoke(firstToken, restOfTokens)
+                composeParseCalls(parseToken(Keyword.If), ::parseSpaceStar, ::parseParenthesizedExpression, ::parseSpaceStar, ::parseBlockOrStatement, ::parseWhitespaceStar, ::parseIfExpressionRest).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
         } else throw CompilationError("not matching alternative for firstToken \"$firstToken\" in parseIfExpression")
     }
