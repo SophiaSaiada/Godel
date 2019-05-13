@@ -688,5 +688,136 @@
         }
       ]
     }
+  },
+  "multiple member accesses and invocations with named parameters": {
+    "name": "Statements",
+    "props": {
+      "statements": [
+        {
+          "name": "Invocation",
+          "props": {
+            "arguments": [
+              {
+                "name": "FunctionArgument",
+                "props": {
+                  "name": "a",
+                  "value": {
+                    "name": "Identifier",
+                    "props": {
+                      "value": "z"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "FunctionArgument",
+                "props": {
+                  "name": "b",
+                  "value": {
+                    "name": "Identifier",
+                    "props": {
+                      "value": "x"
+                    }
+                  }
+                }
+              }
+            ],
+            "function": {
+              "name": "Invocation",
+              "props": {
+                "arguments": [
+                  {
+                    "name": "FunctionArgument",
+                    "props": {
+                      "name": null,
+                      "value": {
+                        "name": "Identifier",
+                        "props": {
+                          "value": "y"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "function": {
+                  "name": "Invocation",
+                  "props": {
+                    "arguments": [
+                      {
+                        "name": "FunctionArgument",
+                        "props": {
+                          "name": null,
+                          "value": {
+                            "name": "Identifier",
+                            "props": {
+                              "value": "x"
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "function": {
+                      "name": "BinaryExpression",
+                      "props": {
+                        "left": {
+                          "name": "Invocation",
+                          "props": {
+                            "arguments": [],
+                            "function": {
+                              "name": "BinaryExpression",
+                              "props": {
+                                "left": {
+                                  "name": "BinaryExpression",
+                                  "props": {
+                                    "left": {
+                                      "name": "BinaryExpression",
+                                      "props": {
+                                        "left": {
+                                          "name": "IntLiteral",
+                                          "props": {
+                                            "value": 1
+                                          }
+                                        },
+                                        "operator": "Dot",
+                                        "right": "a"
+                                      }
+                                    },
+                                    "operator": "Dot",
+                                    "right": {
+                                      "name": "Identifier",
+                                      "props": {
+                                        "value": "b"
+                                      }
+                                    }
+                                  }
+                                },
+                                "operator": "Dot",
+                                "right": {
+                                  "name": "Identifier",
+                                  "props": {
+                                    "value": "c"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "operator": "Dot",
+                        "right": {
+                          "name": "Identifier",
+                          "props": {
+                            "value": "d"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
   }
 }

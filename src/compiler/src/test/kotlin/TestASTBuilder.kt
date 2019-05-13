@@ -40,6 +40,7 @@ class TestASTBuilder : StringSpec({
         "1.a.b.c().d(x)(y)(z)" astShouldBe "multiple member accesses and invocations"
         "(1.a.b.c()).d(x)(y)(z)" astShouldBe "multiple member accesses and invocations" // associativity
         "(1.a.b).c().d(x)(y)(z)" astShouldBe "multiple member accesses and invocations"
+        "1.a.b.c().d(x)(y)(a=z, b=x)" astShouldBe "multiple member accesses and invocations with named parameters"
     }
 
     "if" {

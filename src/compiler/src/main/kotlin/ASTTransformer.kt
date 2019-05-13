@@ -55,14 +55,6 @@ object ASTTransformer {
         }
     }
 
-    private fun getUnderscoresFromUnderscoreStar(node: ParseTreeNode): String =
-        when (node) {
-            is ParseTreeNode.Inner ->
-                "_" + getUnderscoresFromUnderscoreStar(node[1])
-            is ParseTreeNode.EpsilonLeaf -> ""
-            else -> throwInvalidParseError()
-        }
-
     private fun transformType(node: ParseTreeNode.Inner) =
         ASTNode.Type(
             name = (node[0] as ParseTreeNode.Leaf).token.content,
@@ -94,8 +86,7 @@ object ASTTransformer {
         }
 
     private fun transformValDeclaration(rootNode: ParseTreeNode.Inner): ASTNode.ValDeclaration {
-        val underscores = getUnderscoresFromUnderscoreStar(rootNode[2])
-        val name = underscores + (rootNode[3] as ParseTreeNode.Leaf).token.content
+        val name = (rootNode[2] as ParseTreeNode.Leaf).token.content
         val valDeclarationRest = rootNode.last() as ParseTreeNode.Inner
         val type = (valDeclarationRest.children.getOrNull(2) as? ParseTreeNode.Inner)?.let(::transformType)
         val value = transformPaddedExpression(valDeclarationRest.last() as ParseTreeNode.Inner)
@@ -342,13 +333,22 @@ object ASTTransformer {
             is ParseTreeNode.Inner -> {
                 when (node.type) {
                     Parser.InnerNodeType.InvocationArguments -> transformInvocationArguments(node[2])
-                    Parser.InnerNodeType.ArgumentStar ->
-                        listOf(
-                            ASTNode.FunctionArgument(
-                                name = null,
-                                value = transformExpression(node[0] as ParseTreeNode.Inner)
-                            )
-                        ) + transformInvocationArguments(node.last())
+                    Parser.InnerNodeType.ArgumentStar -> {
+                        val isNamedArgument = node[2] is ParseTreeNode.Inner
+                        val functionArgument =
+                            if (isNamedArgument)
+                                ASTNode.FunctionArgument(
+                                    name = (transformExpression(node[0] as ParseTreeNode.Inner) as ASTNode.Identifier).value,
+                                    value = transformExpression(node[2][2] as ParseTreeNode.Inner)
+                                )
+                            else
+                                ASTNode.FunctionArgument(
+                                    name = null,
+                                    value = transformExpression(node[0] as ParseTreeNode.Inner)
+                                )
+
+                        listOf(functionArgument) + transformInvocationArguments(node.last())
+                    }
                     Parser.InnerNodeType.ArgumentStarRest -> transformInvocationArguments(node.last())
                     else -> throwInvalidParseError()
                 }

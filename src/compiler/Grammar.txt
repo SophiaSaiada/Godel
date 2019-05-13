@@ -1,5 +1,5 @@
 @Tokens
-    WhiteSpace, SemiColon, BreakLine, Colon, Dot, Comma, Apostrophes, Underscore,
+    WhiteSpace, SemiColon, BreakLine, Colon, Dot, Comma, Apostrophes,
     Percentage, Backslash, Star, Minus, Plus, Division, ExclamationMark, QuestionMark, Ampersand, SingleOr,
     Keyword, Assignment, QuestionedDot,
 
@@ -23,7 +23,8 @@
 <BlockOrStatement> -> <Block> | <Statement>
 
 <Declaration> -> <ValDeclaration> | <ClassDeclaration> | <FunctionDeclaration>
-<ValDeclaration> -> KeywordVal <SpacePlus> <UnderscoreStar> SimpleName <SpaceStar> <ValDeclarationRest>
+
+<ValDeclaration> -> KeywordVal <SpacePlus> SimpleName <SpaceStar> <ValDeclarationRest>
 <ValDeclarationRest> -> Colon <SpaceStar> <Type> <SpaceStar> Assignment <PaddedExpression> |
                         Assignment <PaddedExpression>
 
@@ -46,7 +47,7 @@
 
 <StringLiteral> -> Apostrophes <AnythingEndsWithApostrophes>
 <AnythingButApostrophes> ->
-    WhiteSpace | SemiColon | BreakLine | Colon | Dot | Comma | Underscore |
+    WhiteSpace | SemiColon | BreakLine | Colon | Dot | Comma |
     Percentage | Backslash | Star | Minus | Plus | Division | ExclamationMark | QuestionMark | Ampersand | SingleOr |
     Assignment | QuestionedDot |
 
@@ -115,7 +116,8 @@
 <Invocation> -> <SimpleOrParenthesizedExpression> <WhitespaceStar> <InvocationArgumentsStar>
 <InvocationArgumentsStar> -> <InvocationArguments> <WhitespaceStar> <InvocationArgumentsStar> | ε
 <InvocationArguments> -> OpenParenthesis <SpaceStar> <ArgumentStar> CloseParenthesis
-<ArgumentStar> -> <Expression> <SpaceStar> <ArgumentStarRest> | ε
+<ArgumentStar> -> <Expression> <SpaceStar> <NamedArgumentPostfixOptional> <ArgumentStarRest> | ε
+<NamedArgumentPostfixOptional> -> Assignment <SpaceStar> <Expression> <SpaceStar> | ε
 <ArgumentStarRest> -> Comma <SpaceStar> <ArgumentStar> | ε
 
 <SimpleOrParenthesizedExpression> -> <SimpleExpression> | <ParenthesizedExpression>
@@ -139,9 +141,6 @@
 
 <WhitespaceStar> -> WhiteSpace <WhitespaceStar> | ε
 <WhitespacePlus> -> WhiteSpace <WhitespaceStar>
-
-<UnderscoreStar> -> Underscore <UnderscoreStar> | ε
-<UnderscorePlus> -> Underscore <UnderscoreStar>
 
 <SEMI> -> <WhitespacePlus> <SEMIRest> <SpaceStar> | <SEMIRest> <SpaceStar>
 <SEMIRest> -> BreakLine <SpaceStar> <SemiColonOptional> | SemiColon

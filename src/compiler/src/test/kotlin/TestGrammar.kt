@@ -57,7 +57,8 @@ class TestGrammar : StringSpec({
             """val x = if (x)
                 |{ 1} else 2""".trimMargin(),
             """val x = if (x) 1 +
-                |3 else 2""".trimMargin()
+                |3 else 2""".trimMargin(),
+            "val _ = y"
         )
 
         shouldReject(
@@ -74,8 +75,7 @@ class TestGrammar : StringSpec({
             "val x = .4",
             "val x = 4.",
             "val 4 = 4",
-            "val 4 = x",
-            "val _ = y"
+            "val 4 = x"
         )
     }
 
@@ -111,6 +111,8 @@ class TestGrammar : StringSpec({
             "true?.name || (false ?: true)?.asString() && 3.2+4",
             "true || false && 3.2+4.toShort()",
             "(true || false && 3.2+4.toShort()).z",
+            "true || false && 3.2+4._toShort()",
+            "3.2 a 4 To4 2 B4 4.2 _ x",
             """(true || (
                 |false &&
                 |x to
@@ -126,13 +128,11 @@ class TestGrammar : StringSpec({
             "3.2 +3 2 + 2",
             "3.2 + 4 * 2 to 4.2 x",
             "3.2 a 4 To 2 B 4.2 y d t",
-            "3.2 a 4 To4 2 B4 4.2 _ x",
             "true |3.2",
             "true|-| false && 3.2",
             "true |*| false && 3.2+4",
             "true (|| false.asString() && 3.2+4",
             "true.name || false.1asString() && 3.2+4",
-            "true || false && 3.2+4._toShort()",
             "(true) || false && 3.2+4.toShort()).z",
             """(true || (
                 |false && 1
@@ -165,6 +165,13 @@ class TestGrammar : StringSpec({
             """(x()   () )( y)(
                 |3, 2,
                 |1,
+                |2.3 == 4
+                |)""".trimMargin(),
+            """(x()   () )( z=y)(
+                |_a=3, 2,
+                |__Ab_S4=
+                |6,
+                |_=1,
                 |2.3 == 4
                 |)""".trimMargin()
         )
