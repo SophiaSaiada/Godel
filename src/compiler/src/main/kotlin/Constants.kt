@@ -35,6 +35,7 @@ enum class Keyword {
     While,
     Public,
     Private,
+    Return,
     When;
 
     val asString = this.name.toLowerCase()

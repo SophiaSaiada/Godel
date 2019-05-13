@@ -55,6 +55,19 @@ class ASTNode {
         val value: Expression
     ) : Statement
 
+    class Parameter(
+        val name: String,
+        val type: Type
+    )
+
+    class FunctionDeclaration(
+        val name: String,
+        val typeParameters: Map<String, Type?>,
+        val parameters: List<Parameter>,
+        val returnType: Type?,
+        val body: Block
+    )
+
     // ------------- Expressions ------------- //
 
     class SimpleName(val name: String) : Expression

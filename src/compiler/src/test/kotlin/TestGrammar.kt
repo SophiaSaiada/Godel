@@ -327,6 +327,7 @@ class TestGrammar : StringSpec({
         shouldAccept(
             """ fun myfun (){
                     val x: Int = 3.2
+                    return 1
                 }""",
             """fun myfun<Int  > (x:Int,y:double){
                     val x: Int = 3.2
@@ -336,7 +337,14 @@ class TestGrammar : StringSpec({
                     fun myfun<Int  > (x:Int,y:double){
                     val x: Int = 3.2
                 }
-                }"""
+                }""",
+            """
+                fun x():Int{
+                val z: Int? =1
+                val y = z ?: return 2
+                return 1
+                }
+            """
         )
         shouldReject(
             """ fun! myfun (){

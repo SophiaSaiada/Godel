@@ -9,7 +9,7 @@
     Elvis, Or, And, Equal, NotEqual, GreaterThanEqual, LessThanEqual, NullAwareDot,
 
     KeywordVal, KeywordVar, KeywordFun, KeywordClass, KeywordTrue, KeywordFalse,
-    KeywordIf, KeywordElse, KeywordWhile, KeywordPrivate, KeywordPublic, KeywordWhen,
+    KeywordIf, KeywordElse, KeywordWhile, KeywordPrivate, KeywordPublic, KeywordWhen, KeywordReturn,
 
     Unknown
 
@@ -80,8 +80,10 @@
 
 
 // Binary Operators
-<ElvisExpression> -> <InfixExpression> <WhitespaceStar> <ElvisExpressionRest>
+<ElvisExpression> -> <ReturnExpression> <WhitespaceStar> <ElvisExpressionRest>
 <ElvisExpressionRest> -> Elvis <SpaceStar> <ElvisExpression> | ε
+
+<ReturnExpression> -> KeywordReturn <SpacePlus> <ReturnExpression> | <InfixExpression>
 
 <InfixExpression> -> <DisjunctionExpression> <WhitespaceStar> <InfixExpressionRest>
 <InfixExpressionRest> -> SimpleName <SpaceStar> <InfixExpression> | ε
