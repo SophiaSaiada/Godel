@@ -39,6 +39,8 @@ class ASTNode {
         val nullable: Boolean
     ) : Serializable
 
+    interface FuncDeclarationsOrValDeclarations
+
     // --------------- Literals --------------- //
 
     class BooleanLiteral(val value: Boolean) : Expression
@@ -53,6 +55,18 @@ class ASTNode {
         val name: String,
         val type: Type?,
         val value: Expression
+    ) : Statement, FuncDeclarationsOrValDeclarations
+
+    class ClassDeclartion(
+        val name: String,
+        val Properties: List<Property>
+    ) : Statement
+
+    enum class PrivateOrPublic { Public, Private }
+
+    class Property(
+        val publicOrPrivate: PrivateOrPublic,
+        val value: FuncDeclarationsOrValDeclarations
     ) : Statement
 
     class Parameter(
