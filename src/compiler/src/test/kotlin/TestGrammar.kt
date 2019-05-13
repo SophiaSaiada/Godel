@@ -273,15 +273,15 @@ class TestGrammar : StringSpec({
             """if (x) { 1} else 2""",
             """if (x) 1 + 3 else 2""",
             """if (x) 1         else 2""",
+            """else 2""",
+            """   else 2""",
+            // is'nt ideal but it's a constraint of the grammar, will be fixed and enforced by the ASTTransformer
+            """   else 2
+                |else 3""".trimMargin(),
             """if (x) { 1
                 |}         else { 2 }""".trimMargin(),
             """if (x) { 1}         else 2""",
-            """if (x) 1 + 3         else {2}"""
-        )
-
-
-        // is'nt ideal but a constraint of the grammar
-        shouldReject(
+            """if (x) 1 + 3         else {2}""",
             """if (x) 1
                 |else 2""".trimMargin(),
             """if (x) { 1 }

@@ -11,14 +11,24 @@ class ASTNode {
     interface Expression : Statement, ExpressionOrStatements
     sealed class Block(val statements: Statements) : Statement {
         abstract fun toBlockWithoutValue(): WithoutValue
+        abstract fun maybeToBlockWithValue(): WithValue?
 
         class WithValue(statements: Statements, val returnValue: Expression) : Block(statements), Expression {
             override fun toBlockWithoutValue() =
                 WithoutValue(Statements(statements + returnValue))
+
+            override fun maybeToBlockWithValue() = this
         }
 
         class WithoutValue(statements: Statements) : Block(statements), Statement {
             override fun toBlockWithoutValue() = this
+
+            override fun maybeToBlockWithValue(): WithValue? {
+                val lastStatement = statements.lastOrNull()
+                return if (lastStatement is Expression)
+                    WithValue(Statements(statements.dropLast(1)), lastStatement)
+                else null
+            }
         }
     }
 
@@ -58,13 +68,38 @@ class ASTNode {
             condition: ASTNode.Expression,
             positiveBranch: ASTNode.Expression,
             negativeBranch: ASTNode.Expression
-        ) : If(condition, positiveBranch, negativeBranch), ASTNode.Expression
+        ) : If(condition, positiveBranch, negativeBranch), ASTNode.Expression {
+            override fun asExpression(): Expression = this
+        }
 
         class Statement(
             condition: ASTNode.Expression,
             positiveBranch: ASTNode.Statement,
             negativeBranch: ASTNode.Statement?
-        ) : If(condition, positiveBranch, negativeBranch), ASTNode.Statement
+        ) : If(condition, positiveBranch, negativeBranch), ASTNode.Statement {
+            override fun asExpression(): Expression? {
+                val positiveBranchMaybeAsExpression =
+                    (positiveBranch as? Block)?.maybeToBlockWithValue() ?: positiveBranch
+                val negativeBranchMaybeAsExpression =
+                    (negativeBranch as? Block)?.maybeToBlockWithValue() ?: negativeBranch
+                return if (positiveBranchMaybeAsExpression is ASTNode.Expression && negativeBranchMaybeAsExpression is ASTNode.Expression)
+                    Expression(
+                        condition,
+                        positiveBranchMaybeAsExpression,
+                        negativeBranchMaybeAsExpression
+                    )
+                else null
+            }
+        }
+
+        class NegativeBranchOnly(val negativeBranch: ASTNode.Statement) : ASTNode.Expression
+
+        abstract fun asExpression(): Expression?
+
+        fun mergedWith(negativeBranchOnly: NegativeBranchOnly) =
+            Statement(condition, positiveBranch, negativeBranchOnly.negativeBranch)
+                .let { it.asExpression() ?: it }
+
     }
 
 

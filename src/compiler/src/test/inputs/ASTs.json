@@ -307,32 +307,9 @@
                 "value": "x"
               }
             },
-            "negativeBranch": {
-              "name": "Block.WithValue",
-              "props": {
-                "returnValue": {
-                  "name": "IntLiteral",
-                  "props": {
-                    "value": 2
-                  }
-                },
-                "statements": {
-                  "name": "Statements",
-                  "props": {
-                    "statements": []
-                  }
-                }
-              }
-            },
             "positiveBranch": {
               "name": "Block.WithValue",
               "props": {
-                "returnValue": {
-                  "name": "StringLiteral",
-                  "props": {
-                    "value": "hello"
-                  }
-                },
                 "statements": {
                   "name": "Statements",
                   "props": {
@@ -351,6 +328,29 @@
                         }
                       }
                     ]
+                  }
+                },
+                "returnValue": {
+                  "name": "StringLiteral",
+                  "props": {
+                    "value": "hello"
+                  }
+                }
+              }
+            },
+            "negativeBranch": {
+              "name": "Block.WithValue",
+              "props": {
+                "statements": {
+                  "name": "Statements",
+                  "props": {
+                    "statements": []
+                  }
+                },
+                "returnValue": {
+                  "name": "IntLiteral",
+                  "props": {
+                    "value": 2
                   }
                 }
               }
@@ -373,16 +373,16 @@
                 "value": true
               }
             },
-            "negativeBranch": {
-              "name": "IntLiteral",
-              "props": {
-                "value": 2
-              }
-            },
             "positiveBranch": {
               "name": "StringLiteral",
               "props": {
                 "value": "hello"
+              }
+            },
+            "negativeBranch": {
+              "name": "IntLiteral",
+              "props": {
+                "value": 2
               }
             }
           }
@@ -403,6 +403,12 @@
                 "value": true
               }
             },
+            "positiveBranch": {
+              "name": "StringLiteral",
+              "props": {
+                "value": "hello"
+              }
+            },
             "negativeBranch": {
               "name": "ValDeclaration",
               "props": {
@@ -414,12 +420,6 @@
                     "value": 2
                   }
                 }
-              }
-            },
-            "positiveBranch": {
-              "name": "StringLiteral",
-              "props": {
-                "value": "hello"
               }
             }
           }
@@ -440,7 +440,6 @@
                 "value": true
               }
             },
-            "negativeBranch": null,
             "positiveBranch": {
               "name": "If.Expression",
               "props": {
@@ -450,20 +449,21 @@
                     "value": "x"
                   }
                 },
-                "negativeBranch": {
-                  "name": "IntLiteral",
-                  "props": {
-                    "value": 2
-                  }
-                },
                 "positiveBranch": {
                   "name": "StringLiteral",
                   "props": {
                     "value": "hello"
                   }
+                },
+                "negativeBranch": {
+                  "name": "IntLiteral",
+                  "props": {
+                    "value": 2
+                  }
                 }
               }
-            }
+            },
+            "negativeBranch": null
           }
         }
       ]
@@ -482,12 +482,6 @@
                 "value": true
               }
             },
-            "negativeBranch": {
-              "name": "IntLiteral",
-              "props": {
-                "value": 3
-              }
-            },
             "positiveBranch": {
               "name": "If.Expression",
               "props": {
@@ -497,18 +491,24 @@
                     "value": "x"
                   }
                 },
-                "negativeBranch": {
-                  "name": "IntLiteral",
-                  "props": {
-                    "value": 2
-                  }
-                },
                 "positiveBranch": {
                   "name": "IntLiteral",
                   "props": {
                     "value": 1
                   }
+                },
+                "negativeBranch": {
+                  "name": "IntLiteral",
+                  "props": {
+                    "value": 2
+                  }
                 }
+              }
+            },
+            "negativeBranch": {
+              "name": "IntLiteral",
+              "props": {
+                "value": 3
               }
             }
           }
@@ -529,12 +529,6 @@
                 "value": true
               }
             },
-            "negativeBranch": {
-              "name": "IntLiteral",
-              "props": {
-                "value": 3
-              }
-            },
             "positiveBranch": {
               "name": "ValDeclaration",
               "props": {
@@ -549,20 +543,26 @@
                         "value": "x"
                       }
                     },
-                    "negativeBranch": {
-                      "name": "IntLiteral",
-                      "props": {
-                        "value": 2
-                      }
-                    },
                     "positiveBranch": {
                       "name": "IntLiteral",
                       "props": {
                         "value": 1
                       }
+                    },
+                    "negativeBranch": {
+                      "name": "IntLiteral",
+                      "props": {
+                        "value": 2
+                      }
                     }
                   }
                 }
+              }
+            },
+            "negativeBranch": {
+              "name": "IntLiteral",
+              "props": {
+                "value": 3
               }
             }
           }

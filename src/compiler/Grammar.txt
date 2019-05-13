@@ -32,7 +32,7 @@
 
 <ParenthesizedExpression> -> OpenParenthesis <SpaceStar> <Expression> <SpaceStar> CloseParenthesis
 <PaddedExpression> -> <SpaceStar> <Expression> <WhitespaceStar>
-<Expression> -> <IfExpression> | <ElvisExpression>
+<Expression> -> <IfExpression> | <ElseExpression> | <ElvisExpression>
 <SimpleExpression> -> <Number> | <BooleanLiteral> | <StringLiteral> | SimpleName
 <BooleanLiteral> -> KeywordFalse | KeywordTrue
 <Number> -> DecimalLiteral <NumberRest>
@@ -51,8 +51,8 @@
 <AnythingEndsWithApostrophes> -> <AnythingButApostrophes> <AnythingEndsWithApostrophes> | Apostrophes
 <IfExpression> -> KeywordIf <SpaceStar> <ParenthesizedExpression> <SpaceStar>
                   <BlockOrStatement> <WhitespaceStar> <IfExpressionRest>
-<IfExpressionRest> -> KeywordElse <SpaceStar> <BlockOrStatement> | ε
-
+<IfExpressionRest> -> <ElseExpression> | ε
+<ElseExpression> -> KeywordElse <SpaceStar> <BlockOrStatement>
 
 // Class
 <ClassDeclaration> -> KeywordClass <SpacePlus> SimpleName <SpaceStar> OpenBraces

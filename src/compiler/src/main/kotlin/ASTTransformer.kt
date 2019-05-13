@@ -9,6 +9,16 @@ object ASTTransformer {
 
     private fun transformProgram(rootNode: ParseTreeNode.Inner) =
         transformStatements(rootNode[1] as ParseTreeNode.Inner)
+            .also { assertSemanticChecks(it) }
+
+    private fun mergeIfBranches(statements: List<ASTNode.Statement>): List<ASTNode.Statement> =
+        statements
+            .fold(emptyList()) { statementsList, currentStatement ->
+                val lastStatement = statementsList.lastOrNull()
+                if (currentStatement is ASTNode.If.NegativeBranchOnly && lastStatement is ASTNode.If)
+                    statementsList.dropLast(1) + lastStatement.mergedWith(currentStatement)
+                else statementsList + currentStatement
+            }
 
     private fun transformStatements(rootNode: ParseTreeNode.Inner): ASTNode.Statements {
         fun getStatements(currentNode: ParseTreeNode): List<ASTNode.Statement> =
@@ -24,7 +34,7 @@ object ASTTransformer {
                     }
                 else -> throwInvalidParseError()
             }
-        return ASTNode.Statements(getStatements(rootNode))
+        return ASTNode.Statements(mergeIfBranches(getStatements(rootNode)))
     }
 
     private fun transformStatement(rootNode: ParseTreeNode.Inner): ASTNode.Statement {
@@ -100,17 +110,19 @@ object ASTTransformer {
         val positiveBranch = transformBlockOrStatement(rootNode[4] as ParseTreeNode.Inner)
         val negativeBranch = when (val ifExpressionRest = rootNode.last()) {
             is ParseTreeNode.EpsilonLeaf -> null
-            is ParseTreeNode.Inner -> transformBlockOrStatement(ifExpressionRest.last() as ParseTreeNode.Inner)
+            is ParseTreeNode.Inner -> transformElse(ifExpressionRest.last() as ParseTreeNode.Inner).negativeBranch
             else -> throwInvalidParseError()
         }
-        return if (positiveBranch is ASTNode.Expression && negativeBranch is ASTNode.Expression)
-            ASTNode.If.Expression(condition, positiveBranch, negativeBranch)
-        else
-            ASTNode.If.Statement(
-                condition,
-                (positiveBranch as? ASTNode.Block)?.toBlockWithoutValue() ?: positiveBranch,
-                (negativeBranch as? ASTNode.Block)?.toBlockWithoutValue() ?: negativeBranch
-            )
+        return ASTNode.If.Statement(
+            condition,
+            (positiveBranch as? ASTNode.Block)?.toBlockWithoutValue() ?: positiveBranch,
+            (negativeBranch as? ASTNode.Block)?.toBlockWithoutValue() ?: negativeBranch
+        ).let { it.asExpression() ?: it }
+    }
+
+    private fun transformElse(rootNode: ParseTreeNode.Inner): ASTNode.If.NegativeBranchOnly {
+        val negativeBranch = transformBlockOrStatement(rootNode.last() as ParseTreeNode.Inner)
+        return ASTNode.If.NegativeBranchOnly(negativeBranch)
     }
 
     private fun transformBlockOrStatement(rootNode: ParseTreeNode.Inner): ASTNode.Statement {
@@ -151,6 +163,7 @@ object ASTTransformer {
             Parser.InnerNodeType.IfExpression ->
                 transformIf(singleChild) as? ASTNode.If.Expression
                     ?: throwInvalidParseError("Got If statement instead of if expression")
+            Parser.InnerNodeType.ElseExpression -> transformElse(singleChild)
             else -> throwInvalidParseError("singleChild.type is ${singleChild.type}")
         }
     }
@@ -165,6 +178,7 @@ object ASTTransformer {
         return when (singleChild.type) {
             Parser.InnerNodeType.ElvisExpression -> transformElvisExpression(singleChild)
             Parser.InnerNodeType.IfExpression -> transformIf(singleChild)
+            Parser.InnerNodeType.ElseExpression -> transformElse(singleChild)
             else -> throwInvalidParseError("singleChild.type is ${singleChild.type}")
         }
     }
@@ -456,6 +470,15 @@ object ASTTransformer {
         return ASTNode.StringLiteral(
             getStringFromParseTreeNodes(rootNode.last() as ParseTreeNode.Inner)
         )
+    }
+
+
+    private fun assertSemanticChecks(statements: ASTNode.Statements) {
+        assertNoIfNegativeBranch(statements)
+    }
+
+    private fun assertNoIfNegativeBranch(statements: ASTNode.Statements) {
+        assert(statements.all { it !is ASTNode.If.NegativeBranchOnly })
     }
 
     private fun requireByGrammar(value: Boolean, message: String? = null) =

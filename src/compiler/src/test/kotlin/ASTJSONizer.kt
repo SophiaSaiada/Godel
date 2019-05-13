@@ -2,25 +2,26 @@ import com.godel.compiler.ASTNode
 import kotlin.reflect.full.memberProperties
 
 object ASTJSONizer {
+    private fun specialOrder(parent: Any?, name: String) =
+        when (parent) {
+            is ASTNode.If ->
+                mapOf(
+                    "condition" to 0,
+                    "positiveBranch" to 1,
+                    "negativeBranch" to 2
+                ).getOrElse(name) { 3 }
+            else -> name.compareTo("")
+        }
+
     private fun Any?.toJSON(): String =
         when (this) {
-            is ASTNode.If.Statement ->
-                this::class.memberProperties.map {
-                    it.name to it.getter.call(this)
-                }.sortedBy { (name, _) ->
-                    mapOf(
-                        "condition" to 0,
-                        "positiveBranch" to 1,
-                        "negativeBranch" to 2
-                    ).getOrElse(name) { 3 }
-                }.joinToString(", ") { (name, value) ->
-                    """"$name": ${value?.toJSON()}"""
-                }.let { "{\"name\": \"${this::class.qualifiedName.orEmpty().removePrefix("com.godel.compiler.ASTNode.")}\", \"props\": {$it}}" }
             is ASTNode.Statement,
             is ASTNode.Expression,
             is ASTNode.FunctionArgument ->
                 this::class.memberProperties.map {
                     it.name to it.getter.call(this)
+                }.sortedBy { (name, _) ->
+                    specialOrder(this, name)
                 }.joinToString(", ") { (name, value) ->
                     """"$name": ${value?.toJSON()}"""
                 }.let { "{\"name\": \"${this::class.qualifiedName.orEmpty().removePrefix("com.godel.compiler.ASTNode.")}\", \"props\": {$it}}" }
