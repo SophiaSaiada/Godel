@@ -41,7 +41,6 @@ data class Token(val content: String, val type: TokenType) {
             "\"" to TokenType.Apostrophes,
             ";" to TokenType.SemiColon,
             "\n" to TokenType.BreakLine,
-            "_" to TokenType.Underscore,
             "+" to TokenType.Plus,
             "-" to TokenType.Minus,
             "*" to TokenType.Star,
@@ -60,7 +59,7 @@ data class Token(val content: String, val type: TokenType) {
             ClassificationByGroup(Keyword.values().map { it.asString }) to TokenType.Keyword,
             ClassificationByRegex("[0-9]+") to TokenType.DecimalLiteral
         ) + classificationsByExactMatch + mapOf(
-            ClassificationByRegex("([a-zA-Z][a-zA-Z0-9_]*)") to TokenType.SimpleName
+            ClassificationByRegex("_+|(_*[a-zA-Z][a-zA-Z0-9_]*)") to TokenType.SimpleName
         )
 
         fun classifyString(string: String) =
@@ -85,7 +84,7 @@ object Lexer {
     private val splittingCharacters =
         listOf(
             '=', ':', '{', '(', '<', '}', ')', '>', '.', ',', '"', ';', '?',
-            '\n', '_', '+', '-', '*', '/', '\\', '%', '!', '|', '&', ' ', '\t'
+            '\n', '+', '-', '*', '/', '\\', '%', '!', '|', '&', ' ', '\t'
         )
 
     fun tokenizeSourceCode(sourceCode: Sequence<Char>): Sequence<String> =

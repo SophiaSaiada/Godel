@@ -3,7 +3,7 @@ package com.godel.compiler
 interface NodeType
 
 enum class TokenType(vararg val combinationOf: TokenType) : NodeType {
-    WhiteSpace, SemiColon, BreakLine, Colon, Dot, Comma, Apostrophes, Underscore,
+    WhiteSpace, SemiColon, BreakLine, Colon, Dot, Comma, Apostrophes,
     Percentage, Backslash, Star, Minus, Plus, Division, ExclamationMark, QuestionMark, Ampersand, SingleOr,
     Keyword, Assignment, QuestionedDot,
 

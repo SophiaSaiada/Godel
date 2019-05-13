@@ -70,8 +70,6 @@ class ASTNode {
 
     // ------------- Expressions ------------- //
 
-    class SimpleName(val name: String) : Expression
-
     sealed class If(
         val condition: ASTNode.Expression,
         val positiveBranch: ASTNode.Statement,

@@ -39,10 +39,11 @@ class TestLexer : StringSpec({
         Token.classifyString("0") shouldBe DecimalLiteral
         Token.classifyString("23") shouldBe DecimalLiteral
 
-        Token.classifyString("_") shouldBe Underscore
+        Token.classifyString("_") shouldBe SimpleName
         Token.classifyString("a_a0") shouldBe SimpleName
         Token.classifyString("a_a") shouldBe SimpleName
         Token.classifyString("a_A") shouldBe SimpleName
+        Token.classifyString("__a_A") shouldBe SimpleName
         Token.classifyString("aBc") shouldBe SimpleName
 
         Token.classifyString("=") shouldBe Assignment
@@ -64,8 +65,8 @@ class TestLexer : StringSpec({
         Token.classifyString("\t") shouldBe WhiteSpace
         Token.classifyString(" ") shouldBe WhiteSpace
 
-        Token.classifyString("_0") shouldBe Unknown
-        Token.classifyString("_0a") shouldBe Unknown
+        Token.classifyString("4_0") shouldBe Unknown
+        Token.classifyString("#_0a") shouldBe Unknown
         Token.classifyString("") shouldBe Unknown
     }
 
@@ -107,8 +108,8 @@ class TestLexer : StringSpec({
                     "{" to OpenBraces, " " to WhiteSpace,
                     "println" to SimpleName,
                     "(" to OpenParenthesis, "\"" to Apostrophes,
-                    "if" to Keyword, " " to WhiteSpace, "_" to Underscore, "0" to DecimalLiteral, " " to WhiteSpace,
-                    "false" to Keyword, " " to WhiteSpace, "_" to Underscore, "0a" to Unknown,
+                    "if" to Keyword, " " to WhiteSpace, "_0" to Unknown, " " to WhiteSpace,
+                    "false" to Keyword, " " to WhiteSpace, "_0a" to Unknown,
                     "\"" to Apostrophes, ")" to CloseParenthesis,
                     " " to WhiteSpace, "}" to CloseBraces
                 )
