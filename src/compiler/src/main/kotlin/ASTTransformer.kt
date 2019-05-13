@@ -271,8 +271,8 @@ object ASTTransformer {
             ASTNode.BinaryExpression(
                 transformComparisonExpression(rootNode[0] as ParseTreeNode.Inner),
                 when ((rest[0][0] as ParseTreeNode.Leaf).token.type) {
-                    TokenType.Assignment -> ASTNode.BinaryOperator.Equal
-                    TokenType.ExclamationMark -> ASTNode.BinaryOperator.NotEqual
+                    TokenType.Equal -> ASTNode.BinaryOperator.Equal
+                    TokenType.NotEqual -> ASTNode.BinaryOperator.NotEqual
                     else -> throwInvalidParseError()
                 },
                 transformEqualityExpression(rest.last() as ParseTreeNode.Inner)
@@ -283,15 +283,14 @@ object ASTTransformer {
         if (rootNode.last() is ParseTreeNode.EpsilonLeaf)
             transformAdditiveExpression(rootNode[0] as ParseTreeNode.Inner)
         else {
-            val operator = rootNode.last()[0] as ParseTreeNode.Inner
-            val withEqualSign = operator[1] is ParseTreeNode.Inner
+            val operator = rootNode.last()[0][0] as ParseTreeNode.Leaf
             ASTNode.BinaryExpression(
                 transformAdditiveExpression(rootNode[0] as ParseTreeNode.Inner),
-                when ((operator[0] as ParseTreeNode.Leaf).token.type) {
-                    TokenType.OpenBrokets ->
-                        if (withEqualSign) ASTNode.BinaryOperator.LessThanEqual else ASTNode.BinaryOperator.LessThan
-                    TokenType.CloseBrokets ->
-                        if (withEqualSign) ASTNode.BinaryOperator.GreaterThanEqual else ASTNode.BinaryOperator.GreaterThan
+                when (operator.token.type) {
+                    TokenType.OpenBrokets -> ASTNode.BinaryOperator.LessThan
+                    TokenType.CloseBrokets -> ASTNode.BinaryOperator.GreaterThan
+                    TokenType.LessThanEqual -> ASTNode.BinaryOperator.LessThanEqual
+                    TokenType.GreaterThanEqual -> ASTNode.BinaryOperator.GreaterThanEqual
                     else -> throwInvalidParseError()
                 },
                 transformComparisonExpression((rootNode.last() as ParseTreeNode.Inner).last() as ParseTreeNode.Inner)
@@ -324,7 +323,7 @@ object ASTTransformer {
                 when ((rest[0][0] as ParseTreeNode.Leaf).token.type) {
                     TokenType.Percentage -> ASTNode.BinaryOperator.Modulo
                     TokenType.Star -> ASTNode.BinaryOperator.Times
-                    TokenType.Backslash -> ASTNode.BinaryOperator.Division
+                    TokenType.Division -> ASTNode.BinaryOperator.Division
                     else -> throwInvalidParseError()
                 },
                 transformMultiplicativeExpression(rest.last() as ParseTreeNode.Inner)
@@ -403,7 +402,7 @@ object ASTTransformer {
                 member,
                 when ((rest[0][0] as ParseTreeNode.Leaf).token.type) {
                     TokenType.Dot -> ASTNode.BinaryOperator.Dot
-                    TokenType.QuestionedDot -> ASTNode.BinaryOperator.NullAwareDot
+                    TokenType.NullAwareDot -> ASTNode.BinaryOperator.NullAwareDot
                     else -> throwInvalidParseError()
                 },
                 transformMemberAccess(rest.last() as ParseTreeNode.Inner)

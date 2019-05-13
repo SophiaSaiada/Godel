@@ -52,11 +52,11 @@ class TestLexer : StringSpec({
         Token.classifyString("+") shouldBe Plus
         Token.classifyString("-") shouldBe Minus
         Token.classifyString("*") shouldBe Star
-        Token.classifyString("/") shouldBe Backslash
+        Token.classifyString("/") shouldBe Division
         Token.classifyString("%") shouldBe Percentage
         Token.classifyString("!") shouldBe ExclamationMark
-        Token.classifyString("|") shouldBe Or
-        Token.classifyString("&") shouldBe And
+        Token.classifyString("|") shouldBe SingleOr
+        Token.classifyString("&") shouldBe Ampersand
 
         Token.classifyString(";") shouldBe SemiColon
         Token.classifyString("\n") shouldBe BreakLine
@@ -121,19 +121,19 @@ class TestLexer : StringSpec({
         )
         Lexer.lex("(abc)?. b".asSequence()).toList() shouldBe listOfTokens(
             "(" to OpenParenthesis, "abc" to SimpleName, ")" to CloseParenthesis,
-            "?." to QuestionedDot, " " to WhiteSpace, "b" to SimpleName
+            "?." to NullAwareDot, " " to WhiteSpace, "b" to SimpleName
         )
         Lexer.lex("a ?:b".asSequence()).toList() shouldBe listOfTokens(
             "a" to SimpleName, " " to WhiteSpace, "?:" to Elvis, "b" to SimpleName
         )
         Lexer.lex("a ?.b".asSequence()).toList() shouldBe listOfTokens(
-            "a" to SimpleName, " " to WhiteSpace, "?." to QuestionedDot, "b" to SimpleName
+            "a" to SimpleName, " " to WhiteSpace, "?." to NullAwareDot, "b" to SimpleName
         )
         Lexer.lex("a ?: b".asSequence()).toList() shouldBe listOfTokens(
             "a" to SimpleName, " " to WhiteSpace, "?:" to Elvis, " " to WhiteSpace, "b" to SimpleName
         )
         Lexer.lex("a ?. b".asSequence()).toList() shouldBe listOfTokens(
-            "a" to SimpleName, " " to WhiteSpace, "?." to QuestionedDot, " " to WhiteSpace, "b" to SimpleName
+            "a" to SimpleName, " " to WhiteSpace, "?." to NullAwareDot, " " to WhiteSpace, "b" to SimpleName
         )
         Lexer.lex("a ? b".asSequence()).toList() shouldBe listOfTokens(
             "a" to SimpleName, " " to WhiteSpace, "?" to QuestionMark, " " to WhiteSpace, "b" to SimpleName

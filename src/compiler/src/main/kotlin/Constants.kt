@@ -2,12 +2,24 @@ package com.godel.compiler
 
 interface NodeType
 
-enum class TokenType : NodeType {
+enum class TokenType(vararg val combinationOf: TokenType) : NodeType {
     WhiteSpace, SemiColon, BreakLine, Colon, Dot, Comma, Apostrophes, Underscore,
-    Percentage, Backslash, Star, Minus, Plus, ExclamationMark, QuestionMark, And, Or,
-    Keyword, Assignment, QuestionedDot, Elvis,
+    Percentage, Backslash, Star, Minus, Plus, Division, ExclamationMark, QuestionMark, Ampersand, SingleOr,
+    Keyword, Assignment, QuestionedDot,
+
     OpenBraces, CloseBraces, OpenParenthesis, CloseParenthesis, OpenBrokets, CloseBrokets,
     DecimalLiteral, SimpleName,
+
+    // A token can be a combination of two other basic token types.
+    Elvis(QuestionMark, Colon),
+    Or(SingleOr, SingleOr),
+    And(Ampersand, Ampersand),
+    Equal(Assignment, Assignment),
+    NotEqual(ExclamationMark, Assignment),
+    GreaterThanEqual(CloseBrokets, Assignment),
+    LessThanEqual(OpenBrokets, Assignment),
+    NullAwareDot(QuestionMark, Dot),
+
     Unknown;
 }
 

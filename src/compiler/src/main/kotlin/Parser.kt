@@ -330,6 +330,10 @@ object Parser : ParserBase() {
             val (children, nextToken) =
                 composeParseCalls(parseToken(TokenType.Plus)).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
+        } else if (firstToken in setOf(TokenType.Division)) {
+            val (children, nextToken) =
+                composeParseCalls(parseToken(TokenType.Division)).invoke(firstToken, restOfTokens)
+            ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
         } else if (firstToken in setOf(TokenType.ExclamationMark)) {
             val (children, nextToken) =
                 composeParseCalls(parseToken(TokenType.ExclamationMark)).invoke(firstToken, restOfTokens)
@@ -338,17 +342,21 @@ object Parser : ParserBase() {
             val (children, nextToken) =
                 composeParseCalls(parseToken(TokenType.QuestionMark)).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
-        } else if (firstToken in setOf(TokenType.And)) {
+        } else if (firstToken in setOf(TokenType.Ampersand)) {
             val (children, nextToken) =
-                composeParseCalls(parseToken(TokenType.And)).invoke(firstToken, restOfTokens)
+                composeParseCalls(parseToken(TokenType.Ampersand)).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
-        } else if (firstToken in setOf(TokenType.Or)) {
+        } else if (firstToken in setOf(TokenType.SingleOr)) {
             val (children, nextToken) =
-                composeParseCalls(parseToken(TokenType.Or)).invoke(firstToken, restOfTokens)
+                composeParseCalls(parseToken(TokenType.SingleOr)).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
         } else if (firstToken in setOf(TokenType.Assignment)) {
             val (children, nextToken) =
                 composeParseCalls(parseToken(TokenType.Assignment)).invoke(firstToken, restOfTokens)
+            ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
+        } else if (firstToken in setOf(TokenType.QuestionedDot)) {
+            val (children, nextToken) =
+                composeParseCalls(parseToken(TokenType.QuestionedDot)).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
         } else if (firstToken in setOf(TokenType.OpenBraces)) {
             val (children, nextToken) =
@@ -382,17 +390,37 @@ object Parser : ParserBase() {
             val (children, nextToken) =
                 composeParseCalls(parseToken(TokenType.SimpleName)).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
-        } else if (firstToken in setOf(TokenType.QuestionedDot)) {
-            val (children, nextToken) =
-                composeParseCalls(parseToken(TokenType.QuestionedDot)).invoke(firstToken, restOfTokens)
-            ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
         } else if (firstToken in setOf(TokenType.Elvis)) {
             val (children, nextToken) =
                 composeParseCalls(parseToken(TokenType.Elvis)).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
-        } else if (firstToken in setOf(Keyword.Val)) {
+        } else if (firstToken in setOf(TokenType.Or)) {
             val (children, nextToken) =
-                composeParseCalls(parseToken(Keyword.Val)).invoke(firstToken, restOfTokens)
+                composeParseCalls(parseToken(TokenType.Or)).invoke(firstToken, restOfTokens)
+            ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
+        } else if (firstToken in setOf(TokenType.And)) {
+            val (children, nextToken) =
+                composeParseCalls(parseToken(TokenType.And)).invoke(firstToken, restOfTokens)
+            ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
+        } else if (firstToken in setOf(TokenType.Equal)) {
+            val (children, nextToken) =
+                composeParseCalls(parseToken(TokenType.Equal)).invoke(firstToken, restOfTokens)
+            ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
+        } else if (firstToken in setOf(TokenType.NotEqual)) {
+            val (children, nextToken) =
+                composeParseCalls(parseToken(TokenType.NotEqual)).invoke(firstToken, restOfTokens)
+            ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
+        } else if (firstToken in setOf(TokenType.GreaterThanEqual)) {
+            val (children, nextToken) =
+                composeParseCalls(parseToken(TokenType.GreaterThanEqual)).invoke(firstToken, restOfTokens)
+            ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
+        } else if (firstToken in setOf(TokenType.LessThanEqual)) {
+            val (children, nextToken) =
+                composeParseCalls(parseToken(TokenType.LessThanEqual)).invoke(firstToken, restOfTokens)
+            ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
+        } else if (firstToken in setOf(TokenType.NullAwareDot)) {
+            val (children, nextToken) =
+                composeParseCalls(parseToken(TokenType.NullAwareDot), parseToken(Keyword.Val)).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
         } else if (firstToken in setOf(Keyword.Var)) {
             val (children, nextToken) =
@@ -439,7 +467,7 @@ object Parser : ParserBase() {
 
     private fun parseAnythingEndsWithApostrophes(firstToken: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.AnythingEndsWithApostrophes
-        return if (firstToken in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Underscore, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.And, TokenType.Or, TokenType.Assignment, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.QuestionedDot, TokenType.Elvis, TokenType.Unknown) || firstToken in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.When)) {
+        return if (firstToken in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Underscore, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Assignment, TokenType.QuestionedDot, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.Unknown) || firstToken in setOf(Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.When)) {
             val (children, nextToken) =
                 composeParseCalls(::parseAnythingButApostrophes, ::parseAnythingEndsWithApostrophes).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
@@ -588,7 +616,7 @@ object Parser : ParserBase() {
         val nodeType = InnerNodeType.DisjunctionExpressionRest
         return if (firstToken in setOf(TokenType.Or)) {
             val (children, nextToken) =
-                composeParseCalls(parseToken(TokenType.Or), parseToken(TokenType.Or), ::parseSpaceStar, ::parseDisjunctionExpression).invoke(firstToken, restOfTokens)
+                composeParseCalls(parseToken(TokenType.Or), ::parseSpaceStar, ::parseDisjunctionExpression).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
         } else ParseTreeNodeResult(ParseTreeNode.EpsilonLeaf(nodeType), firstToken)
     }
@@ -606,20 +634,20 @@ object Parser : ParserBase() {
         val nodeType = InnerNodeType.ConjunctionExpressionRest
         return if (firstToken in setOf(TokenType.And)) {
             val (children, nextToken) =
-                composeParseCalls(parseToken(TokenType.And), parseToken(TokenType.And), ::parseSpaceStar, ::parseConjunctionExpression).invoke(firstToken, restOfTokens)
+                composeParseCalls(parseToken(TokenType.And), ::parseSpaceStar, ::parseConjunctionExpression).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
         } else ParseTreeNodeResult(ParseTreeNode.EpsilonLeaf(nodeType), firstToken)
     }
 
     private fun parseEqualityOperator(firstToken: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.EqualityOperator
-        return if (firstToken in setOf(TokenType.Assignment)) {
+        return if (firstToken in setOf(TokenType.Equal)) {
             val (children, nextToken) =
-                composeParseCalls(parseToken(TokenType.Assignment), parseToken(TokenType.Assignment)).invoke(firstToken, restOfTokens)
+                composeParseCalls(parseToken(TokenType.Equal)).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
-        } else if (firstToken in setOf(TokenType.ExclamationMark)) {
+        } else if (firstToken in setOf(TokenType.NotEqual)) {
             val (children, nextToken) =
-                composeParseCalls(parseToken(TokenType.ExclamationMark), parseToken(TokenType.Assignment)).invoke(firstToken, restOfTokens)
+                composeParseCalls(parseToken(TokenType.NotEqual)).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
         } else throw CompilationError("not matching alternative for firstToken \"$firstToken\" in parseEqualityOperator")
     }
@@ -635,7 +663,7 @@ object Parser : ParserBase() {
 
     private fun parseEqualityExpressionRest(firstToken: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.EqualityExpressionRest
-        return if (firstToken in setOf(TokenType.Assignment, TokenType.ExclamationMark)) {
+        return if (firstToken in setOf(TokenType.Equal, TokenType.NotEqual)) {
             val (children, nextToken) =
                 composeParseCalls(::parseEqualityOperator, ::parseSpaceStar, ::parseEqualityExpression).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
@@ -646,11 +674,19 @@ object Parser : ParserBase() {
         val nodeType = InnerNodeType.ComparisonOperator
         return if (firstToken in setOf(TokenType.OpenBrokets)) {
             val (children, nextToken) =
-                composeParseCalls(parseToken(TokenType.OpenBrokets), ::parseAssignmentOptional).invoke(firstToken, restOfTokens)
+                composeParseCalls(parseToken(TokenType.OpenBrokets)).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
         } else if (firstToken in setOf(TokenType.CloseBrokets)) {
             val (children, nextToken) =
-                composeParseCalls(parseToken(TokenType.CloseBrokets), ::parseAssignmentOptional).invoke(firstToken, restOfTokens)
+                composeParseCalls(parseToken(TokenType.CloseBrokets)).invoke(firstToken, restOfTokens)
+            ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
+        } else if (firstToken in setOf(TokenType.LessThanEqual)) {
+            val (children, nextToken) =
+                composeParseCalls(parseToken(TokenType.LessThanEqual)).invoke(firstToken, restOfTokens)
+            ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
+        } else if (firstToken in setOf(TokenType.GreaterThanEqual)) {
+            val (children, nextToken) =
+                composeParseCalls(parseToken(TokenType.GreaterThanEqual)).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
         } else throw CompilationError("not matching alternative for firstToken \"$firstToken\" in parseComparisonOperator")
     }
@@ -666,7 +702,7 @@ object Parser : ParserBase() {
 
     private fun parseComparisonExpressionRest(firstToken: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.ComparisonExpressionRest
-        return if (firstToken in setOf(TokenType.OpenBrokets, TokenType.CloseBrokets)) {
+        return if (firstToken in setOf(TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.LessThanEqual, TokenType.GreaterThanEqual)) {
             val (children, nextToken) =
                 composeParseCalls(::parseComparisonOperator, ::parseSpaceStar, ::parseComparisonExpression).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
@@ -710,9 +746,9 @@ object Parser : ParserBase() {
             val (children, nextToken) =
                 composeParseCalls(parseToken(TokenType.Star)).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
-        } else if (firstToken in setOf(TokenType.Backslash)) {
+        } else if (firstToken in setOf(TokenType.Division)) {
             val (children, nextToken) =
-                composeParseCalls(parseToken(TokenType.Backslash)).invoke(firstToken, restOfTokens)
+                composeParseCalls(parseToken(TokenType.Division)).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
         } else if (firstToken in setOf(TokenType.Percentage)) {
             val (children, nextToken) =
@@ -732,7 +768,7 @@ object Parser : ParserBase() {
 
     private fun parseMultiplicativeExpressionRest(firstToken: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.MultiplicativeExpressionRest
-        return if (firstToken in setOf(TokenType.Star, TokenType.Backslash, TokenType.Percentage)) {
+        return if (firstToken in setOf(TokenType.Star, TokenType.Division, TokenType.Percentage)) {
             val (children, nextToken) =
                 composeParseCalls(::parseMultiplicativeOperator, ::parseSpaceStar, ::parseMultiplicativeExpression).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
@@ -745,9 +781,9 @@ object Parser : ParserBase() {
             val (children, nextToken) =
                 composeParseCalls(parseToken(TokenType.Dot)).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
-        } else if (firstToken in setOf(TokenType.QuestionedDot)) {
+        } else if (firstToken in setOf(TokenType.NullAwareDot)) {
             val (children, nextToken) =
-                composeParseCalls(parseToken(TokenType.QuestionedDot)).invoke(firstToken, restOfTokens)
+                composeParseCalls(parseToken(TokenType.NullAwareDot)).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
         } else throw CompilationError("not matching alternative for firstToken \"$firstToken\" in parseDotOrQuestionedDot")
     }
@@ -763,7 +799,7 @@ object Parser : ParserBase() {
 
     private fun parseMemberAccessRest(firstToken: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.MemberAccessRest
-        return if (firstToken in setOf(TokenType.Dot, TokenType.QuestionedDot)) {
+        return if (firstToken in setOf(TokenType.Dot, TokenType.NullAwareDot)) {
             val (children, nextToken) =
                 composeParseCalls(::parseDotOrQuestionedDot, ::parseSpaceStar, ::parseMemberAccess).invoke(firstToken, restOfTokens)
             ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)

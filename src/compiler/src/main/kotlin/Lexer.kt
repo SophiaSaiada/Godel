@@ -45,12 +45,13 @@ data class Token(val content: String, val type: TokenType) {
             "+" to TokenType.Plus,
             "-" to TokenType.Minus,
             "*" to TokenType.Star,
-            "/" to TokenType.Backslash,
+            "/" to TokenType.Division,
             "%" to TokenType.Percentage,
+            "\\" to TokenType.Backslash,
             "!" to TokenType.ExclamationMark,
             "?" to TokenType.QuestionMark,
-            "|" to TokenType.Or,
-            "&" to TokenType.And,
+            "|" to TokenType.SingleOr,
+            "&" to TokenType.Ampersand,
             " " to TokenType.WhiteSpace,
             "\t" to TokenType.WhiteSpace
         ).mapKeys { ClassificationByExactStringMatch(it.key) }
@@ -84,7 +85,7 @@ object Lexer {
     private val splittingCharacters =
         listOf(
             '=', ':', '{', '(', '<', '}', ')', '>', '.', ',', '"', ';', '?',
-            '\n', '_', '+', '-', '*', '/', '%', '!', '|', '&', ' ', '\t'
+            '\n', '_', '+', '-', '*', '/', '\\', '%', '!', '|', '&', ' ', '\t'
         )
 
     fun tokenizeSourceCode(sourceCode: Sequence<Char>): Sequence<String> =
@@ -93,22 +94,27 @@ object Lexer {
             .map { it.joinToString("") }
 
     fun lex(sourceCode: Sequence<Char>) =
-        combineNullAwareOperators(tokenizeSourceCode(sourceCode).map(::Token))
+        combineOperators(tokenizeSourceCode(sourceCode).map(::Token))
 
-    private fun combineNullAwareOperators(tokens: Sequence<Token>) =
+    private val combinedTokens = TokenType.values().filter { it.combinationOf.isNotEmpty() }
+
+    private fun combineOperators(tokens: Sequence<Token>) =
         sequence {
             var nextTokenToYield: Token? = null
             tokens.forEach { token ->
-                if (nextTokenToYield?.type == TokenType.QuestionMark)
-                    if (token.type == TokenType.Dot) {
-                        nextTokenToYield = Token("?.", TokenType.QuestionedDot)
-                        return@forEach
-                    } else if (token.type == TokenType.Colon) {
-                        nextTokenToYield = Token("?:", TokenType.Elvis)
-                        return@forEach
+                val combinationsMatchByStart =
+                    combinedTokens.filter { it.combinationOf.first() == nextTokenToYield?.type }
+                val matchingCombinations = combinationsMatchByStart.filter { it.combinationOf[1] == token.type }
+                nextTokenToYield =
+                    if (matchingCombinations.isNotEmpty()) {
+                        Token(
+                            nextTokenToYield?.content.orEmpty() + token.content,
+                            matchingCombinations.single()
+                        )
+                    } else {
+                        nextTokenToYield?.let { yield(it) }
+                        token
                     }
-                nextTokenToYield?.let { yield(it) }
-                nextTokenToYield = token
             }
             nextTokenToYield?.let { yield(it) }
         }

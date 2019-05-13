@@ -1,8 +1,12 @@
 @Tokens
     WhiteSpace, SemiColon, BreakLine, Colon, Dot, Comma, Apostrophes, Underscore,
-    Percentage, Backslash, Star, Minus, Plus, ExclamationMark, QuestionMark, And, Or,
-    Assignment, OpenBraces, CloseBraces, OpenParenthesis, CloseParenthesis, OpenBrokets, CloseBrokets,
-    DecimalLiteral, SimpleName, QuestionedDot, Elvis,
+    Percentage, Backslash, Star, Minus, Plus, Division, ExclamationMark, QuestionMark, Ampersand, SingleOr,
+    Keyword, Assignment, QuestionedDot,
+
+    OpenBraces, CloseBraces, OpenParenthesis, CloseParenthesis, OpenBrokets, CloseBrokets,
+    DecimalLiteral, SimpleName,
+
+    Elvis, Or, And, Equal, NotEqual, GreaterThanEqual, LessThanEqual, NullAwareDot,
 
     KeywordVal, KeywordVar, KeywordFun, KeywordClass, KeywordTrue, KeywordFalse,
     KeywordIf, KeywordElse, KeywordWhile, KeywordPrivate, KeywordPublic, KeywordWhen,
@@ -41,13 +45,22 @@
 <MemberAccessWithoutFirstDot> -> <SpaceStar> SimpleName
 
 <StringLiteral> -> Apostrophes <AnythingEndsWithApostrophes>
-<AnythingButApostrophes> -> WhiteSpace | SemiColon | BreakLine | Colon | Dot | Comma | Underscore |
-                            Percentage | Backslash | Star | Minus | Plus | ExclamationMark | QuestionMark | And | Or |
-                            Assignment | OpenBraces | CloseBraces | OpenParenthesis | CloseParenthesis | OpenBrokets |
-                            CloseBrokets | DecimalLiteral | SimpleName | QuestionedDot | Elvis |
-                            KeywordVal | KeywordVar | KeywordFun | KeywordClass | KeywordTrue | KeywordFalse |
-                            KeywordIf | KeywordElse | KeywordWhile | KeywordWhen |
-                            Unknown
+<AnythingButApostrophes> ->
+    WhiteSpace | SemiColon | BreakLine | Colon | Dot | Comma | Underscore |
+    Percentage | Backslash | Star | Minus | Plus | Division | ExclamationMark | QuestionMark | Ampersand | SingleOr |
+    Assignment | QuestionedDot |
+
+    OpenBraces | CloseBraces | OpenParenthesis | CloseParenthesis | OpenBrokets | CloseBrokets |
+    DecimalLiteral | SimpleName |
+
+    Elvis | Or | And | Equal |
+    NotEqual | GreaterThanEqual |
+    LessThanEqual | NullAwareDot
+
+    KeywordVal | KeywordVar | KeywordFun | KeywordClass | KeywordTrue | KeywordFalse |
+    KeywordIf | KeywordElse | KeywordWhile | KeywordWhen |
+
+    Unknown
 <AnythingEndsWithApostrophes> -> <AnythingButApostrophes> <AnythingEndsWithApostrophes> | Apostrophes
 <IfExpression> -> KeywordIf <SpaceStar> <ParenthesizedExpression> <SpaceStar>
                   <BlockOrStatement> <WhitespaceStar> <IfExpressionRest>
@@ -74,16 +87,16 @@
 <InfixExpressionRest> -> SimpleName <SpaceStar> <InfixExpression> | ε
 
 <DisjunctionExpression> -> <ConjunctionExpression> <WhitespaceStar> <DisjunctionExpressionRest>
-<DisjunctionExpressionRest> -> Or Or <SpaceStar> <DisjunctionExpression> | ε
+<DisjunctionExpressionRest> -> Or <SpaceStar> <DisjunctionExpression> | ε
 
 <ConjunctionExpression> -> <EqualityExpression> <WhitespaceStar> <ConjunctionExpressionRest>
-<ConjunctionExpressionRest> -> And And <SpaceStar> <ConjunctionExpression> | ε
+<ConjunctionExpressionRest> -> And <SpaceStar> <ConjunctionExpression> | ε
 
-<EqualityOperator> -> Assignment Assignment | ExclamationMark Assignment
+<EqualityOperator> -> Equal | NotEqual
 <EqualityExpression> -> <ComparisonExpression> <WhitespaceStar> <EqualityExpressionRest>
 <EqualityExpressionRest> -> <EqualityOperator> <SpaceStar> <EqualityExpression> | ε
 
-<ComparisonOperator> -> OpenBrokets <AssignmentOptional> | CloseBrokets <AssignmentOptional>
+<ComparisonOperator> -> OpenBrokets | CloseBrokets | LessThanEqual | GreaterThanEqual
 <ComparisonExpression> -> <AdditiveExpression> <WhitespaceStar> <ComparisonExpressionRest>
 <ComparisonExpressionRest> -> <ComparisonOperator> <SpaceStar> <ComparisonExpression> | ε
 
@@ -91,11 +104,11 @@
 <AdditiveExpression> -> <MultiplicativeExpression> <WhitespaceStar> <AdditiveExpressionRest>
 <AdditiveExpressionRest> -> <AdditiveOperator> <SpaceStar> <AdditiveExpression> | ε
 
-<MultiplicativeOperator> -> Star | Backslash | Percentage
+<MultiplicativeOperator> -> Star | Division | Percentage
 <MultiplicativeExpression> -> <MemberAccess> <WhitespaceStar> <MultiplicativeExpressionRest>
 <MultiplicativeExpressionRest> -> <MultiplicativeOperator> <SpaceStar> <MultiplicativeExpression> | ε
 
-<DotOrQuestionedDot> -> Dot | QuestionedDot
+<DotOrQuestionedDot> -> Dot | NullAwareDot
 <MemberAccess> -> <Invocation> <WhitespaceStar> <MemberAccessRest>
 <MemberAccessRest> -> <DotOrQuestionedDot> <SpaceStar> <MemberAccess> | ε
 
