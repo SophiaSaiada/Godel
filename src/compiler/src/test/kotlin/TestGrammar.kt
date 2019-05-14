@@ -45,8 +45,10 @@ class TestGrammar : StringSpec({
     "val declaration" {
         shouldAccept(
             "val x: Int = 3.2",
-            "val x: Int<T: Int, X> = 3.2", // valid by the grammar, invalid by the AST level
+            "val x: Int<T= Int, X> = 3.2",
             "val x: Int<Int, String> = 3.2",
+            "val x: Int<Int, S=String> = 3.2",
+            "val x: Int<T=Int, S=String> = 3.2",
             "val x = 3.2",
             "val _xYz = \"hello world!\"",
             "val _xyz = 4",
@@ -154,6 +156,7 @@ class TestGrammar : StringSpec({
             "x().a.b + 1(z).c()",
             "(x().a.b + 1)(z).c()",
             "(x().a.b + 1)(z).c()()()(1, 2, 3)",
+            "(x<Int>().a.b + 1)<String>(z).c<X=Int, t=Y>()()<T=List<X>>()(1, 2, 3)",
             "(x().a.b + 1)(z).c()()()(1, 2, 3, 4)",
             "(x().a.b + 1)(z).(c())", // Should be prevented when building AST
             "f(1, 2.3, \"hello\")",

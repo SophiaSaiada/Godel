@@ -17,7 +17,9 @@ object ASTJSONizer {
         when (this) {
             is ASTNode.Statement,
             is ASTNode.Expression,
-            is ASTNode.FunctionArgument ->
+            is ASTNode.FunctionArgument,
+            is ASTNode.TypeArgument,
+            is ASTNode.Type ->
                 this::class.memberProperties.map {
                     it.name to it.getter.call(this)
                 }.sortedBy { (name, _) ->

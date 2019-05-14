@@ -43,7 +43,6 @@
                             "value": 1
                           }
                         },
-                        "operator": "Plus",
                         "right": {
                           "name": "BinaryExpression",
                           "props": {
@@ -56,40 +55,39 @@
                                     "value": 2
                                   }
                                 },
-                                "operator": "Division",
                                 "right": {
                                   "name": "IntLiteral",
                                   "props": {
                                     "value": 3
                                   }
-                                }
+                                },
+                                "operator": "Division"
                               }
                             },
-                            "operator": "Times",
                             "right": {
                               "name": "IntLiteral",
                               "props": {
                                 "value": 4
                               }
-                            }
+                            },
+                            "operator": "Times"
                           }
-                        }
+                        },
+                        "operator": "Plus"
                       }
                     },
-                    "operator": "Plus",
                     "right": {
                       "name": "FloatLiteral",
                       "props": {
                         "value": 4.2
                       }
-                    }
+                    },
+                    "operator": "Plus"
                   }
                 },
-                "operator": "Elvis",
                 "right": {
                   "name": "InfixExpression",
                   "props": {
-                    "function": "to",
                     "left": {
                       "name": "BinaryExpression",
                       "props": {
@@ -105,6 +103,31 @@
                                     "left": {
                                       "name": "Invocation",
                                       "props": {
+                                        "function": {
+                                          "name": "BinaryExpression",
+                                          "props": {
+                                            "left": {
+                                              "name": "BinaryExpression",
+                                              "props": {
+                                                "left": {
+                                                  "name": "IntLiteral",
+                                                  "props": {
+                                                    "value": 5
+                                                  }
+                                                },
+                                                "right": "y",
+                                                "operator": "Dot"
+                                              }
+                                            },
+                                            "right": {
+                                              "name": "Identifier",
+                                              "props": {
+                                                "value": "z"
+                                              }
+                                            },
+                                            "operator": "Dot"
+                                          }
+                                        },
                                         "arguments": [
                                           {
                                             "name": "FunctionArgument",
@@ -143,43 +166,33 @@
                                             }
                                           }
                                         ],
-                                        "function": {
-                                          "name": "BinaryExpression",
-                                          "props": {
-                                            "left": {
-                                              "name": "BinaryExpression",
-                                              "props": {
-                                                "left": {
-                                                  "name": "IntLiteral",
-                                                  "props": {
-                                                    "value": 5
-                                                  }
-                                                },
-                                                "operator": "Dot",
-                                                "right": "y"
-                                              }
-                                            },
-                                            "operator": "Dot",
-                                            "right": {
-                                              "name": "Identifier",
-                                              "props": {
-                                                "value": "z"
+                                        "typeArguments": [
+                                          {
+                                            "name": "TypeArgument",
+                                            "props": {
+                                              "name": "X",
+                                              "value": {
+                                                "name": "Type",
+                                                "props": {
+                                                  "name": "String",
+                                                  "nullable": false,
+                                                  "typesParameters": []
+                                                }
                                               }
                                             }
                                           }
-                                        }
+                                        ]
                                       }
                                     },
-                                    "operator": "LessThanEqual",
                                     "right": {
                                       "name": "IntLiteral",
                                       "props": {
                                         "value": 6
                                       }
-                                    }
+                                    },
+                                    "operator": "LessThanEqual"
                                   }
                                 },
-                                "operator": "Equal",
                                 "right": {
                                   "name": "BinaryExpression",
                                   "props": {
@@ -189,33 +202,34 @@
                                         "value": 7
                                       }
                                     },
-                                    "operator": "GreaterThan",
                                     "right": {
                                       "name": "IntLiteral",
                                       "props": {
                                         "value": 8
                                       }
-                                    }
+                                    },
+                                    "operator": "GreaterThan"
                                   }
-                                }
+                                },
+                                "operator": "Equal"
                               }
                             },
-                            "operator": "And",
                             "right": {
                               "name": "IntLiteral",
                               "props": {
                                 "value": 9
                               }
-                            }
+                            },
+                            "operator": "And"
                           }
                         },
-                        "operator": "Or",
                         "right": {
                           "name": "IntLiteral",
                           "props": {
                             "value": 10
                           }
-                        }
+                        },
+                        "operator": "Or"
                       }
                     },
                     "right": {
@@ -223,9 +237,11 @@
                       "props": {
                         "value": 11
                       }
-                    }
+                    },
+                    "function": "to"
                   }
-                }
+                },
+                "operator": "Elvis"
               }
             }
           }
@@ -577,61 +593,18 @@
         {
           "name": "Invocation",
           "props": {
-            "arguments": [
-              {
-                "name": "FunctionArgument",
-                "props": {
-                  "name": null,
-                  "value": {
-                    "name": "Identifier",
-                    "props": {
-                      "value": "z"
-                    }
-                  }
-                }
-              }
-            ],
             "function": {
               "name": "Invocation",
               "props": {
-                "arguments": [
-                  {
-                    "name": "FunctionArgument",
-                    "props": {
-                      "name": null,
-                      "value": {
-                        "name": "Identifier",
-                        "props": {
-                          "value": "y"
-                        }
-                      }
-                    }
-                  }
-                ],
                 "function": {
                   "name": "Invocation",
                   "props": {
-                    "arguments": [
-                      {
-                        "name": "FunctionArgument",
-                        "props": {
-                          "name": null,
-                          "value": {
-                            "name": "Identifier",
-                            "props": {
-                              "value": "x"
-                            }
-                          }
-                        }
-                      }
-                    ],
                     "function": {
                       "name": "BinaryExpression",
                       "props": {
                         "left": {
                           "name": "Invocation",
                           "props": {
-                            "arguments": [],
                             "function": {
                               "name": "BinaryExpression",
                               "props": {
@@ -647,43 +620,90 @@
                                             "value": 1
                                           }
                                         },
-                                        "operator": "Dot",
-                                        "right": "a"
+                                        "right": "a",
+                                        "operator": "Dot"
                                       }
                                     },
-                                    "operator": "Dot",
                                     "right": {
                                       "name": "Identifier",
                                       "props": {
                                         "value": "b"
                                       }
-                                    }
+                                    },
+                                    "operator": "Dot"
                                   }
                                 },
-                                "operator": "Dot",
                                 "right": {
                                   "name": "Identifier",
                                   "props": {
                                     "value": "c"
                                   }
-                                }
+                                },
+                                "operator": "Dot"
                               }
-                            }
+                            },
+                            "arguments": [],
+                            "typeArguments": []
                           }
                         },
-                        "operator": "Dot",
                         "right": {
                           "name": "Identifier",
                           "props": {
                             "value": "d"
                           }
+                        },
+                        "operator": "Dot"
+                      }
+                    },
+                    "arguments": [
+                      {
+                        "name": "FunctionArgument",
+                        "props": {
+                          "name": null,
+                          "value": {
+                            "name": "Identifier",
+                            "props": {
+                              "value": "x"
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "typeArguments": []
+                  }
+                },
+                "arguments": [
+                  {
+                    "name": "FunctionArgument",
+                    "props": {
+                      "name": null,
+                      "value": {
+                        "name": "Identifier",
+                        "props": {
+                          "value": "y"
                         }
                       }
                     }
                   }
+                ],
+                "typeArguments": []
+              }
+            },
+            "arguments": [
+              {
+                "name": "FunctionArgument",
+                "props": {
+                  "name": null,
+                  "value": {
+                    "name": "Identifier",
+                    "props": {
+                      "value": "z"
+                    }
+                  }
                 }
               }
-            }
+            ],
+            "typeArguments": []
           }
         }
       ]
@@ -696,6 +716,102 @@
         {
           "name": "Invocation",
           "props": {
+            "function": {
+              "name": "Invocation",
+              "props": {
+                "function": {
+                  "name": "Invocation",
+                  "props": {
+                    "function": {
+                      "name": "BinaryExpression",
+                      "props": {
+                        "left": {
+                          "name": "Invocation",
+                          "props": {
+                            "function": {
+                              "name": "BinaryExpression",
+                              "props": {
+                                "left": {
+                                  "name": "BinaryExpression",
+                                  "props": {
+                                    "left": {
+                                      "name": "BinaryExpression",
+                                      "props": {
+                                        "left": {
+                                          "name": "IntLiteral",
+                                          "props": {
+                                            "value": 1
+                                          }
+                                        },
+                                        "right": "a",
+                                        "operator": "Dot"
+                                      }
+                                    },
+                                    "right": {
+                                      "name": "Identifier",
+                                      "props": {
+                                        "value": "b"
+                                      }
+                                    },
+                                    "operator": "Dot"
+                                  }
+                                },
+                                "right": {
+                                  "name": "Identifier",
+                                  "props": {
+                                    "value": "c"
+                                  }
+                                },
+                                "operator": "Dot"
+                              }
+                            },
+                            "arguments": [],
+                            "typeArguments": []
+                          }
+                        },
+                        "right": {
+                          "name": "Identifier",
+                          "props": {
+                            "value": "d"
+                          }
+                        },
+                        "operator": "Dot"
+                      }
+                    },
+                    "arguments": [
+                      {
+                        "name": "FunctionArgument",
+                        "props": {
+                          "name": null,
+                          "value": {
+                            "name": "Identifier",
+                            "props": {
+                              "value": "x"
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "typeArguments": []
+                  }
+                },
+                "arguments": [
+                  {
+                    "name": "FunctionArgument",
+                    "props": {
+                      "name": null,
+                      "value": {
+                        "name": "Identifier",
+                        "props": {
+                          "value": "y"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "typeArguments": []
+              }
+            },
             "arguments": [
               {
                 "name": "FunctionArgument",
@@ -722,47 +838,31 @@
                 }
               }
             ],
+            "typeArguments": []
+          }
+        }
+      ]
+    }
+  },
+  "multiple member accesses and invocations with named regular and type parameters": {
+    "name": "Statements",
+    "props": {
+      "statements": [
+        {
+          "name": "Invocation",
+          "props": {
             "function": {
               "name": "Invocation",
               "props": {
-                "arguments": [
-                  {
-                    "name": "FunctionArgument",
-                    "props": {
-                      "name": null,
-                      "value": {
-                        "name": "Identifier",
-                        "props": {
-                          "value": "y"
-                        }
-                      }
-                    }
-                  }
-                ],
                 "function": {
                   "name": "Invocation",
                   "props": {
-                    "arguments": [
-                      {
-                        "name": "FunctionArgument",
-                        "props": {
-                          "name": null,
-                          "value": {
-                            "name": "Identifier",
-                            "props": {
-                              "value": "x"
-                            }
-                          }
-                        }
-                      }
-                    ],
                     "function": {
                       "name": "BinaryExpression",
                       "props": {
                         "left": {
                           "name": "Invocation",
                           "props": {
-                            "arguments": [],
                             "function": {
                               "name": "BinaryExpression",
                               "props": {
@@ -778,43 +878,190 @@
                                             "value": 1
                                           }
                                         },
-                                        "operator": "Dot",
-                                        "right": "a"
+                                        "right": "a",
+                                        "operator": "Dot"
                                       }
                                     },
-                                    "operator": "Dot",
                                     "right": {
                                       "name": "Identifier",
                                       "props": {
                                         "value": "b"
                                       }
-                                    }
+                                    },
+                                    "operator": "Dot"
                                   }
                                 },
-                                "operator": "Dot",
                                 "right": {
                                   "name": "Identifier",
                                   "props": {
                                     "value": "c"
                                   }
-                                }
+                                },
+                                "operator": "Dot"
                               }
-                            }
+                            },
+                            "arguments": [],
+                            "typeArguments": []
                           }
                         },
-                        "operator": "Dot",
                         "right": {
                           "name": "Identifier",
                           "props": {
                             "value": "d"
                           }
+                        },
+                        "operator": "Dot"
+                      }
+                    },
+                    "arguments": [
+                      {
+                        "name": "FunctionArgument",
+                        "props": {
+                          "name": null,
+                          "value": {
+                            "name": "Identifier",
+                            "props": {
+                              "value": "x"
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "typeArguments": []
+                  }
+                },
+                "arguments": [
+                  {
+                    "name": "FunctionArgument",
+                    "props": {
+                      "name": null,
+                      "value": {
+                        "name": "Identifier",
+                        "props": {
+                          "value": "y"
                         }
                       }
                     }
                   }
+                ],
+                "typeArguments": [
+                  {
+                    "name": "TypeArgument",
+                    "props": {
+                      "name": "T",
+                      "value": {
+                        "name": "Type",
+                        "props": {
+                          "name": "List",
+                          "nullable": false,
+                          "typesParameters": [
+                            {
+                              "name": "TypeArgument",
+                              "props": {
+                                "name": null,
+                                "value": {
+                                  "name": "Type",
+                                  "props": {
+                                    "name": "T",
+                                    "nullable": true,
+                                    "typesParameters": []
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "arguments": [
+              {
+                "name": "FunctionArgument",
+                "props": {
+                  "name": "a",
+                  "value": {
+                    "name": "Identifier",
+                    "props": {
+                      "value": "z"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "FunctionArgument",
+                "props": {
+                  "name": "b",
+                  "value": {
+                    "name": "Identifier",
+                    "props": {
+                      "value": "x"
+                    }
+                  }
                 }
               }
-            }
+            ],
+            "typeArguments": [
+              {
+                "name": "TypeArgument",
+                "props": {
+                  "name": "X",
+                  "value": {
+                    "name": "Type",
+                    "props": {
+                      "name": "String",
+                      "nullable": true,
+                      "typesParameters": []
+                    }
+                  }
+                }
+              },
+              {
+                "name": "TypeArgument",
+                "props": {
+                  "name": "Y",
+                  "value": {
+                    "name": "Type",
+                    "props": {
+                      "name": "Int",
+                      "nullable": false,
+                      "typesParameters": []
+                    }
+                  }
+                }
+              },
+              {
+                "name": "TypeArgument",
+                "props": {
+                  "name": "T",
+                  "value": {
+                    "name": "Type",
+                    "props": {
+                      "name": "List",
+                      "nullable": true,
+                      "typesParameters": [
+                        {
+                          "name": "TypeArgument",
+                          "props": {
+                            "name": null,
+                            "value": {
+                              "name": "Type",
+                              "props": {
+                                "name": "Int",
+                                "nullable": true,
+                                "typesParameters": []
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
           }
         }
       ]

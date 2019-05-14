@@ -33,7 +33,7 @@ class TestASTBuilder : StringSpec({
     }
 
     "operations precedence" {
-        "val x = 1 + 2 / 3 * 4 + 4.2 ?: 5.y.z(a, b, c) <= 6 == 7 > 8 && 9 || 10 to 11" astShouldBe "operations precedence"
+        "val x = 1 + 2 / 3 * 4 + 4.2 ?: 5.y.z<X=String>(a, b, c) <= 6 == 7 > 8 && 9 || 10 to 11" astShouldBe "operations precedence"
     }
 
     "function calls" {
@@ -41,6 +41,12 @@ class TestASTBuilder : StringSpec({
         "(1.a.b.c()).d(x)(y)(z)" astShouldBe "multiple member accesses and invocations" // associativity
         "(1.a.b).c().d(x)(y)(z)" astShouldBe "multiple member accesses and invocations"
         "1.a.b.c().d(x)(y)(a=z, b=x)" astShouldBe "multiple member accesses and invocations with named parameters"
+        """1.a.b.c().d(x)<T=
+            |List<
+            |T?
+            |>>(y)<X=
+            |String?, Y=Int
+            |,T=List<Int?>?>(a=z, b=x)""".trimMargin() astShouldBe "multiple member accesses and invocations with named regular and type parameters"
     }
 
     "if" {

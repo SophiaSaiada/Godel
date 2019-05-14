@@ -4,7 +4,7 @@ object Parser : ParserBase() {
     override val start = ::parseProgram
 
     enum class InnerNodeType : NodeType {
-        Program, Statements, StatementsRest, Statement, Block, BlockOrStatement, Declaration, ValDeclaration, ValDeclarationRest, Type, TypeParameters, TypeParametersNamesPlus, TypeParametersInheritanceOptional, TypeParametersNamesPlusRest, QuestionMarkOptional, ParenthesizedExpression, PaddedExpression, Expression, SimpleExpression, BooleanLiteral, Number, NumberRest, DecimalLiteralOrMemberAccess, MemberAccessWithoutFirstDot, StringLiteral, AnythingButApostrophes, AnythingEndsWithApostrophes, IfExpression, IfExpressionRest, ElseExpression, ClassDeclaration, MemberDeclarationStar, MemberDeclarationStarRest, MemberDeclaration, MemberDeclarationRest, PrivateOrPublic, ElvisExpression, ElvisExpressionRest, ReturnExpression, InfixExpression, InfixExpressionRest, DisjunctionExpression, DisjunctionExpressionRest, ConjunctionExpression, ConjunctionExpressionRest, EqualityOperator, EqualityExpression, EqualityExpressionRest, ComparisonOperator, ComparisonExpression, ComparisonExpressionRest, AdditiveOperator, AdditiveExpression, AdditiveExpressionRest, MultiplicativeOperator, MultiplicativeExpression, MultiplicativeExpressionRest, DotOrQuestionedDot, MemberAccess, MemberAccessRest, Invocation, InvocationArgumentsStar, InvocationArguments, ArgumentStar, NamedArgumentPostfixOptional, ArgumentStarRest, SimpleOrParenthesizedExpression, FunctionDeclaration, ReturnTypeOptional, FunctionParameters, FunctionParameterStar, FunctionParameterStarRest, FunctionParameter, WhiteSpaceOrBreakLine, SpaceStar, SpacePlus, WhitespaceStar, WhitespacePlus, SEMI, SEMIRest, SEMIOptional, BreakLineOptional, SemiColonOptional, AssignmentOptional
+        Program, Statements, StatementsRest, Statement, Block, BlockOrStatement, Declaration, ValDeclaration, ValDeclarationRest, Type, TypeArgumentsOptional, TypeArguments, TypeArgumentsContent, TypeNamedArgumentsOptional, TypeArgumentsContentRest, TypeParameters, TypeParametersNamesPlus, TypeParametersInheritanceOptional, TypeParametersNamesPlusRest, QuestionMarkOptional, ParenthesizedExpression, PaddedExpression, Expression, SimpleExpression, BooleanLiteral, Number, NumberRest, DecimalLiteralOrMemberAccess, MemberAccessWithoutFirstDot, StringLiteral, AnythingButApostrophes, AnythingEndsWithApostrophes, IfExpression, IfExpressionRest, ElseExpression, ClassDeclaration, MemberDeclarationStar, MemberDeclarationStarRest, MemberDeclaration, MemberDeclarationRest, PrivateOrPublic, ElvisExpression, ElvisExpressionRest, ReturnExpression, InfixExpression, InfixExpressionRest, DisjunctionExpression, DisjunctionExpressionRest, ConjunctionExpression, ConjunctionExpressionRest, EqualityOperator, EqualityExpression, EqualityExpressionRest, ComparisonOperator, ComparisonExpression, ComparisonExpressionRest, AdditiveOperator, AdditiveExpression, AdditiveExpressionRest, MultiplicativeOperator, MultiplicativeExpression, MultiplicativeExpressionRest, DotOrQuestionedDot, MemberAccess, MemberAccessRest, Invocation, InvocationArgumentsStar, InvocationArguments, ArgumentStar, NamedArgumentPostfixOptional, ArgumentStarRest, SimpleOrParenthesizedExpression, FunctionDeclaration, ReturnTypeOptional, FunctionParameters, FunctionParameterStar, FunctionParameterStarRest, FunctionParameter, WhiteSpaceOrBreakLine, SpaceStar, SpacePlus, WhitespaceStar, WhitespacePlus, SEMI, SEMIRest, SEMIOptional, BreakLineOptional, SemiColonOptional, AssignmentOptional
     }
 
     private fun parseProgram(firstToken: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
@@ -157,13 +157,79 @@ object Parser : ParserBase() {
         val nodeType = InnerNodeType.Type
         return if (firstToken in setOf(TokenType.SimpleName)) {
             val (child0, nextToken1) = parseToken(TokenType.SimpleName).invoke(firstToken, restOfTokens)
-            val (child1, nextToken2) = parseTypeParameters(nextToken1, restOfTokens)
+            val (child1, nextToken2) = parseTypeArgumentsOptional(nextToken1, restOfTokens)
             val (child2, nextToken3) = parseQuestionMarkOptional(nextToken2, restOfTokens)
             ParseTreeNodeResult(
                 ParseTreeNode.Inner(listOf(child0, child1, child2), nodeType),
                 nextToken3
             )
         } else throw CompilationError("not matching alternative for firstToken \"$firstToken\" in parseType")
+    }
+
+    private fun parseTypeArgumentsOptional(firstToken: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
+        val nodeType = InnerNodeType.TypeArgumentsOptional
+        return if (firstToken in setOf(TokenType.OpenBrokets)) {
+            val (child0, nextToken1) = parseTypeArguments(firstToken, restOfTokens)
+            ParseTreeNodeResult(
+                ParseTreeNode.Inner(listOf(child0), nodeType),
+                nextToken1
+            )
+        } else ParseTreeNodeResult(ParseTreeNode.EpsilonLeaf(nodeType), firstToken)
+    }
+
+    private fun parseTypeArguments(firstToken: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
+        val nodeType = InnerNodeType.TypeArguments
+        return if (firstToken in setOf(TokenType.OpenBrokets)) {
+            val (child0, nextToken1) = parseToken(TokenType.OpenBrokets).invoke(firstToken, restOfTokens)
+            val (child1, nextToken2) = parseSpaceStar(nextToken1, restOfTokens)
+            val (child2, nextToken3) = parseTypeArgumentsContent(nextToken2, restOfTokens)
+            val (child3, nextToken4) = parseToken(TokenType.CloseBrokets).invoke(nextToken3, restOfTokens)
+            ParseTreeNodeResult(
+                ParseTreeNode.Inner(listOf(child0, child1, child2, child3), nodeType),
+                nextToken4
+            )
+        } else throw CompilationError("not matching alternative for firstToken \"$firstToken\" in parseTypeArguments")
+    }
+
+    private fun parseTypeArgumentsContent(firstToken: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
+        val nodeType = InnerNodeType.TypeArgumentsContent
+        return if (firstToken in setOf(TokenType.SimpleName)) {
+            val (child0, nextToken1) = parseType(firstToken, restOfTokens)
+            val (child1, nextToken2) = parseSpaceStar(nextToken1, restOfTokens)
+            val (child2, nextToken3) = parseTypeNamedArgumentsOptional(nextToken2, restOfTokens)
+            val (child3, nextToken4) = parseSpaceStar(nextToken3, restOfTokens)
+            val (child4, nextToken5) = parseTypeArgumentsContentRest(nextToken4, restOfTokens)
+            ParseTreeNodeResult(
+                ParseTreeNode.Inner(listOf(child0, child1, child2, child3, child4), nodeType),
+                nextToken5
+            )
+        } else throw CompilationError("not matching alternative for firstToken \"$firstToken\" in parseTypeArgumentsContent")
+    }
+
+    private fun parseTypeNamedArgumentsOptional(firstToken: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
+        val nodeType = InnerNodeType.TypeNamedArgumentsOptional
+        return if (firstToken in setOf(TokenType.Assignment)) {
+            val (child0, nextToken1) = parseToken(TokenType.Assignment).invoke(firstToken, restOfTokens)
+            val (child1, nextToken2) = parseSpaceStar(nextToken1, restOfTokens)
+            val (child2, nextToken3) = parseType(nextToken2, restOfTokens)
+            ParseTreeNodeResult(
+                ParseTreeNode.Inner(listOf(child0, child1, child2), nodeType),
+                nextToken3
+            )
+        } else ParseTreeNodeResult(ParseTreeNode.EpsilonLeaf(nodeType), firstToken)
+    }
+
+    private fun parseTypeArgumentsContentRest(firstToken: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
+        val nodeType = InnerNodeType.TypeArgumentsContentRest
+        return if (firstToken in setOf(TokenType.Comma)) {
+            val (child0, nextToken1) = parseToken(TokenType.Comma).invoke(firstToken, restOfTokens)
+            val (child1, nextToken2) = parseSpaceStar(nextToken1, restOfTokens)
+            val (child2, nextToken3) = parseTypeArgumentsContent(nextToken2, restOfTokens)
+            ParseTreeNodeResult(
+                ParseTreeNode.Inner(listOf(child0, child1, child2), nodeType),
+                nextToken3
+            )
+        } else ParseTreeNodeResult(ParseTreeNode.EpsilonLeaf(nodeType), firstToken)
     }
 
     private fun parseTypeParameters(firstToken: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
@@ -1185,7 +1251,16 @@ object Parser : ParserBase() {
 
     private fun parseInvocationArgumentsStar(firstToken: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.InvocationArgumentsStar
-        return if (firstToken in setOf(TokenType.OpenParenthesis)) {
+        return if (firstToken in setOf(TokenType.OpenBrokets)) {
+            val (child0, nextToken1) = parseTypeArguments(firstToken, restOfTokens)
+            val (child1, nextToken2) = parseInvocationArguments(nextToken1, restOfTokens)
+            val (child2, nextToken3) = parseWhitespaceStar(nextToken2, restOfTokens)
+            val (child3, nextToken4) = parseInvocationArgumentsStar(nextToken3, restOfTokens)
+            ParseTreeNodeResult(
+                ParseTreeNode.Inner(listOf(child0, child1, child2, child3), nodeType),
+                nextToken4
+            )
+        } else if (firstToken in setOf(TokenType.OpenParenthesis)) {
             val (child0, nextToken1) = parseInvocationArguments(firstToken, restOfTokens)
             val (child1, nextToken2) = parseWhitespaceStar(nextToken1, restOfTokens)
             val (child2, nextToken3) = parseInvocationArgumentsStar(nextToken2, restOfTokens)

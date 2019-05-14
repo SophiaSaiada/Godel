@@ -35,11 +35,16 @@ class ASTNode {
     class Type(
         val name: String,
         // e.g. T extends Int -> T is the key and Int is the value
-        val typesParameters: Map<String, Type?>,
+        val typesParameters: List<TypeArgument>,
         val nullable: Boolean
     ) : Serializable
 
     interface FuncDeclarationsOrValDeclarations
+
+    class TypeArgument(
+        val name: String?,
+        val value: Type
+    )
 
     // --------------- Literals --------------- //
 
@@ -154,7 +159,11 @@ class ASTNode {
 
     class BinaryExpression<L, R>(val left: L, val operator: BinaryOperator, val right: R) : Expression
     class InfixExpression<L, R>(val left: L, val function: String, val right: R) : Expression
-    class Invocation(val function: Expression, val arguments: List<FunctionArgument>) : Expression
+    class Invocation(
+        val function: Expression,
+        val typeArguments: List<TypeArgument>,
+        val arguments: List<FunctionArgument>
+    ) : Expression
     class FunctionArgument(val name: String?, val value: Expression) : Serializable
 
     interface FunctionCall

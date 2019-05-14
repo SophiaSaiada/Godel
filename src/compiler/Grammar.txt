@@ -28,7 +28,14 @@
 <ValDeclarationRest> -> Colon <SpaceStar> <Type> <SpaceStar> Assignment <PaddedExpression> |
                         Assignment <PaddedExpression>
 
-<Type> -> SimpleName <TypeParameters> <QuestionMarkOptional>
+<Type> -> SimpleName <TypeArgumentsOptional> <QuestionMarkOptional>
+
+<TypeArgumentsOptional> -> <TypeArguments> | ε
+<TypeArguments> -> OpenBrokets <SpaceStar> <TypeArgumentsContent> CloseBrokets
+<TypeArgumentsContent> -> <Type> <SpaceStar> <TypeNamedArgumentsOptional> <SpaceStar> <TypeArgumentsContentRest>
+<TypeNamedArgumentsOptional> -> Assignment <SpaceStar> <Type> | ε
+<TypeArgumentsContentRest> -> Comma <SpaceStar> <TypeArgumentsContent> | ε
+
 <TypeParameters> -> OpenBrokets <SpaceStar> <TypeParametersNamesPlus> <SpaceStar> CloseBrokets | ε
 <TypeParametersNamesPlus> -> SimpleName <SpaceStar> <TypeParametersInheritanceOptional> <TypeParametersNamesPlusRest>
 <TypeParametersInheritanceOptional> -> Colon <SpaceStar> <Type> | ε
@@ -116,7 +123,8 @@
 <MemberAccessRest> -> <DotOrQuestionedDot> <SpaceStar> <MemberAccess> | ε
 
 <Invocation> -> <SimpleOrParenthesizedExpression> <WhitespaceStar> <InvocationArgumentsStar>
-<InvocationArgumentsStar> -> <InvocationArguments> <WhitespaceStar> <InvocationArgumentsStar> | ε
+<InvocationArgumentsStar> -> <TypeArguments> <InvocationArguments> <WhitespaceStar> <InvocationArgumentsStar> |
+                             <InvocationArguments> <WhitespaceStar> <InvocationArgumentsStar> | ε
 <InvocationArguments> -> OpenParenthesis <SpaceStar> <ArgumentStar> CloseParenthesis
 <ArgumentStar> -> <Expression> <SpaceStar> <NamedArgumentPostfixOptional> <ArgumentStarRest> | ε
 <NamedArgumentPostfixOptional> -> Assignment <SpaceStar> <Expression> <SpaceStar> | ε
