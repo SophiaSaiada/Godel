@@ -819,5 +819,46 @@
         }
       ]
     }
+  },
+  "empty program": {
+    "name": "Statements",
+    "props": {
+      "statements": []
+    }
+  },
+  "empty if block": {
+    "name": "Statements",
+    "props": {
+      "statements": [
+        {
+          "name": "If.Statement",
+          "props": {
+            "condition": {
+              "name": "BooleanLiteral",
+              "props": {
+                "value": true
+              }
+            },
+            "positiveBranch": {
+              "name": "Block.WithoutValue",
+              "props": {
+                "statements": {
+                  "name": "Statements",
+                  "props": {
+                    "statements": []
+                  }
+                }
+              }
+            },
+            "negativeBranch": {
+              "name": "IntLiteral",
+              "props": {
+                "value": 2
+              }
+            }
+          }
+        }
+      ]
+    }
   }
 }

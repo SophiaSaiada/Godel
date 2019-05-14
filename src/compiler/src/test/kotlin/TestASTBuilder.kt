@@ -52,4 +52,9 @@ class TestASTBuilder : StringSpec({
         """if (true) if(x) 1 else 2 else 3""" astShouldBe "nested if expressions"
         """if (true) val x = if(x) 1 else 2 else 3""" astShouldBe "val with if inside if"
     }
+
+    "empty programs" {
+        "" astShouldBe "empty program"
+        "if (true) {} else 2" astShouldBe "empty if block"
+    }
 })

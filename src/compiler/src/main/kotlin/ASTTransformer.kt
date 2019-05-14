@@ -8,7 +8,7 @@ object ASTTransformer {
         }
 
     private fun transformProgram(rootNode: ParseTreeNode.Inner) =
-        transformStatements(rootNode[1] as ParseTreeNode.Inner)
+        transformStatements(rootNode[1])
             .also { assertSemanticChecks(it) }
 
     private fun mergeIfBranches(statements: List<ASTNode.Statement>): List<ASTNode.Statement> =
@@ -20,7 +20,7 @@ object ASTTransformer {
                 else statementsList + currentStatement
             }
 
-    private fun transformStatements(rootNode: ParseTreeNode.Inner): ASTNode.Statements {
+    private fun transformStatements(rootNode: ParseTreeNode): ASTNode.Statements {
         fun getStatements(currentNode: ParseTreeNode): List<ASTNode.Statement> =
             when (currentNode) {
                 is ParseTreeNode.EpsilonLeaf -> emptyList()
@@ -127,7 +127,7 @@ object ASTTransformer {
 
     private fun transformBlock(rootNode: ParseTreeNode.Inner): ASTNode.Block {
         val statements = transformProgram(rootNode[1] as ParseTreeNode.Inner)
-        val returnValue = statements.last()
+        val returnValue = statements.lastOrNull()
         return if (returnValue is ASTNode.Expression)
             ASTNode.Block.WithValue(
                 ASTNode.Statements(
