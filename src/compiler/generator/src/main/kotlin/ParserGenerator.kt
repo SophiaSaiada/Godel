@@ -70,9 +70,9 @@ object ParserGenerator {
                         val tokenType =
                             if (letter.name.startsWith("Keyword")) "Keyword.${letter.name.removePrefix("Keyword")}"
                             else "TokenType.${letter.name}"
-                        "parseToken($tokenType)"
+                        "parseToken($tokenType).invoke"
                     }
-                    is Letter.NonTerminal -> "::parse${letter.name}"
+                    is Letter.NonTerminal -> "parse${letter.name}"
                     is Letter.Epsilon -> throw RuntimeException("$EPSILON should'nt appear as a prat of a bigger alternative.")
                 }
             }
@@ -109,12 +109,23 @@ object ParserGenerator {
                             enterConditionTokens,
                             enterConditionKeywords
                         ).joinToString(" || ")
-                    val childrenParseFunctionNames =
-                        alternative.letters.joinToString { getLetterParseCall(it) }
+                    val alternativeLetters = alternative.letters
+                    val childrenParseCalls =
+                        alternativeLetters.mapIndexed { index, letter ->
+                            val parseCall = getLetterParseCall(letter)
+                            val nextToken = if (index == 0) "firstToken" else "nextToken$index"
+                            """val (child$index, nextToken${index + 1}) = $parseCall($nextToken, restOfTokens)"""
+                        }.joinToString("\n").indent()
+                    val children =
+                        alternativeLetters.mapIndexed { index, _ -> "child$index" }
+                            .joinToString(", ")
+                            .let { "listOf($it)" }
                     """${if (isFirst) "return" else "else"} if ($enterCondition) {
-                            |    val (children, nextToken) =
-                            |        composeParseCalls($childrenParseFunctionNames).invoke(firstToken, restOfTokens)
-                            |    ParseTreeNodeResult(ParseTreeNode.Inner(children, nodeType), nextToken)
+                            |$childrenParseCalls
+                            |    ParseTreeNodeResult(
+                            |        ParseTreeNode.Inner($children, nodeType),
+                            |        nextToken${alternativeLetters.size}
+                            |    )
                             |}""".trimMargin()
                 }
                 is Alternative.Epsilon -> "else ParseTreeNodeResult(ParseTreeNode.EpsilonLeaf(nodeType), firstToken)"

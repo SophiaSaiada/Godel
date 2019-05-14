@@ -29,18 +29,6 @@ abstract class ParserBase {
             else throw CompilationError("The token $firstToken doesn't fit expected keyword \"$keyword\"")
         }
 
-    protected fun composeParseCalls(vararg parseFunctions: (Token?, Iterator<Token>) -> ParseTreeNodeResult): (Token?, Iterator<Token>) -> ComposedParseTreeNodeResult =
-        { firstToken: Token?, tokensSequence: Iterator<Token> ->
-            val (children, nextToken) =
-                parseFunctions.fold(
-                    ComposedParseTreeNodeResult(emptyList(), firstToken)
-                ) { (children: List<ParseTreeNode>, nextToken: Token?), parseFunction: (Token?, Iterator<Token>) -> ParseTreeNodeResult ->
-                    val parseResult = parseFunction(nextToken, tokensSequence)
-                    ComposedParseTreeNodeResult(children + listOf(parseResult.node), parseResult.nextToken)
-                }
-            ComposedParseTreeNodeResult(children, nextToken)
-        }
-
     fun parse(tokens: Sequence<Token>): ParseTreeNode {
         val iterator = tokens.iterator()
         val firstToken = iterator.nextOrNull()
