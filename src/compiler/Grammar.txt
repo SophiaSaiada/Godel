@@ -6,7 +6,7 @@
     OpenBraces, CloseBraces, OpenParenthesis, CloseParenthesis, OpenBrokets, CloseBrokets,
     DecimalLiteral, SimpleName,
 
-    Elvis, Or, And, Equal, NotEqual, GreaterThanEqual, LessThanEqual, NullAwareDot,
+    Elvis, Or, And, Equal, NotEqual, GreaterThanEqual, LessThanEqual, NullAwareDot, RightArrow,
 
     KeywordVal, KeywordVar, KeywordFun, KeywordClass, KeywordTrue, KeywordFalse,
     KeywordIf, KeywordElse, KeywordWhile, KeywordPrivate, KeywordPublic, KeywordWhen, KeywordReturn,
@@ -19,8 +19,6 @@
 <StatementsRest> -> <SEMI> <Statements> | ε
 
 <Statement> -> <Expression> | <Declaration>
-<Block> -> OpenBraces <Program> CloseBraces
-<BlockOrStatement> -> <Block> | <Statement>
 
 <Declaration> -> <ValDeclaration> | <ClassDeclaration> | <FunctionDeclaration>
 
@@ -45,7 +43,7 @@
 <ParenthesizedExpression> -> OpenParenthesis <SpaceStar> <Expression> <SpaceStar> CloseParenthesis
 <PaddedExpression> -> <SpaceStar> <Expression> <WhitespaceStar>
 <Expression> -> <IfExpression> | <ElseExpression> | <ElvisExpression>
-<SimpleExpression> -> <Number> | <BooleanLiteral> | <StringLiteral> | SimpleName
+<SimpleExpression> -> <Number> | <BooleanLiteral> | <StringLiteral> | SimpleName | <BlockOrLambda>
 <BooleanLiteral> -> KeywordFalse | KeywordTrue
 <Number> -> DecimalLiteral <NumberRest>
 <NumberRest> -> Dot <DecimalLiteralOrMemberAccess> | ε
@@ -63,7 +61,7 @@
 
     Elvis | Or | And | Equal |
     NotEqual | GreaterThanEqual |
-    LessThanEqual | NullAwareDot
+    LessThanEqual | NullAwareDot | RightArrow
 
     KeywordVal | KeywordVar | KeywordFun | KeywordClass | KeywordTrue | KeywordFalse |
     KeywordIf | KeywordElse | KeywordWhile | KeywordWhen |
@@ -71,9 +69,9 @@
     Unknown
 <AnythingEndsWithApostrophes> -> <AnythingButApostrophes> <AnythingEndsWithApostrophes> | Apostrophes
 <IfExpression> -> KeywordIf <SpaceStar> <ParenthesizedExpression> <SpaceStar>
-                  <BlockOrStatement> <WhitespaceStar> <IfExpressionRest>
+                  <Statement> <WhitespaceStar> <IfExpressionRest>
 <IfExpressionRest> -> <ElseExpression> | ε
-<ElseExpression> -> KeywordElse <SpaceStar> <BlockOrStatement>
+<ElseExpression> -> KeywordElse <SpaceStar> <Statement>
 
 // Class
 <ClassDeclaration> -> KeywordClass <SpacePlus> SimpleName <SpaceStar> OpenBraces
@@ -135,13 +133,18 @@
 
 // Function Declaration
 <FunctionDeclaration> -> KeywordFun <SpacePlus> SimpleName <SpaceStar> <TypeParameters> <SpaceStar>
-                         <FunctionParameters> <SpaceStar> <ReturnTypeOptional> <SpaceStar> <Block>
+                         <FunctionParameters> <SpaceStar> <ReturnTypeOptional> <SpaceStar> <BlockOrLambda>
 <ReturnTypeOptional> -> Colon <SpaceStar> SimpleName | ε
 <FunctionParameters> -> OpenParenthesis <FunctionParameterStar> CloseParenthesis
 <FunctionParameterStar> -> <FunctionParameter> <FunctionParameterStarRest> | ε
 <FunctionParameterStarRest> -> Comma <FunctionParameterStar> | ε
 <FunctionParameter> -> SimpleName Colon SimpleName
 
+// Lambda
+<BlockOrLambda> -> OpenBraces <SpaceStar> <LambdaParametersOptional> <Program> CloseBraces
+<LambdaParametersOptional> -> <LambdaParameters> RightArrow <SpaceStar> | RightArrow <SpaceStar> | ε
+<LambdaParameters> -> SimpleName <SpaceStar> Colon <SpaceStar> <Type> <SpaceStar> <LambdaParametersRest>
+<LambdaParametersRest> -> Comma <SpaceStar> <LambdaParameters> | ε
 
 // General Stuff
 <WhiteSpaceOrBreakLine> -> WhiteSpace | BreakLine

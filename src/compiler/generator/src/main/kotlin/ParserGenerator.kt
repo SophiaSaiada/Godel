@@ -171,7 +171,7 @@ object ParserGenerator {
                 .eachCount()
                 .all {
                     if (it.value == 1) true else {
-                        println("In the rule \"${rule.source}\", the first token \"${it.key}\" has multiple alternatives.")
+                        println("In the rule \"${rule.source}\", the first token \"${it.key.name}\" has multiple alternatives.")
                         false
                     }
                 }

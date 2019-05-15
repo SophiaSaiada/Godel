@@ -31,6 +31,8 @@ object ASTJSONizer {
                 "{\"name\": \"Statements\", \"props\": {\"statements\": ${this.joinToString(", ") { it.toJSON() }.let { "[$it]" }}}}"
             is List<Any?> ->
                 this.joinToString(", ") { it.toJSON() }.let { "[$it]" }
+            is Pair<Any?, Any?> ->
+                "{\"name\": \"Pair\", \"props\": {\"first\": ${this.first.toJSON()}, \"second\": ${this.second.toJSON()}}}"
             is ASTNode.BinaryOperator -> "\"${this.name}\""
             is String -> "\"$this\""
             is Int -> this.toString()

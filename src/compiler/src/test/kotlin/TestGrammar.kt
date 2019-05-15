@@ -374,4 +374,51 @@ class TestGrammar : StringSpec({
 
     }
 
+    "lambdas and blocks" {
+        shouldAccept(
+            """{ ->
+                | "hello"
+                | }
+            """.trimMargin(),
+            """{ x: Int,
+                |y :  List<X<Y>>  ,
+                |  z: String ->
+                |  4 + 2 * x / z
+                |  y + y
+                |  }
+            """.trimMargin(),
+            """{
+                | "hello"
+                | }
+            """.trimMargin(),
+            """{
+                |  4 + 2 * x / z
+                |  y + y
+                |  }
+            """.trimMargin()
+        )
+
+        shouldReject(
+            """{ -> ->
+                | "hello"
+                | }
+            """.trimMargin(),
+            """{ x: Int, x
+                |y :  List<X<Y>>  ,
+                |  z: String ->
+                |  4 + 2 * x / z
+                |  y + y
+                |  }
+            """.trimMargin(),
+            """{ y <-
+                | "hello"
+                | }
+            """.trimMargin(),
+            """{ x,
+                |  4 + 2 * x / z
+                |  y + y
+                |  }
+            """.trimMargin()
+        )
+    }
 })

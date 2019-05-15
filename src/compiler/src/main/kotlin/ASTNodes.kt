@@ -9,29 +9,37 @@ class ASTNode {
     class Statements(statements: List<Statement>) : List<Statement> by statements, Serializable, ExpressionOrStatements
 
     interface Expression : Statement, ExpressionOrStatements
+
     sealed class Block(val statements: Statements) : Statement {
-        abstract fun toBlockWithoutValue(): WithoutValue
-        abstract fun maybeToBlockWithValue(): WithValue?
+        abstract fun normalize(): Statement
 
         class WithValue(statements: Statements, val returnValue: Expression) : Block(statements), Expression {
-            override fun toBlockWithoutValue() =
+            fun toBlockWithoutValue() =
                 WithoutValue(Statements(statements + returnValue))
 
-            override fun maybeToBlockWithValue() = this
+            override fun normalize() = this
         }
 
         class WithoutValue(statements: Statements) : Block(statements), Statement {
-            override fun toBlockWithoutValue() = this
-
-            override fun maybeToBlockWithValue(): WithValue? {
-                val lastStatement = statements.lastOrNull()
-                return if (lastStatement is Expression)
-                    WithValue(Statements(statements.dropLast(1)), lastStatement)
-                else null
-            }
+            override fun normalize() =
+                when (val lastStatement = statements.lastOrNull()) {
+                    is Expression -> WithValue(Statements(statements.dropLast(1)), lastStatement)
+                    else -> this
+                }
         }
     }
 
+    class Lambda(val parameters: List<Pair<String, Type>>?, val statements: Statements, val returnValue: Expression) :
+        Expression {
+        fun normalize() =
+            when {
+                parameters != null -> this
+                returnValue is Unit -> Block.WithoutValue(statements)
+                else -> Block.WithValue(statements, returnValue)
+            }
+    }
+
+    object Unit : Expression
     class Type(
         val name: String,
         // e.g. T extends Int -> T is the key and Int is the value
@@ -98,37 +106,32 @@ class ASTNode {
             condition: ASTNode.Expression,
             positiveBranch: ASTNode.Expression,
             negativeBranch: ASTNode.Expression
-        ) : If(condition, positiveBranch, negativeBranch), ASTNode.Expression {
-            override fun asExpression(): Expression = this
-        }
+        ) : If(condition, positiveBranch, negativeBranch), ASTNode.Expression
 
         class Statement(
             condition: ASTNode.Expression,
             positiveBranch: ASTNode.Statement,
             negativeBranch: ASTNode.Statement?
         ) : If(condition, positiveBranch, negativeBranch), ASTNode.Statement {
-            override fun asExpression(): Expression? {
-                val positiveBranchMaybeAsExpression =
-                    (positiveBranch as? Block)?.maybeToBlockWithValue() ?: positiveBranch
-                val negativeBranchMaybeAsExpression =
-                    (negativeBranch as? Block)?.maybeToBlockWithValue() ?: negativeBranch
-                return if (positiveBranchMaybeAsExpression is ASTNode.Expression && negativeBranchMaybeAsExpression is ASTNode.Expression)
+            fun normalize() =
+                if (positiveBranch is ASTNode.Expression && negativeBranch is ASTNode.Expression)
                     Expression(
-                        condition,
-                        positiveBranchMaybeAsExpression,
-                        negativeBranchMaybeAsExpression
+                        condition = condition,
+                        positiveBranch = positiveBranch,
+                        negativeBranch = negativeBranch
                     )
-                else null
-            }
+                else
+                    Statement(
+                        condition = condition,
+                        positiveBranch = (positiveBranch as? Block.WithValue)?.toBlockWithoutValue() ?: positiveBranch,
+                        negativeBranch = (negativeBranch as? Block.WithValue)?.toBlockWithoutValue() ?: negativeBranch
+                    )
         }
 
         class NegativeBranchOnly(val negativeBranch: ASTNode.Statement) : ASTNode.Expression
 
-        abstract fun asExpression(): Expression?
-
         fun mergedWith(negativeBranchOnly: NegativeBranchOnly) =
-            Statement(condition, positiveBranch, negativeBranchOnly.negativeBranch)
-                .let { it.asExpression() ?: it }
+            Statement(condition, positiveBranch, negativeBranchOnly.negativeBranch).normalize()
 
     }
 
@@ -164,6 +167,7 @@ class ASTNode {
         val typeArguments: List<TypeArgument>,
         val arguments: List<FunctionArgument>
     ) : Expression
+
     class FunctionArgument(val name: String?, val value: Expression) : Serializable
 
     interface FunctionCall

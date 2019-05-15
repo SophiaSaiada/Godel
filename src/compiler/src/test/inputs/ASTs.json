@@ -1107,5 +1107,529 @@
         }
       ]
     }
+  },
+  "if expression with lambdas": {
+    "name": "Statements",
+    "props": {
+      "statements": [
+        {
+          "name": "If.Expression",
+          "props": {
+            "condition": {
+              "name": "Identifier",
+              "props": {
+                "value": "x"
+              }
+            },
+            "positiveBranch": {
+              "name": "Block.WithValue",
+              "props": {
+                "statements": {
+                  "name": "Statements",
+                  "props": {
+                    "statements": []
+                  }
+                },
+                "returnValue": {
+                  "name": "Lambda",
+                  "props": {
+                    "parameters": [
+                      {
+                        "name": "Pair",
+                        "props": {
+                          "first": "y",
+                          "second": {
+                            "name": "Type",
+                            "props": {
+                              "name": "Int",
+                              "nullable": false,
+                              "typesParameters": []
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "statements": {
+                      "name": "Statements",
+                      "props": {
+                        "statements": [
+                          {
+                            "name": "ValDeclaration",
+                            "props": {
+                              "name": "x",
+                              "type": null,
+                              "value": {
+                                "name": "FloatLiteral",
+                                "props": {
+                                  "value": 3.14
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "returnValue": {
+                      "name": "StringLiteral",
+                      "props": {
+                        "value": "hello"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "negativeBranch": {
+              "name": "Block.WithValue",
+              "props": {
+                "statements": {
+                  "name": "Statements",
+                  "props": {
+                    "statements": []
+                  }
+                },
+                "returnValue": {
+                  "name": "Lambda",
+                  "props": {
+                    "parameters": null,
+                    "statements": {
+                      "name": "Statements",
+                      "props": {
+                        "statements": []
+                      }
+                    },
+                    "returnValue": {
+                      "name": "IntLiteral",
+                      "props": {
+                        "value": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "if expression with positive branch lambda": {
+    "name": "Statements",
+    "props": {
+      "statements": [
+        {
+          "name": "If.Expression",
+          "props": {
+            "condition": {
+              "name": "Identifier",
+              "props": {
+                "value": "x"
+              }
+            },
+            "positiveBranch": {
+              "name": "Lambda",
+              "props": {
+                "parameters": [],
+                "statements": {
+                  "name": "Statements",
+                  "props": {
+                    "statements": [
+                      {
+                        "name": "ValDeclaration",
+                        "props": {
+                          "name": "x",
+                          "type": null,
+                          "value": {
+                            "name": "FloatLiteral",
+                            "props": {
+                              "value": 3.14
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "returnValue": {
+                  "name": "Unit",
+                  "props": {}
+                }
+              }
+            },
+            "negativeBranch": {
+              "name": "Block.WithValue",
+              "props": {
+                "statements": {
+                  "name": "Statements",
+                  "props": {
+                    "statements": []
+                  }
+                },
+                "returnValue": {
+                  "name": "IntLiteral",
+                  "props": {
+                    "value": 2
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "if expression with negative branch lambda": {
+    "name": "Statements",
+    "props": {
+      "statements": [
+        {
+          "name": "If.Expression",
+          "props": {
+            "condition": {
+              "name": "Identifier",
+              "props": {
+                "value": "x"
+              }
+            },
+            "positiveBranch": {
+              "name": "Block.WithValue",
+              "props": {
+                "statements": {
+                  "name": "Statements",
+                  "props": {
+                    "statements": [
+                      {
+                        "name": "ValDeclaration",
+                        "props": {
+                          "name": "x",
+                          "type": null,
+                          "value": {
+                            "name": "FloatLiteral",
+                            "props": {
+                              "value": 3.14
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "returnValue": {
+                  "name": "StringLiteral",
+                  "props": {
+                    "value": "hello"
+                  }
+                }
+              }
+            },
+            "negativeBranch": {
+              "name": "Block.WithValue",
+              "props": {
+                "statements": {
+                  "name": "Statements",
+                  "props": {
+                    "statements": []
+                  }
+                },
+                "returnValue": {
+                  "name": "Lambda",
+                  "props": {
+                    "parameters": null,
+                    "statements": {
+                      "name": "Statements",
+                      "props": {
+                        "statements": []
+                      }
+                    },
+                    "returnValue": {
+                      "name": "IntLiteral",
+                      "props": {
+                        "value": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "if statement with a lambda": {
+    "name": "Statements",
+    "props": {
+      "statements": [
+        {
+          "name": "If.Statement",
+          "props": {
+            "condition": {
+              "name": "Identifier",
+              "props": {
+                "value": "x"
+              }
+            },
+            "positiveBranch": {
+              "name": "Block.WithoutValue",
+              "props": {
+                "statements": {
+                  "name": "Statements",
+                  "props": {
+                    "statements": [
+                      {
+                        "name": "ValDeclaration",
+                        "props": {
+                          "name": "x",
+                          "type": null,
+                          "value": {
+                            "name": "FloatLiteral",
+                            "props": {
+                              "value": 3.14
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "name": "StringLiteral",
+                        "props": {
+                          "value": "hello"
+                        }
+                      },
+                      {
+                        "name": "ValDeclaration",
+                        "props": {
+                          "name": "y",
+                          "type": null,
+                          "value": {
+                            "name": "FloatLiteral",
+                            "props": {
+                              "value": 2.16
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "negativeBranch": {
+              "name": "Block.WithoutValue",
+              "props": {
+                "statements": {
+                  "name": "Statements",
+                  "props": {
+                    "statements": [
+                      {
+                        "name": "Lambda",
+                        "props": {
+                          "parameters": null,
+                          "statements": {
+                            "name": "Statements",
+                            "props": {
+                              "statements": []
+                            }
+                          },
+                          "returnValue": {
+                            "name": "IntLiteral",
+                            "props": {
+                              "value": 2
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "if expression that look pretty ambiguous": {
+    "name": "Statements",
+    "props": {
+      "statements": [
+        {
+          "name": "If.Expression",
+          "props": {
+            "condition": {
+              "name": "Identifier",
+              "props": {
+                "value": "x"
+              }
+            },
+            "positiveBranch": {
+              "name": "Lambda",
+              "props": {
+                "parameters": [
+                  {
+                    "name": "Pair",
+                    "props": {
+                      "first": "y",
+                      "second": {
+                        "name": "Type",
+                        "props": {
+                          "name": "Int",
+                          "nullable": false,
+                          "typesParameters": []
+                        }
+                      }
+                    }
+                  }
+                ],
+                "statements": {
+                  "name": "Statements",
+                  "props": {
+                    "statements": [
+                      {
+                        "name": "ValDeclaration",
+                        "props": {
+                          "name": "x",
+                          "type": null,
+                          "value": {
+                            "name": "FloatLiteral",
+                            "props": {
+                              "value": 3.14
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "name": "StringLiteral",
+                        "props": {
+                          "value": "hello"
+                        }
+                      },
+                      {
+                        "name": "ValDeclaration",
+                        "props": {
+                          "name": "y",
+                          "type": null,
+                          "value": {
+                            "name": "FloatLiteral",
+                            "props": {
+                              "value": 2.16
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "returnValue": {
+                  "name": "Unit",
+                  "props": {}
+                }
+              }
+            },
+            "negativeBranch": {
+              "name": "Block.WithValue",
+              "props": {
+                "statements": {
+                  "name": "Statements",
+                  "props": {
+                    "statements": []
+                  }
+                },
+                "returnValue": {
+                  "name": "Lambda",
+                  "props": {
+                    "parameters": null,
+                    "statements": {
+                      "name": "Statements",
+                      "props": {
+                        "statements": []
+                      }
+                    },
+                    "returnValue": {
+                      "name": "IntLiteral",
+                      "props": {
+                        "value": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "if expression that look even more ambiguous": {
+    "name": "Statements",
+    "props": {
+      "statements": [
+        {
+          "name": "If.Expression",
+          "props": {
+            "condition": {
+              "name": "Identifier",
+              "props": {
+                "value": "x"
+              }
+            },
+            "positiveBranch": {
+              "name": "Lambda",
+              "props": {
+                "parameters": [],
+                "statements": {
+                  "name": "Statements",
+                  "props": {
+                    "statements": [
+                      {
+                        "name": "ValDeclaration",
+                        "props": {
+                          "name": "x",
+                          "type": null,
+                          "value": {
+                            "name": "FloatLiteral",
+                            "props": {
+                              "value": 3.14
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "name": "StringLiteral",
+                        "props": {
+                          "value": "hello"
+                        }
+                      },
+                      {
+                        "name": "ValDeclaration",
+                        "props": {
+                          "name": "y",
+                          "type": null,
+                          "value": {
+                            "name": "FloatLiteral",
+                            "props": {
+                              "value": 2.16
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "returnValue": {
+                  "name": "Unit",
+                  "props": {}
+                }
+              }
+            },
+            "negativeBranch": {
+              "name": "IntLiteral",
+              "props": {
+                "value": 2
+              }
+            }
+          }
+        }
+      ]
+    }
   }
 }

@@ -19,6 +19,7 @@ enum class TokenType(vararg val combinationOf: TokenType) : NodeType {
     GreaterThanEqual(CloseBrokets, Assignment),
     LessThanEqual(OpenBrokets, Assignment),
     NullAwareDot(QuestionMark, Dot),
+    RightArrow(Minus, CloseBrokets),
 
     Unknown;
 }

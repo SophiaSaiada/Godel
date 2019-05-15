@@ -57,6 +57,12 @@ class TestASTBuilder : StringSpec({
         """if (true) if(x) "hello" else 2""" astShouldBe "nested ifs"
         """if (true) if(x) 1 else 2 else 3""" astShouldBe "nested if expressions"
         """if (true) val x = if(x) 1 else 2 else 3""" astShouldBe "val with if inside if"
+        """if (x) { { y: Int -> val x = 3.14; "hello"} } else { {2} }""" astShouldBe "if expression with lambdas"
+        """if (x) { -> val x = 3.14 } else { 2 }""" astShouldBe "if expression with positive branch lambda"
+        """if (x) { val x = 3.14; "hello"} else { {2} }""" astShouldBe "if expression with negative branch lambda"
+        """if (x) { val x = 3.14; "hello"; val y = 2.16 } else { {2} }""" astShouldBe "if statement with a lambda"
+        """if (x) { y: Int -> val x = 3.14; "hello"; val y = 2.16 } else { {2} }""" astShouldBe "if expression that look pretty ambiguous"
+        """if (x) { -> val x = 3.14; "hello"; val y = 2.16 } else 2""" astShouldBe "if expression that look even more ambiguous"
     }
 
     "empty programs" {

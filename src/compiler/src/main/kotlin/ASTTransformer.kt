@@ -137,45 +137,60 @@ object ASTTransformer {
 
     private fun transformIf(rootNode: ParseTreeNode.Inner): ASTNode.If {
         val condition = transformParenthesizedExpression(rootNode[2] as ParseTreeNode.Inner)
-        val positiveBranch = transformBlockOrStatement(rootNode[4] as ParseTreeNode.Inner)
-        val negativeBranch = when (val ifExpressionRest = rootNode.last()) {
-            is ParseTreeNode.EpsilonLeaf -> null
-            is ParseTreeNode.Inner -> transformElse(ifExpressionRest.last() as ParseTreeNode.Inner).negativeBranch
-            else -> throwInvalidParseError()
-        }
+        val positiveBranch =
+            transformStatement(rootNode[4] as ParseTreeNode.Inner)
+                .let { (it as? ASTNode.Lambda)?.normalize() ?: it }
+        val negativeBranch =
+            when (val ifExpressionRest = rootNode.last()) {
+                is ParseTreeNode.EpsilonLeaf -> null
+                is ParseTreeNode.Inner -> transformElse(ifExpressionRest.last() as ParseTreeNode.Inner).negativeBranch
+                else -> throwInvalidParseError()
+            }.let { (it as? ASTNode.Lambda)?.normalize() ?: it }
+
         return ASTNode.If.Statement(
-            condition,
-            (positiveBranch as? ASTNode.Block)?.toBlockWithoutValue() ?: positiveBranch,
-            (negativeBranch as? ASTNode.Block)?.toBlockWithoutValue() ?: negativeBranch
-        ).let { it.asExpression() ?: it }
+            condition = condition,
+            positiveBranch = positiveBranch,
+            negativeBranch = negativeBranch
+        ).normalize()
     }
 
     private fun transformElse(rootNode: ParseTreeNode.Inner): ASTNode.If.NegativeBranchOnly {
-        val negativeBranch = transformBlockOrStatement(rootNode.last() as ParseTreeNode.Inner)
+        val negativeBranch = transformStatement(rootNode.last() as ParseTreeNode.Inner)
         return ASTNode.If.NegativeBranchOnly(negativeBranch)
     }
 
-    private fun transformBlockOrStatement(rootNode: ParseTreeNode.Inner): ASTNode.Statement {
-        val child = rootNode[0] as ParseTreeNode.Inner
-        return when (child.type) {
-            Parser.InnerNodeType.Block -> transformBlock(child)
-            Parser.InnerNodeType.Statement -> transformStatement(child)
+    private fun transformLambdaParameters(node: ParseTreeNode): List<Pair<String, ASTNode.Type>>? =
+        when (node) {
+            is ParseTreeNode.EpsilonLeaf ->
+                when (node.type) {
+                    Parser.InnerNodeType.LambdaParametersOptional -> null
+                    Parser.InnerNodeType.LambdaParametersRest -> emptyList()
+                    else -> throwInvalidParseError()
+                }
+            is ParseTreeNode.Inner ->
+                when (node.type) {
+                    Parser.InnerNodeType.LambdaParametersOptional ->
+                        if (node.children.size == 3) transformLambdaParameters(node[0])
+                        else emptyList()
+                    Parser.InnerNodeType.LambdaParameters -> {
+                        val parameterName = (node[0] as ParseTreeNode.Leaf).token.content
+                        val parameterType = transformType(node[4] as ParseTreeNode.Inner)
+                        listOf(parameterName to parameterType) + transformLambdaParameters(node.last()).orEmpty()
+                    }
+                    Parser.InnerNodeType.LambdaParametersRest -> transformLambdaParameters(node.last())
+                    else -> throwInvalidParseError()
+                }
             else -> throwInvalidParseError()
         }
-    }
 
-    private fun transformBlock(rootNode: ParseTreeNode.Inner): ASTNode.Block {
-        val statements = transformProgram(rootNode[1] as ParseTreeNode.Inner)
+    private fun transformLambda(rootNode: ParseTreeNode.Inner): ASTNode.Lambda {
+        val statements = transformProgram(rootNode[3] as ParseTreeNode.Inner)
+        val parameters = transformLambdaParameters(rootNode[2])
         val returnValue = statements.lastOrNull()
         return if (returnValue is ASTNode.Expression)
-            ASTNode.Block.WithValue(
-                ASTNode.Statements(
-                    statements.dropLast(1)
-                ),
-                returnValue
-            )
+            ASTNode.Lambda(parameters, ASTNode.Statements(statements.dropLast(1)), returnValue)
         else
-            ASTNode.Block.WithoutValue(statements)
+            ASTNode.Lambda(parameters, ASTNode.Statements(statements), ASTNode.Unit)
     }
 
     private fun transformParenthesizedExpression(rootNode: ParseTreeNode.Inner): ASTNode.Expression =
@@ -465,6 +480,7 @@ object ASTTransformer {
                 Parser.InnerNodeType.Number -> transformNumber(firstChild)
                 Parser.InnerNodeType.BooleanLiteral -> transformBooleanLiteral(firstChild)
                 Parser.InnerNodeType.StringLiteral -> transformStringLiteral(firstChild)
+                Parser.InnerNodeType.BlockOrLambda -> transformLambda(firstChild)
                 else -> throwInvalidParseError("firstChild.type is ${firstChild.type}")
             } else if (firstChild is ParseTreeNode.Leaf && firstChild.token.type == TokenType.SimpleName)
             ASTNode.Identifier(firstChild.token.content)
