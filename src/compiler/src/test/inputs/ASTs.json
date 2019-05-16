@@ -19,6 +19,77 @@
       ]
     }
   },
+  "typed val declaration with lambda": {
+    "name": "Statements",
+    "props": {
+      "statements": [
+        {
+          "name": "ValDeclaration",
+          "props": {
+            "name": "x",
+            "type": {
+              "name": "Type.Functional",
+              "props": {
+                "nullable": true,
+                "resultType": {
+                  "name": "Type.Regular",
+                  "props": {
+                    "name": "T",
+                    "nullable": true,
+                    "typesParameters": []
+                  }
+                },
+                "parameterTypes": [
+                  {
+                    "name": "Type.Regular",
+                    "props": {
+                      "name": "R",
+                      "nullable": true,
+                      "typesParameters": []
+                    }
+                  },
+                  {
+                    "name": "Type.Regular",
+                    "props": {
+                      "name": "X",
+                      "nullable": false,
+                      "typesParameters": []
+                    }
+                  },
+                  {
+                    "name": "Type.Regular",
+                    "props": {
+                      "name": "String",
+                      "nullable": false,
+                      "typesParameters": []
+                    }
+                  }
+                ]
+              }
+            },
+            "value": {
+              "name": "Lambda",
+              "props": {
+                "parameters": null,
+                "statements": {
+                  "name": "Statements",
+                  "props": {
+                    "statements": []
+                  }
+                },
+                "returnValue": {
+                  "name": "IntLiteral",
+                  "props": {
+                    "value": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
   "operations precedence": {
     "name": "Statements",
     "props": {
@@ -172,7 +243,7 @@
                                             "props": {
                                               "name": "X",
                                               "value": {
-                                                "name": "Type",
+                                                "name": "Type.Regular",
                                                 "props": {
                                                   "name": "String",
                                                   "nullable": false,
@@ -950,7 +1021,7 @@
                     "props": {
                       "name": "T",
                       "value": {
-                        "name": "Type",
+                        "name": "Type.Regular",
                         "props": {
                           "name": "List",
                           "nullable": false,
@@ -960,7 +1031,7 @@
                               "props": {
                                 "name": null,
                                 "value": {
-                                  "name": "Type",
+                                  "name": "Type.Regular",
                                   "props": {
                                     "name": "T",
                                     "nullable": true,
@@ -1009,7 +1080,7 @@
                 "props": {
                   "name": "X",
                   "value": {
-                    "name": "Type",
+                    "name": "Type.Regular",
                     "props": {
                       "name": "String",
                       "nullable": true,
@@ -1023,7 +1094,7 @@
                 "props": {
                   "name": "Y",
                   "value": {
-                    "name": "Type",
+                    "name": "Type.Regular",
                     "props": {
                       "name": "Int",
                       "nullable": false,
@@ -1037,7 +1108,7 @@
                 "props": {
                   "name": "T",
                   "value": {
-                    "name": "Type",
+                    "name": "Type.Regular",
                     "props": {
                       "name": "List",
                       "nullable": true,
@@ -1047,7 +1118,7 @@
                           "props": {
                             "name": null,
                             "value": {
-                              "name": "Type",
+                              "name": "Type.Regular",
                               "props": {
                                 "name": "Int",
                                 "nullable": true,
@@ -1139,7 +1210,7 @@
                         "props": {
                           "first": "y",
                           "second": {
-                            "name": "Type",
+                            "name": "Type.Regular",
                             "props": {
                               "name": "Int",
                               "nullable": false,
@@ -1470,7 +1541,7 @@
                     "props": {
                       "first": "y",
                       "second": {
-                        "name": "Type",
+                        "name": "Type.Regular",
                         "props": {
                           "name": "Int",
                           "nullable": false,

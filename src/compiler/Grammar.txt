@@ -26,7 +26,11 @@
 <ValDeclarationRest> -> Colon <SpaceStar> <Type> <SpaceStar> Assignment <PaddedExpression> |
                         Assignment <PaddedExpression>
 
-<Type> -> SimpleName <TypeArgumentsOptional> <QuestionMarkOptional>
+<Type> -> SimpleName <TypeArgumentsOptional> <QuestionMarkOptional> |
+          OpenParenthesis <SpaceStar> <TypeStar> <SpaceStar> CloseParenthesis <WhitespaceStar> <FunctionalOrNullableType>
+<FunctionalOrNullableType> -> RightArrow <SpaceStar> <Type> | QuestionMark | ε
+<TypeStar> -> <Type> <SpaceStar> <TypeStarRest> | ε
+<TypeStarRest> -> Comma <SpaceStar> <TypeStar> | ε
 
 <TypeArgumentsOptional> -> <TypeArguments> | ε
 <TypeArguments> -> OpenBrokets <SpaceStar> <TypeArgumentsContent> CloseBrokets

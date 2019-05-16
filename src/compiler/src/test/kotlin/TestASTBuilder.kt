@@ -30,6 +30,8 @@ class TestASTBuilder : StringSpec({
         "val x = 3.14" astShouldBe "val declaration"
         "val x = if (true) 1 else val x y = 2".astShouldNotBeBuilt()
         "val x = if (true) 1".astShouldNotBeBuilt()
+        """val x: ((( R? , X,
+               |          String ) -> T?)?)? = { 1 }""".trimMargin() astShouldBe "typed val declaration with lambda"
     }
 
     "operations precedence" {

@@ -55,12 +55,46 @@ object ASTTransformer {
         }
     }
 
-    private fun transformType(node: ParseTreeNode.Inner) =
-        ASTNode.Type(
-            name = (node[0] as ParseTreeNode.Leaf).token.content,
-            typesParameters = transformTypeArguments(node[1]),
-            nullable = node.children[2] is ParseTreeNode.Inner
-        )
+    private fun transformTypeStar(node: ParseTreeNode): List<ASTNode.Type> =
+        when (node) {
+            is ParseTreeNode.EpsilonLeaf -> emptyList()
+            is ParseTreeNode.Inner ->
+                when (node.type) {
+                    Parser.InnerNodeType.TypeStar ->
+                        listOf(transformType(node[0] as ParseTreeNode.Inner)) + transformTypeStar(node.last())
+                    Parser.InnerNodeType.TypeStarRest -> transformTypeStar(node.last())
+                    else -> throwInvalidParseError()
+                }
+            else -> throwInvalidParseError()
+        }
+
+    private fun transformType(node: ParseTreeNode.Inner): ASTNode.Type =
+        when (node.children.size) {
+            3 ->
+                ASTNode.Type.Regular(
+                    name = (node[0] as ParseTreeNode.Leaf).token.content,
+                    typesParameters = transformTypeArguments(node[1]),
+                    nullable = node.children[2] is ParseTreeNode.Inner
+                )
+            7 -> {
+                val innerTypes = transformTypeStar(node[2])
+                when (val functionalOrNullableTypeNode = node.last()) {
+                    is ParseTreeNode.EpsilonLeaf -> innerTypes.single()
+                    is ParseTreeNode.Inner ->
+                        if (functionalOrNullableTypeNode.children.size == 1)
+                            innerTypes.single().withNullable(true)
+                        else
+                            ASTNode.Type.Functional(
+                                parameterTypes = innerTypes,
+                                resultType = transformType(node.last().last() as ParseTreeNode.Inner),
+                                nullable = false
+                            )
+                    else -> throwInvalidParseError()
+                }
+            }
+            else -> throwInvalidParseError()
+        }
+
 
     private fun transformTypeParameters(node: ParseTreeNode): Map<String, ASTNode.Type?> =
         when (node) {
@@ -104,17 +138,19 @@ object ASTTransformer {
                     Parser.InnerNodeType.TypeArguments -> transformTypeArguments(node[2], acc)
                     Parser.InnerNodeType.TypeArgumentsContent -> {
                         val firstType = transformType(node[0] as ParseTreeNode.Inner)
-                        val typeArgument = when (val typeNamedArgumentsOptional = node[2]) {
-                            is ParseTreeNode.EpsilonLeaf -> ASTNode.TypeArgument(null, firstType)
-                            is ParseTreeNode.Inner -> {
-                                assert(firstType.typesParameters.isEmpty() && !firstType.nullable)
-                                ASTNode.TypeArgument(
-                                    firstType.name,
-                                    transformType(typeNamedArgumentsOptional.last() as ParseTreeNode.Inner)
-                                )
+                        val typeArgument =
+                            when (val typeNamedArgumentsOptional = node[2]) {
+                                is ParseTreeNode.EpsilonLeaf -> ASTNode.TypeArgument(null, firstType)
+                                is ParseTreeNode.Inner -> {
+                                    if (firstType is ASTNode.Type.Regular && firstType.typesParameters.isEmpty() && !firstType.nullable)
+                                        ASTNode.TypeArgument(
+                                            firstType.name,
+                                            transformType(typeNamedArgumentsOptional.last() as ParseTreeNode.Inner)
+                                        )
+                                    else throwInvalidParseError()
+                                }
+                                else -> throwInvalidParseError()
                             }
-                            else -> throwInvalidParseError()
-                        }
                         transformTypeArguments(node.last(), acc + typeArgument)
                     }
                     Parser.InnerNodeType.TypeArgumentsContentRest -> transformTypeArguments(node.last(), acc)

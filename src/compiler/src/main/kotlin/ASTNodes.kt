@@ -40,12 +40,23 @@ class ASTNode {
     }
 
     object Unit : Expression
-    class Type(
-        val name: String,
-        // e.g. T extends Int -> T is the key and Int is the value
-        val typesParameters: List<TypeArgument>,
-        val nullable: Boolean
-    ) : Serializable
+    sealed class Type : Serializable {
+        abstract fun withNullable(nullable: Boolean): Type
+        class Regular(
+            val name: String,
+            // e.g. T extends Int -> T is the key and Int is the value
+            val typesParameters: List<TypeArgument>,
+            val nullable: Boolean
+        ) : Type() {
+            override fun withNullable(nullable: Boolean) =
+                Regular(name, typesParameters, nullable)
+        }
+
+        class Functional(val parameterTypes: List<Type>, val resultType: Type, val nullable: Boolean) : Type() {
+            override fun withNullable(nullable: Boolean) =
+                Functional(parameterTypes, resultType, nullable)
+        }
+    }
 
     interface FuncDeclarationsOrValDeclarations
 
