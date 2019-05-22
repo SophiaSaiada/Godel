@@ -1,7 +1,7 @@
 @Tokens
     WhiteSpace, SemiColon, BreakLine, Colon, Dot, Comma, Apostrophes,
     Percentage, Backslash, Star, Minus, Plus, Division, ExclamationMark, QuestionMark, Ampersand, SingleOr,
-    Keyword, Assignment, QuestionedDot,
+    Keyword, Assignment, QuestionedDot, Hash,
 
     OpenBraces, CloseBraces, OpenParenthesis, CloseParenthesis, OpenBrokets, CloseBrokets,
     DecimalLiteral, SimpleName,
@@ -47,7 +47,7 @@
 <ParenthesizedExpression> -> OpenParenthesis <SpaceStar> <Expression> <SpaceStar> CloseParenthesis
 <PaddedExpression> -> <SpaceStar> <Expression> <WhitespaceStar>
 <Expression> -> <IfExpression> | <ElseExpression> | <ElvisExpression>
-<SimpleExpression> -> <Number> | <BooleanLiteral> | <StringLiteral> | SimpleName | <BlockOrLambda>
+<SimpleExpression> -> <Number> | <BooleanLiteral> | <StringLiteral> | SimpleName | <Lambda>
 <BooleanLiteral> -> KeywordFalse | KeywordTrue
 <Number> -> DecimalLiteral <NumberRest>
 <NumberRest> -> Dot <DecimalLiteralOrMemberAccess> | ε
@@ -58,7 +58,7 @@
 <AnythingButApostrophes> ->
     WhiteSpace | SemiColon | BreakLine | Colon | Dot | Comma |
     Percentage | Backslash | Star | Minus | Plus | Division | ExclamationMark | QuestionMark | Ampersand | SingleOr |
-    Assignment | QuestionedDot |
+    Assignment | QuestionedDot | Hash |
 
     OpenBraces | CloseBraces | OpenParenthesis | CloseParenthesis | OpenBrokets | CloseBrokets |
     DecimalLiteral | SimpleName |
@@ -73,9 +73,9 @@
     Unknown
 <AnythingEndsWithApostrophes> -> <AnythingButApostrophes> <AnythingEndsWithApostrophes> | Apostrophes
 <IfExpression> -> KeywordIf <SpaceStar> <ParenthesizedExpression> <SpaceStar>
-                  <Statement> <WhitespaceStar> <IfExpressionRest>
+                  <StatementOrBlock> <WhitespaceStar> <IfExpressionRest>
 <IfExpressionRest> -> <ElseExpression> | ε
-<ElseExpression> -> KeywordElse <SpaceStar> <Statement>
+<ElseExpression> -> KeywordElse <SpaceStar> <StatementOrBlock>
 
 // Class
 <ClassDeclaration> -> KeywordClass <SpacePlus> SimpleName <SpaceStar> OpenBraces
@@ -137,18 +137,20 @@
 
 // Function Declaration
 <FunctionDeclaration> -> KeywordFun <SpacePlus> SimpleName <SpaceStar> <TypeParameters> <SpaceStar>
-                         <FunctionParameters> <SpaceStar> <ReturnTypeOptional> <SpaceStar> <BlockOrLambda>
+                         <FunctionParameters> <SpaceStar> <ReturnTypeOptional> <SpaceStar> <Block>
 <ReturnTypeOptional> -> Colon <SpaceStar> SimpleName | ε
 <FunctionParameters> -> OpenParenthesis <FunctionParameterStar> CloseParenthesis
 <FunctionParameterStar> -> <FunctionParameter> <FunctionParameterStarRest> | ε
 <FunctionParameterStarRest> -> Comma <FunctionParameterStar> | ε
 <FunctionParameter> -> SimpleName Colon SimpleName
 
+<StatementOrBlock> -> <Block> | <Statement>
+<Block> -> OpenBraces <Program> CloseBraces
+
 // Lambda
-<BlockOrLambda> -> OpenBraces <SpaceStar> <LambdaParametersOptional> <Program> CloseBraces
-<LambdaParametersOptional> -> <LambdaParameters> RightArrow <SpaceStar> | RightArrow <SpaceStar> | ε
-<LambdaParameters> -> SimpleName <SpaceStar> Colon <SpaceStar> <Type> <SpaceStar> <LambdaParametersRest>
-<LambdaParametersRest> -> Comma <SpaceStar> <LambdaParameters> | ε
+<Lambda> -> Hash OpenBraces <SpaceStar> <LambdaParametersStar> RightArrow <SpaceStar> <Program> CloseBraces
+<LambdaParametersStar> -> SimpleName <SpaceStar> Colon <SpaceStar> <Type> <SpaceStar> <LambdaParametersRest> | ε
+<LambdaParametersRest> -> Comma <SpaceStar> <LambdaParametersStar> | ε
 
 // General Stuff
 <WhiteSpaceOrBreakLine> -> WhiteSpace | BreakLine

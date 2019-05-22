@@ -30,15 +30,6 @@
             "type": {
               "name": "Type.Functional",
               "props": {
-                "nullable": true,
-                "resultType": {
-                  "name": "Type.Regular",
-                  "props": {
-                    "name": "T",
-                    "nullable": true,
-                    "typesParameters": []
-                  }
-                },
                 "parameterTypes": [
                   {
                     "name": "Type.Regular",
@@ -57,20 +48,60 @@
                     }
                   },
                   {
-                    "name": "Type.Regular",
+                    "name": "Type.Functional",
                     "props": {
-                      "name": "String",
-                      "nullable": false,
-                      "typesParameters": []
+                      "parameterTypes": [],
+                      "resultType": {
+                        "name": "Type.Regular",
+                        "props": {
+                          "name": "String",
+                          "nullable": false,
+                          "typesParameters": []
+                        }
+                      },
+                      "nullable": false
+                    }
+                  },
+                  {
+                    "name": "Type.Functional",
+                    "props": {
+                      "parameterTypes": [
+                        {
+                          "name": "Type.Regular",
+                          "props": {
+                            "name": "String",
+                            "nullable": false,
+                            "typesParameters": []
+                          }
+                        }
+                      ],
+                      "resultType": {
+                        "name": "Type.Regular",
+                        "props": {
+                          "name": "Unit",
+                          "nullable": false,
+                          "typesParameters": []
+                        }
+                      },
+                      "nullable": false
                     }
                   }
-                ]
+                ],
+                "resultType": {
+                  "name": "Type.Regular",
+                  "props": {
+                    "name": "T",
+                    "nullable": true,
+                    "typesParameters": []
+                  }
+                },
+                "nullable": true
               }
             },
             "value": {
               "name": "Lambda",
               "props": {
-                "parameters": null,
+                "parameters": [],
                 "statements": {
                   "name": "Statements",
                   "props": {
@@ -1262,7 +1293,7 @@
                 "returnValue": {
                   "name": "Lambda",
                   "props": {
-                    "parameters": null,
+                    "parameters": [],
                     "statements": {
                       "name": "Statements",
                       "props": {
@@ -1405,7 +1436,7 @@
                 "returnValue": {
                   "name": "Lambda",
                   "props": {
-                    "parameters": null,
+                    "parameters": [],
                     "statements": {
                       "name": "Statements",
                       "props": {
@@ -1485,31 +1516,19 @@
               }
             },
             "negativeBranch": {
-              "name": "Block.WithoutValue",
+              "name": "Lambda",
               "props": {
+                "parameters": [],
                 "statements": {
                   "name": "Statements",
                   "props": {
-                    "statements": [
-                      {
-                        "name": "Lambda",
-                        "props": {
-                          "parameters": null,
-                          "statements": {
-                            "name": "Statements",
-                            "props": {
-                              "statements": []
-                            }
-                          },
-                          "returnValue": {
-                            "name": "IntLiteral",
-                            "props": {
-                              "value": 2
-                            }
-                          }
-                        }
-                      }
-                    ]
+                    "statements": []
+                  }
+                },
+                "returnValue": {
+                  "name": "IntLiteral",
+                  "props": {
+                    "value": 2
                   }
                 }
               }
@@ -1608,7 +1627,7 @@
                 "returnValue": {
                   "name": "Lambda",
                   "props": {
-                    "parameters": null,
+                    "parameters": [],
                     "statements": {
                       "name": "Statements",
                       "props": {

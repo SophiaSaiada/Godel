@@ -50,6 +50,7 @@ class TestGrammar : StringSpec({
             "val x: Int<Int, S=String> = 3.2",
             "val x: Int<T=Int, S=String> = 3.2",
             "val x: (R) -> T = 3.2",
+            "val x: () -> T = 3.2",
             """val x: ( R ,
                |        String ) -> T? = 3.2""".trimMargin(),
             """val x: (( R ,
@@ -383,6 +384,32 @@ class TestGrammar : StringSpec({
 
     "lambdas and blocks" {
         shouldAccept(
+            """#{ ->
+                | "hello"
+                | }
+            """.trimMargin(),
+            """#{ x: Int,
+                |y :  List<X<Y>>  ,
+                |  z: String ->
+                |  4 + 2 * x / z
+                |  y + y
+                |  }
+            """.trimMargin(),
+            """if (x) {
+                | "hello"
+                | }
+            """.trimMargin(), // blocks can come only as a part of if statement or function declaration
+            """if(x) {
+                |  4 + 2 * x / z
+                |  y + y
+                |  }
+            """.trimMargin(),
+            "if (x){ x }",
+            "#{ x: Int -> x }"
+        )
+
+        shouldReject(
+            "{ x }",
             """{ ->
                 | "hello"
                 | }
@@ -394,18 +421,15 @@ class TestGrammar : StringSpec({
                 |  y + y
                 |  }
             """.trimMargin(),
-            """{
+            """#{
                 | "hello"
                 | }
             """.trimMargin(),
-            """{
+            """#{
                 |  4 + 2 * x / z
                 |  y + y
                 |  }
-            """.trimMargin()
-        )
-
-        shouldReject(
+            """.trimMargin(),
             """{ -> ->
                 | "hello"
                 | }
@@ -425,7 +449,10 @@ class TestGrammar : StringSpec({
                 |  4 + 2 * x / z
                 |  y + y
                 |  }
-            """.trimMargin()
+            """.trimMargin(),
+            "{ x: Int }",
+            "{ x: Int -> }",
+            "{ x: Int -> x }"
         )
     }
 })

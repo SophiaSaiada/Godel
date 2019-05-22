@@ -10,6 +10,11 @@ object ASTJSONizer {
                     "positiveBranch" to 1,
                     "negativeBranch" to 2
                 ).getOrElse(name) { 3 }
+            is ASTNode.Type.Functional ->
+                mapOf(
+                    "parameterTypes" to 0,
+                    "resultType" to 1
+                ).getOrElse(name) { 2 }
             else -> name.compareTo("")
         }
 

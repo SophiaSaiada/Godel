@@ -31,7 +31,7 @@ class TestASTBuilder : StringSpec({
         "val x = if (true) 1 else val x y = 2".astShouldNotBeBuilt()
         "val x = if (true) 1".astShouldNotBeBuilt()
         """val x: ((( R? , X,
-               |          String ) -> T?)?)? = { 1 }""".trimMargin() astShouldBe "typed val declaration with lambda"
+               |          () -> String,(String) -> Unit) -> T?)?)? = #{ -> 1 }""".trimMargin() astShouldBe "typed val declaration with lambda"
     }
 
     "operations precedence" {
@@ -59,12 +59,13 @@ class TestASTBuilder : StringSpec({
         """if (true) if(x) "hello" else 2""" astShouldBe "nested ifs"
         """if (true) if(x) 1 else 2 else 3""" astShouldBe "nested if expressions"
         """if (true) val x = if(x) 1 else 2 else 3""" astShouldBe "val with if inside if"
-        """if (x) { { y: Int -> val x = 3.14; "hello"} } else { {2} }""" astShouldBe "if expression with lambdas"
-        """if (x) { -> val x = 3.14 } else { 2 }""" astShouldBe "if expression with positive branch lambda"
-        """if (x) { val x = 3.14; "hello"} else { {2} }""" astShouldBe "if expression with negative branch lambda"
-        """if (x) { val x = 3.14; "hello"; val y = 2.16 } else { {2} }""" astShouldBe "if statement with a lambda"
-        """if (x) { y: Int -> val x = 3.14; "hello"; val y = 2.16 } else { {2} }""" astShouldBe "if expression that look pretty ambiguous"
-        """if (x) { -> val x = 3.14; "hello"; val y = 2.16 } else 2""" astShouldBe "if expression that look even more ambiguous"
+        """if (x) { #{ y: Int -> val x = 3.14; "hello"} } else { #{ -> 2} }""" astShouldBe "if expression with lambdas"
+        """if (x) #{ -> val x = 3.14 } else { 2 }""" astShouldBe "if expression with positive branch lambda"
+        """if (x) { val x = 3.14; "hello"} else {#{->2} }""" astShouldBe "if expression with negative branch lambda"
+        """if (x) { val x = 3.14; "hello"; val y = 2.16 } else #{->2} """ astShouldBe "if statement with a lambda"
+        """if (x) #{ y: Int -> val x = 3.14;"hello"
+            |val y = 2.16;} else { #{ ->2} }""".trimMargin() astShouldBe "if expression that look pretty ambiguous"
+        """if (x) #{ -> val x = 3.14; "hello"; val y = 2.16 } else 2""" astShouldBe "if expression that look even more ambiguous"
     }
 
     "empty programs" {
