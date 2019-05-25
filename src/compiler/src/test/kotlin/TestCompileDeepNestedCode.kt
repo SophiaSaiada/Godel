@@ -1,16 +1,17 @@
 import com.godel.compiler.compile
 import io.kotlintest.specs.StringSpec
-import java.io.File
 
 class TestCompileDeepNestedCode : StringSpec({
-    fun shouldBeAbleToCompile(pathName: String) {
-        val sourceCode =
-            File(pathName).readLines().joinToString("\n").asSequence()
-        compile(sourceCode)
+    fun shouldBeAbleToCompile(sourceCode: String) {
+        compile(sourceCode.asSequence())
     }
 
     "should be able to compile a deep nested code" {
-        shouldBeAbleToCompile("./src/test/inputs/deepNestedCode.gd")
+        val depth = 500
+        val sourceCode =
+            (1..depth).joinToString("\n") { "if (true) {" } +
+                    (1..depth).joinToString("") { "\n}" }
+        shouldBeAbleToCompile(sourceCode)
     }
-    
+
 })

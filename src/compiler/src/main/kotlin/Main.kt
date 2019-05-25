@@ -8,4 +8,5 @@ fun compile(sourceCode: Sequence<Char>) {
     val tokensPerClass = Classifier.classify(tokenSequence)
     val abstractSyntaxTress =
         tokensPerClass.map { ASTTransformer.transformAST(Parser.parse(it)) }
+    abstractSyntaxTress.toList()
 }
