@@ -15,8 +15,7 @@
 
 @Rules
 <Program> -> <SpaceStar> <Statements> <SpaceStar>
-<Statements> -> <Statement> <WhitespaceStar> <StatementsRest> | ε
-<StatementsRest> -> <SEMI> <Statements> | ε
+<Statements> -> <Statement> | <Statement> <WhitespacePlus> <SEMI> <Statements> | <Statement> <SEMI> <Statements> | ε
 
 <Statement> -> <Expression> | <Declaration>
 

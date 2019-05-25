@@ -27,9 +27,11 @@ object ASTTransformer {
                 is ParseTreeNode.Inner ->
                     when (currentNode.type) {
                         Parser.InnerNodeType.Statements ->
-                            listOf(transformStatement(currentNode[0] as ParseTreeNode.Inner)) +
-                                    getStatements(currentNode.last())
-                        Parser.InnerNodeType.StatementsRest -> getStatements(currentNode.last())
+                            if (currentNode.children.size == 1)
+                                listOf(transformStatement(currentNode[0] as ParseTreeNode.Inner))
+                            else
+                                listOf(transformStatement(currentNode[0] as ParseTreeNode.Inner)) +
+                                        getStatements(currentNode.last())
                         else -> throwInvalidParseError()
                     }
                 else -> throwInvalidParseError()
