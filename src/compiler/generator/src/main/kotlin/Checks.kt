@@ -4,6 +4,7 @@ package com.godel.compiler
 fun performChecks(tokens: List<Symbol.Terminal>, productionRules: List<ProductionRule>) {
     allTokensInRulesExists(tokens, productionRules)
     noMissingRulesReferenced(productionRules)
+    isValidGrammar(productionRules)
 }
 
 
@@ -35,5 +36,23 @@ private fun noMissingRulesReferenced(productionRules: List<ProductionRule>) =
     }
 
 private fun isValidGrammar(productionRules: List<ProductionRule>) {
-    TODO()
+    val getSymbolFirstLetters = getSymbolFirstLetters(productionRules)
+    productionRules.forEach { productionRule ->
+        val productionRuleAlternativesFirstLetters =
+            productionRule.alternatives.mapNotNull { productionRuleAlternative ->
+                productionRuleAlternative.symbols.firstOrNull()
+                    ?.takeIf { it is Symbol.NonTerminal }
+                    ?.let { it.name to getSymbolFirstLetters(it) }
+            }
+        productionRuleAlternativesFirstLetters.forEach { (firstLetterName, productionRuleAlternativeFirstLetters) ->
+            productionRuleAlternativesFirstLetters.forEach inner@{ (otherFirstLetterName, otherProductionRuleAlternativeFirstLetters) ->
+                val intersect =
+                    otherProductionRuleAlternativeFirstLetters intersect productionRuleAlternativeFirstLetters
+                check(firstLetterName == otherFirstLetterName || intersect.isEmpty()) {
+                    "Production rule <${productionRule.sourceSymbol.name}> is invalid. " +
+                            "There are alternatives which starts with different non-terminal (<$firstLetterName> and <$otherFirstLetterName>) but the non-terminals both start with the terminals {${intersect.joinToString { it.name }}}"
+                }
+            }
+        }
+    }
 }

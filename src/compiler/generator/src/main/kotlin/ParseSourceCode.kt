@@ -21,10 +21,10 @@ private fun combineRulesLines(rulesLines: List<String>): List<String> =
     }.filterNot { it.isBlank() }
 
 
-sealed class Symbol {
-    data class NonTerminal(val name: String) : Symbol()
-    data class Terminal(val name: String) : Symbol()
-    object Epsilon : Symbol()
+sealed class Symbol(open val name: String) {
+    data class NonTerminal(override val name: String) : Symbol(name)
+    data class Terminal(override val name: String) : Symbol(name)
+    object Epsilon : Symbol("ε")
 }
 
 data class ProductionRule(

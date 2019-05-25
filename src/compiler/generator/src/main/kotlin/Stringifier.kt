@@ -192,7 +192,7 @@ private fun getLetterParseCall(symbol: Symbol): String {
     }
 }
 
-private fun getSymbolFirstLetters(allProductionRules: List<ProductionRule>): (Symbol) -> Set<Symbol> {
+internal fun getSymbolFirstLetters(allProductionRules: List<ProductionRule>): (Symbol) -> Set<Symbol> {
     var memoizedResults = immutableMapOf<Symbol, Set<Symbol>>()
     fun getSymbolFirstLetters(symbol: Symbol): Set<Symbol> =
         memoizedResults.getOrElse(symbol) {
