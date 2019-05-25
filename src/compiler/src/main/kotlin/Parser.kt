@@ -4,7 +4,7 @@ object Parser : ParserBase() {
     override val start = ::parseProgram
 
     enum class InnerNodeType : NodeType {
-        Program, Statements, Statement, Declaration, ValDeclaration, ValDeclarationRest, Type, FunctionalOrNullableType, TypeStar, TypeStarRest, TypeArgumentsOptional, TypeArguments, TypeArgumentsContent, TypeNamedArgumentsOptional, TypeArgumentsContentRest, TypeParameters, TypeParametersNamesPlus, TypeParametersInheritanceOptional, TypeParametersNamesPlusRest, QuestionMarkOptional, ParenthesizedExpression, PaddedExpression, Expression, SimpleExpression, BooleanLiteral, Number, NumberRest, DecimalLiteralOrMemberAccess, MemberAccessWithoutFirstDot, StringLiteral, AnythingButApostrophes, AnythingEndsWithApostrophes, IfExpression, IfExpressionRest, ElseExpression, ClassDeclaration, MemberDeclarationStar, MemberDeclarationStarRest, MemberDeclaration, MemberDeclarationRest, PrivateOrPublic, ElvisExpression, ElvisExpressionRest, ReturnExpression, InfixExpression, InfixExpressionRest, DisjunctionExpression, DisjunctionExpressionRest, ConjunctionExpression, ConjunctionExpressionRest, EqualityOperator, EqualityExpression, EqualityExpressionRest, ComparisonOperator, ComparisonExpression, ComparisonExpressionRest, AdditiveOperator, AdditiveExpression, AdditiveExpressionRest, MultiplicativeOperator, MultiplicativeExpression, MultiplicativeExpressionRest, DotOrQuestionedDot, MemberAccess, MemberAccessRest, Invocation, InvocationArgumentsStar, InvocationArguments, ArgumentStar, NamedArgumentPostfixOptional, ArgumentStarRest, SimpleOrParenthesizedExpression, FunctionDeclaration, ReturnTypeOptional, FunctionParameters, FunctionParameterStar, FunctionParameterStarRest, FunctionParameter, StatementOrBlock, Block, Lambda, LambdaParametersStar, LambdaParametersRest, WhiteSpaceOrBreakLine, SpaceStar, SpacePlus, WhitespaceStar, WhitespacePlus, SEMI, SEMIRest, SEMIOptional, BreakLineOptional, SemiColonOptional, AssignmentOptional
+        Program, Statements, Statement, Declaration, ValDeclaration, ValDeclarationRest, Type, FunctionalOrNullableType, TypeStar, TypeStarRest, TypeArgumentsOptional, TypeArguments, TypeArgumentsContent, TypeNamedArgumentsOptional, TypeArgumentsContentRest, TypeParameters, TypeParametersNamesPlus, TypeParametersInheritanceOptional, TypeParametersNamesPlusRest, QuestionMarkOptional, ParenthesizedExpression, PaddedExpression, Expression, SimpleExpression, BooleanLiteral, Number, NumberRest, DecimalLiteralOrMemberAccess, MemberAccessWithoutFirstDot, StringLiteral, AnythingButApostrophes, AnythingEndsWithApostrophes, IfExpression, IfExpressionRest, ElseExpression, ClassDeclaration, MemberDeclarationStar, MemberDeclarationStarRest, MemberDeclaration, MemberDeclarationRest, PrivateOrPublic, ElvisExpression, ElvisExpressionRest, ReturnExpression, InfixExpression, InfixExpressionRest, DisjunctionExpression, DisjunctionExpressionRest, ConjunctionExpression, ConjunctionExpressionRest, EqualityOperator, EqualityExpression, EqualityExpressionRest, ComparisonOperator, ComparisonExpression, ComparisonExpressionRest, AdditiveOperator, AdditiveExpression, AdditiveExpressionRest, MultiplicativeOperator, MultiplicativeExpression, MultiplicativeExpressionRest, DotOrQuestionedDot, MemberAccess, MemberAccessRest, Invocation, InvocationArgumentsStar, InvocationArguments, ArgumentStar, NamedArgumentPostfixOptional, ArgumentStarRest, SimpleOrParenthesizedExpression, FunctionDeclaration, ReturnTypeOptional, FunctionParameters, FunctionParameterStar, FunctionParameterStarRest, FunctionParameter, StatementOrBlock, Block, Lambda, LambdaParametersStar, LambdaParametersRest, WhiteSpaceOrBreakLine, SpaceStar, SpacePlus, WhitespaceStar, WhitespacePlus, SEMI, SEMIRest, SEMIOptional, SemiColonOptional
     }
 
     private fun parseProgram(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
@@ -1823,36 +1823,10 @@ object Parser : ParserBase() {
         }
     }
 
-    private fun parseBreakLineOptional(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
-        val nodeType = InnerNodeType.BreakLineOptional
-        return if (nextToken0 in setOf(TokenType.BreakLine)) {
-            val (child0, nextToken1) = parseToken(TokenType.BreakLine).invoke(nextToken0, restOfTokens)
-            ParseTreeNodeResult(
-                ParseTreeNode.Inner(listOf(child0), nodeType),
-                nextToken1
-            )
-        } else {
-            ParseTreeNodeResult(ParseTreeNode.EpsilonLeaf(nodeType), nextToken0)
-        }
-    }
-
     private fun parseSemiColonOptional(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.SemiColonOptional
         return if (nextToken0 in setOf(TokenType.SemiColon)) {
             val (child0, nextToken1) = parseToken(TokenType.SemiColon).invoke(nextToken0, restOfTokens)
-            ParseTreeNodeResult(
-                ParseTreeNode.Inner(listOf(child0), nodeType),
-                nextToken1
-            )
-        } else {
-            ParseTreeNodeResult(ParseTreeNode.EpsilonLeaf(nodeType), nextToken0)
-        }
-    }
-
-    private fun parseAssignmentOptional(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
-        val nodeType = InnerNodeType.AssignmentOptional
-        return if (nextToken0 in setOf(TokenType.Assignment)) {
-            val (child0, nextToken1) = parseToken(TokenType.Assignment).invoke(nextToken0, restOfTokens)
             ParseTreeNodeResult(
                 ParseTreeNode.Inner(listOf(child0), nodeType),
                 nextToken1

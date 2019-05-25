@@ -165,6 +165,4 @@
 
 <SEMIOptional> -> <SEMI> | ε
 
-<BreakLineOptional> -> BreakLine | ε
 <SemiColonOptional> -> SemiColon | ε
-<AssignmentOptional> -> Assignment | ε
