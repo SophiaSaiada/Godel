@@ -20,7 +20,7 @@ fun getParserCode(sourceCode: List<String>): String {
     val (tokensLines, rulesLines) =
         partitionTokensSectionAndRulesSection(filterOutComments(sourceCode))
     val tokens = parseTokens(tokensLines)
-    val productionRules = parseProductionRules(rulesLines)
+    val productionRules = parseProductionRules(rulesLines, tokens)
 
     performChecks(tokens, productionRules)
     val parseFunctions = productionRules.map(::getParseFunction)

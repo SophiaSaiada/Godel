@@ -53,23 +53,7 @@
 <MemberAccessWithoutFirstDot> -> <SpaceStar> SimpleName
 
 <StringLiteral> -> Apostrophes <AnythingEndsWithApostrophes>
-<AnythingButApostrophes> ->
-    WhiteSpace | SemiColon | BreakLine | Colon | Dot | Comma |
-    Percentage | Backslash | Star | Minus | Plus | Division | ExclamationMark | QuestionMark | Ampersand | SingleOr |
-    Assignment | QuestionedDot | Hash |
-
-    OpenBraces | CloseBraces | OpenParenthesis | CloseParenthesis | OpenBrokets | CloseBrokets |
-    DecimalLiteral | SimpleName |
-
-    Elvis | Or | And | Equal |
-    NotEqual | GreaterThanEqual |
-    LessThanEqual | NullAwareDot | RightArrow
-
-    KeywordVal | KeywordVar | KeywordFun | KeywordClass | KeywordTrue | KeywordFalse |
-    KeywordIf | KeywordElse | KeywordWhile | KeywordWhen |
-
-    Unknown
-<AnythingEndsWithApostrophes> -> <AnythingButApostrophes> <AnythingEndsWithApostrophes> | Apostrophes
+<AnythingEndsWithApostrophes> -> <AnythingBut@Apostrophes> <AnythingEndsWithApostrophes> | Apostrophes
 <IfExpression> -> KeywordIf <SpaceStar> <ParenthesizedExpression> <SpaceStar>
                   <StatementOrBlock> <WhitespaceStar> <IfExpressionRest>
 <IfExpressionRest> -> <ElseExpression> | ε

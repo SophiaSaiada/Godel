@@ -4,7 +4,7 @@ object Parser : ParserBase() {
     override val start = ::parseProgram
 
     enum class InnerNodeType : NodeType {
-        Program, Statements, Statement, Declaration, ValDeclaration, ValDeclarationRest, Type, FunctionalOrNullableType, TypeStar, TypeStarRest, TypeArgumentsOptional, TypeArguments, TypeArgumentsContent, TypeNamedArgumentsOptional, TypeArgumentsContentRest, TypeParameters, TypeParametersNamesPlus, TypeParametersInheritanceOptional, TypeParametersNamesPlusRest, QuestionMarkOptional, ParenthesizedExpression, PaddedExpression, Expression, SimpleExpression, BooleanLiteral, Number, MemberAccessWithoutFirstDot, StringLiteral, AnythingButApostrophes, AnythingEndsWithApostrophes, IfExpression, IfExpressionRest, ElseExpression, ClassDeclaration, MemberDeclarationStar, MemberDeclarationStarRest, MemberDeclaration, MemberDeclarationRest, PrivateOrPublic, ElvisExpression, ReturnExpression, InfixExpression, DisjunctionExpression, ConjunctionExpression, EqualityOperator, EqualityExpression, ComparisonOperator, ComparisonExpression, AdditiveOperator, AdditiveExpression, MultiplicativeOperator, MultiplicativeExpression, DotOrQuestionedDot, MemberAccess, Invocation, InvocationArgumentsStar, InvocationArguments, ArgumentStar, NamedArgumentPostfixOptional, ArgumentStarRest, SimpleOrParenthesizedExpression, FunctionDeclaration, ReturnTypeOptional, FunctionParameters, FunctionParameterStar, FunctionParameterStarRest, FunctionParameter, StatementOrBlock, Block, Lambda, LambdaParametersStar, LambdaParametersRest, WhiteSpaceOrBreakLine, SpaceStar, SpacePlus, WhitespaceStar, WhitespacePlus, SEMI, SEMIRest, SEMIOptional, SemiColonOptional
+        Program, Statements, Statement, Declaration, ValDeclaration, ValDeclarationRest, Type, FunctionalOrNullableType, TypeStar, TypeStarRest, TypeArgumentsOptional, TypeArguments, TypeArgumentsContent, TypeNamedArgumentsOptional, TypeArgumentsContentRest, TypeParameters, TypeParametersNamesPlus, TypeParametersInheritanceOptional, TypeParametersNamesPlusRest, QuestionMarkOptional, ParenthesizedExpression, PaddedExpression, Expression, SimpleExpression, BooleanLiteral, Number, MemberAccessWithoutFirstDot, StringLiteral, AnythingEndsWithApostrophes, IfExpression, IfExpressionRest, ElseExpression, ClassDeclaration, MemberDeclarationStar, MemberDeclarationStarRest, MemberDeclaration, MemberDeclarationRest, PrivateOrPublic, ElvisExpression, ReturnExpression, InfixExpression, DisjunctionExpression, ConjunctionExpression, EqualityOperator, EqualityExpression, ComparisonOperator, ComparisonExpression, AdditiveOperator, AdditiveExpression, MultiplicativeOperator, MultiplicativeExpression, DotOrQuestionedDot, MemberAccess, Invocation, InvocationArgumentsStar, InvocationArguments, ArgumentStar, NamedArgumentPostfixOptional, ArgumentStarRest, SimpleOrParenthesizedExpression, FunctionDeclaration, ReturnTypeOptional, FunctionParameters, FunctionParameterStar, FunctionParameterStarRest, FunctionParameter, StatementOrBlock, Block, Lambda, LambdaParametersStar, LambdaParametersRest, WhiteSpaceOrBreakLine, SpaceStar, SpacePlus, WhitespaceStar, WhitespacePlus, SEMI, SEMIRest, SEMIOptional, SemiColonOptional
     }
 
     private fun parseProgram(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
@@ -525,257 +525,308 @@ object Parser : ParserBase() {
         } else throw CompilationError("not matching alternative for nextToken.")
     }
 
-    private fun parseAnythingButApostrophes(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
-        val nodeType = InnerNodeType.AnythingButApostrophes
+    private fun parseAnythingEndsWithApostrophes(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
+        val nodeType = InnerNodeType.AnythingEndsWithApostrophes
         return when (nextToken0) {
             in setOf(TokenType.WhiteSpace) -> {
                 val (child0, nextToken1) = parseToken(TokenType.WhiteSpace).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.SemiColon) -> {
                 val (child0, nextToken1) = parseToken(TokenType.SemiColon).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.BreakLine) -> {
                 val (child0, nextToken1) = parseToken(TokenType.BreakLine).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.Colon) -> {
                 val (child0, nextToken1) = parseToken(TokenType.Colon).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.Dot) -> {
                 val (child0, nextToken1) = parseToken(TokenType.Dot).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.Comma) -> {
                 val (child0, nextToken1) = parseToken(TokenType.Comma).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.Percentage) -> {
                 val (child0, nextToken1) = parseToken(TokenType.Percentage).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.Backslash) -> {
                 val (child0, nextToken1) = parseToken(TokenType.Backslash).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.Star) -> {
                 val (child0, nextToken1) = parseToken(TokenType.Star).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.Minus) -> {
                 val (child0, nextToken1) = parseToken(TokenType.Minus).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.Plus) -> {
                 val (child0, nextToken1) = parseToken(TokenType.Plus).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.Division) -> {
                 val (child0, nextToken1) = parseToken(TokenType.Division).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.ExclamationMark) -> {
                 val (child0, nextToken1) = parseToken(TokenType.ExclamationMark).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.QuestionMark) -> {
                 val (child0, nextToken1) = parseToken(TokenType.QuestionMark).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.Ampersand) -> {
                 val (child0, nextToken1) = parseToken(TokenType.Ampersand).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.SingleOr) -> {
                 val (child0, nextToken1) = parseToken(TokenType.SingleOr).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
+                )
+            }
+            in setOf(TokenType.Keyword) -> {
+                val (child0, nextToken1) = parseToken(TokenType.Keyword).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
+                ParseTreeNodeResult(
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.Assignment) -> {
                 val (child0, nextToken1) = parseToken(TokenType.Assignment).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.QuestionedDot) -> {
                 val (child0, nextToken1) = parseToken(TokenType.QuestionedDot).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.Hash) -> {
                 val (child0, nextToken1) = parseToken(TokenType.Hash).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.OpenBraces) -> {
                 val (child0, nextToken1) = parseToken(TokenType.OpenBraces).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.CloseBraces) -> {
                 val (child0, nextToken1) = parseToken(TokenType.CloseBraces).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.OpenParenthesis) -> {
                 val (child0, nextToken1) = parseToken(TokenType.OpenParenthesis).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.CloseParenthesis) -> {
                 val (child0, nextToken1) = parseToken(TokenType.CloseParenthesis).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.OpenBrokets) -> {
                 val (child0, nextToken1) = parseToken(TokenType.OpenBrokets).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.CloseBrokets) -> {
                 val (child0, nextToken1) = parseToken(TokenType.CloseBrokets).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.DecimalLiteral) -> {
                 val (child0, nextToken1) = parseToken(TokenType.DecimalLiteral).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.SimpleName) -> {
                 val (child0, nextToken1) = parseToken(TokenType.SimpleName).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.Elvis) -> {
                 val (child0, nextToken1) = parseToken(TokenType.Elvis).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.Or) -> {
                 val (child0, nextToken1) = parseToken(TokenType.Or).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.And) -> {
                 val (child0, nextToken1) = parseToken(TokenType.And).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.Equal) -> {
                 val (child0, nextToken1) = parseToken(TokenType.Equal).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.NotEqual) -> {
                 val (child0, nextToken1) = parseToken(TokenType.NotEqual).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.GreaterThanEqual) -> {
                 val (child0, nextToken1) = parseToken(TokenType.GreaterThanEqual).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.LessThanEqual) -> {
                 val (child0, nextToken1) = parseToken(TokenType.LessThanEqual).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.NullAwareDot) -> {
                 val (child0, nextToken1) = parseToken(TokenType.NullAwareDot).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.RightArrow) -> {
                 val (child0, nextToken1) = parseToken(TokenType.RightArrow).invoke(nextToken0, restOfTokens)
-                val (child1, nextToken2) = parseToken(Keyword.Val).invoke(nextToken1, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
+                ParseTreeNodeResult(
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
+                )
+            }
+            in setOf(Keyword.Val) -> {
+                val (child0, nextToken1) = parseToken(Keyword.Val).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
                     ParseTreeNode.Inner(listOf(child0, child1), nodeType),
                     nextToken2
@@ -783,69 +834,110 @@ object Parser : ParserBase() {
             }
             in setOf(Keyword.Var) -> {
                 val (child0, nextToken1) = parseToken(Keyword.Var).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(Keyword.Fun) -> {
                 val (child0, nextToken1) = parseToken(Keyword.Fun).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(Keyword.Class) -> {
                 val (child0, nextToken1) = parseToken(Keyword.Class).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(Keyword.True) -> {
                 val (child0, nextToken1) = parseToken(Keyword.True).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(Keyword.False) -> {
                 val (child0, nextToken1) = parseToken(Keyword.False).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(Keyword.If) -> {
                 val (child0, nextToken1) = parseToken(Keyword.If).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(Keyword.Else) -> {
                 val (child0, nextToken1) = parseToken(Keyword.Else).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(Keyword.While) -> {
                 val (child0, nextToken1) = parseToken(Keyword.While).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
+                )
+            }
+            in setOf(Keyword.Private) -> {
+                val (child0, nextToken1) = parseToken(Keyword.Private).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
+                ParseTreeNodeResult(
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
+                )
+            }
+            in setOf(Keyword.Public) -> {
+                val (child0, nextToken1) = parseToken(Keyword.Public).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
+                ParseTreeNodeResult(
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(Keyword.When) -> {
                 val (child0, nextToken1) = parseToken(Keyword.When).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
+                )
+            }
+            in setOf(Keyword.Return) -> {
+                val (child0, nextToken1) = parseToken(Keyword.Return).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
+                ParseTreeNodeResult(
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
                 )
             }
             in setOf(TokenType.Unknown) -> {
                 val (child0, nextToken1) = parseToken(TokenType.Unknown).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
+                ParseTreeNodeResult(
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
+                )
+            }
+            in setOf(TokenType.Apostrophes) -> {
+                val (child0, nextToken1) = parseToken(TokenType.Apostrophes).invoke(nextToken0, restOfTokens)
                 ParseTreeNodeResult(
                     ParseTreeNode.Inner(listOf(child0), nodeType),
                     nextToken1
@@ -853,24 +945,6 @@ object Parser : ParserBase() {
             }
             else -> throw CompilationError("not matching alternative for nextToken.")
         }
-    }
-
-    private fun parseAnythingEndsWithApostrophes(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
-        val nodeType = InnerNodeType.AnythingEndsWithApostrophes
-        return if (nextToken0 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken0 in setOf(Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.When)) {
-            val (child0, nextToken1) = parseAnythingButApostrophes(nextToken0, restOfTokens)
-            val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
-            ParseTreeNodeResult(
-                ParseTreeNode.Inner(listOf(child0, child1), nodeType),
-                nextToken2
-            )
-        } else if (nextToken0 in setOf(TokenType.Apostrophes)) {
-            val (child0, nextToken1) = parseToken(TokenType.Apostrophes).invoke(nextToken0, restOfTokens)
-            ParseTreeNodeResult(
-                ParseTreeNode.Inner(listOf(child0), nodeType),
-                nextToken1
-            )
-        } else throw CompilationError("not matching alternative for nextToken.")
     }
 
     private fun parseIfExpression(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {

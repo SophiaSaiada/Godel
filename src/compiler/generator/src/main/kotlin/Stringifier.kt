@@ -176,7 +176,7 @@ private fun getBranchEnterCondition(firstLetters: Set<Symbol>, nextTokenIndex: I
     else {
         val nextToken = "nextToken$nextTokenIndex"
         val (keywords, tokens) =
-            firstLetters.partition { (it as? Symbol.Terminal)?.name?.startsWith("Keyword") == true }
+            firstLetters.partition { (it as? Symbol.Terminal)?.keywordName != null }
         val tokensListAsString =
             tokens.joinToString(", ") { getTokenTypeString(it) }
         val keywordsListAsString =
@@ -190,7 +190,7 @@ private fun getLetterParseCall(symbol: Symbol): String {
     return when (symbol) {
         is Symbol.Terminal -> {
             val tokenType =
-                if (symbol.name.startsWith("Keyword")) getKeywordString(symbol)
+                if (symbol.keywordName != null) getKeywordString(symbol)
                 else getTokenTypeString(symbol)
             "parseToken($tokenType).invoke"
         }
@@ -219,7 +219,7 @@ internal fun getSymbolFirstLetters(allProductionRules: List<ProductionRule>): (S
 }
 
 private fun getKeywordString(symbol: Symbol) =
-    "Keyword." + (symbol as Symbol.Terminal).name.removePrefix("Keyword")
+    "Keyword." + (symbol as Symbol.Terminal).keywordName
 
 private fun getTokenTypeString(symbol: Symbol) =
     "TokenType." + (symbol as Symbol.Terminal).name

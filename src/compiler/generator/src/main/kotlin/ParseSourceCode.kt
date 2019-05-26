@@ -1,5 +1,8 @@
 package com.godel.compiler
 
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
+
 fun filterOutComments(sourceCode: List<String>) =
     sourceCode.filterNot { it.startsWith("//") }
 
@@ -23,7 +26,12 @@ private fun combineRulesLines(rulesLines: List<String>): List<String> =
 
 sealed class Symbol(open val name: String) {
     data class NonTerminal(override val name: String) : Symbol(name)
-    data class Terminal(override val name: String) : Symbol(name)
+    data class Terminal(override val name: String) : Symbol(name) {
+        val keywordName =
+            name.takeIf { it.startsWith("Keyword") && it != "Keyword" }
+                ?.removePrefix("Keyword")
+    }
+
     object Epsilon : Symbol("ε")
 }
 
@@ -32,7 +40,7 @@ data class ProductionRule(
     val alternatives: List<ProductionRuleAlternative>
 )
 
-data class ProductionRuleAlternative(val symbols: List<Symbol>) {
+data class ProductionRuleAlternative(val symbols: ImmutableList<Symbol>) {
     val isAnEpsilonAlternative
         get() = symbols.size == 1 && symbols.first() is Symbol.Epsilon
 }
@@ -57,7 +65,7 @@ private fun parseSymbol(symbolAsString: String) =
 
 private fun parseProductionRuleAlternative(alternativeAString: String) =
     ProductionRuleAlternative(
-        alternativeAString.split(" +".toRegex()).filterNot { it.isBlank() }.map { parseSymbol(it) }
+        alternativeAString.split(" +".toRegex()).filterNot { it.isBlank() }.map { parseSymbol(it) }.toImmutableList()
     )
 
 private fun parseProductionRuleLine(ruleLine: String): ProductionRule {
@@ -70,8 +78,33 @@ private fun parseProductionRuleLine(ruleLine: String): ProductionRule {
     return ProductionRule(sourceSymbol, alternatives)
 }
 
-fun parseProductionRules(rulesLines: List<String>) =
-    combineRulesLines(rulesLines).map(::parseProductionRuleLine)
+fun parseProductionRules(rulesLines: List<String>, tokens: List<Symbol.Terminal>): List<ProductionRule> {
+    val preProcessedProductionRules = combineRulesLines(rulesLines).map(::parseProductionRuleLine)
+    return processModifiers(preProcessedProductionRules, tokens)
+}
+
+fun processModifiers(preProcessedProductionRules: List<ProductionRule>, tokens: List<Symbol.Terminal>) =
+    preProcessedProductionRules.map { preProcessedProductionRule ->
+        val processedAlternatives =
+            preProcessedProductionRule.alternatives.flatMap { productionRuleAlternative ->
+                val indexOfModifiedSymbol =
+                    productionRuleAlternative.symbols.indexOfFirst { symbol -> "@" in symbol.name }
+                if (indexOfModifiedSymbol != -1) {
+                    val tokenizedSymbol = productionRuleAlternative.symbols[indexOfModifiedSymbol].name.split("@")
+                    when (tokenizedSymbol.first()) {
+                        "AnythingBut" ->
+                            tokens.filterNot { it.name == tokenizedSymbol.last() }.map { token ->
+                                productionRuleAlternative.copy(
+                                    symbols = productionRuleAlternative.symbols.set(indexOfModifiedSymbol, token)
+                                )
+                            }
+                        else -> listOf(productionRuleAlternative)
+                    }
+                } else listOf(productionRuleAlternative)
+            }
+        preProcessedProductionRule.copy(alternatives = processedAlternatives)
+    }
 
 fun parseTokens(sourceCode: List<String>) =
-    sourceCode.joinToString(" ").split(" +".toRegex()).map { parseSymbol(it) as Symbol.Terminal }
+    sourceCode.joinToString(" ").split(",")
+        .filterNot { it.isBlank() }.map { parseSymbol(it.trim()) as Symbol.Terminal }

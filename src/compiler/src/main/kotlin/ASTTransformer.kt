@@ -578,7 +578,7 @@ object ASTTransformer {
         fun getStringFromParseTreeNodes(currentNode: ParseTreeNode.Inner): String =
             when (currentNode.children.size) {
                 1 -> ""
-                2 -> (currentNode[0][0] as ParseTreeNode.Leaf).token.content +
+                2 -> (currentNode[0] as ParseTreeNode.Leaf).token.content +
                         getStringFromParseTreeNodes(currentNode.last() as ParseTreeNode.Inner)
                 else -> throwInvalidParseError()
             }
