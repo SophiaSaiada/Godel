@@ -176,11 +176,9 @@ object ASTTransformer {
     private fun transformIf(rootNode: ParseTreeNode.Inner): ASTNode.If {
         val condition = transformParenthesizedExpression(rootNode[2] as ParseTreeNode.Inner)
         val positiveBranch = transformBlockOrStatement(rootNode[4] as ParseTreeNode.Inner)
-        val negativeBranch = when (val ifExpressionRest = rootNode.last()) {
-            is ParseTreeNode.EpsilonLeaf -> null
-            is ParseTreeNode.Inner -> transformElse(ifExpressionRest.last() as ParseTreeNode.Inner).negativeBranch
-            else -> throwInvalidParseError()
-        }
+        val negativeBranch =
+            if (rootNode.children.size == 7) transformElse(rootNode[6] as ParseTreeNode.Inner).negativeBranch
+            else null
         return ASTNode.If.Statement(
             condition,
             (positiveBranch as? ASTNode.Block)?.toBlockWithoutValue() ?: positiveBranch,

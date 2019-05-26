@@ -54,9 +54,8 @@
 
 <StringLiteral> -> Apostrophes <AnythingEndsWithApostrophes>
 <AnythingEndsWithApostrophes> -> <AnythingBut@Apostrophes> <AnythingEndsWithApostrophes> | Apostrophes
-<IfExpression> -> KeywordIf <SpaceStar> <ParenthesizedExpression> <SpaceStar>
-                  <StatementOrBlock> <WhitespaceStar> <IfExpressionRest>
-<IfExpressionRest> -> <ElseExpression> | ε
+<IfExpression> -> KeywordIf <SpaceStar> <ParenthesizedExpression> <SpaceStar> <StatementOrBlock> <WhitespaceStar> |
+                  KeywordIf <SpaceStar> <ParenthesizedExpression> <SpaceStar> <StatementOrBlock> <WhitespaceStar> <ElseExpression>
 <ElseExpression> -> KeywordElse <SpaceStar> <StatementOrBlock>
 
 // Class
