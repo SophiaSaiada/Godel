@@ -89,39 +89,39 @@
 
 
 // Binary Operators
-<ElvisExpression> -> <ReturnExpression> <WhitespaceStar> <ElvisExpressionRest>
-<ElvisExpressionRest> -> Elvis <SpaceStar> <ElvisExpression> | ε
+<ElvisExpression> -> <ReturnExpression> <WhitespaceStar> Elvis <SpaceStar> <ElvisExpression> |
+                     <ReturnExpression> <WhitespaceStar>
 
 <ReturnExpression> -> KeywordReturn <SpacePlus> <ReturnExpression> | <InfixExpression>
 
-<InfixExpression> -> <DisjunctionExpression> <WhitespaceStar> <InfixExpressionRest>
-<InfixExpressionRest> -> SimpleName <SpaceStar> <InfixExpression> | ε
+<InfixExpression> -> <DisjunctionExpression> <WhitespaceStar> SimpleName <SpaceStar> <InfixExpression> |
+                     <DisjunctionExpression> <WhitespaceStar>
 
-<DisjunctionExpression> -> <ConjunctionExpression> <WhitespaceStar> <DisjunctionExpressionRest>
-<DisjunctionExpressionRest> -> Or <SpaceStar> <DisjunctionExpression> | ε
+<DisjunctionExpression> -> <ConjunctionExpression> <WhitespaceStar> Or <SpaceStar> <DisjunctionExpression> |
+                           <ConjunctionExpression> <WhitespaceStar>
 
-<ConjunctionExpression> -> <EqualityExpression> <WhitespaceStar> <ConjunctionExpressionRest>
-<ConjunctionExpressionRest> -> And <SpaceStar> <ConjunctionExpression> | ε
+<ConjunctionExpression> -> <EqualityExpression> <WhitespaceStar> And <SpaceStar> <ConjunctionExpression> |
+                           <EqualityExpression> <WhitespaceStar>
 
 <EqualityOperator> -> Equal | NotEqual
-<EqualityExpression> -> <ComparisonExpression> <WhitespaceStar> <EqualityExpressionRest>
-<EqualityExpressionRest> -> <EqualityOperator> <SpaceStar> <EqualityExpression> | ε
+<EqualityExpression> -> <ComparisonExpression> <WhitespaceStar> <EqualityOperator> <SpaceStar> <EqualityExpression> |
+                        <ComparisonExpression> <WhitespaceStar>
 
 <ComparisonOperator> -> OpenBrokets | CloseBrokets | LessThanEqual | GreaterThanEqual
-<ComparisonExpression> -> <AdditiveExpression> <WhitespaceStar> <ComparisonExpressionRest>
-<ComparisonExpressionRest> -> <ComparisonOperator> <SpaceStar> <ComparisonExpression> | ε
+<ComparisonExpression> -> <AdditiveExpression> <WhitespaceStar> <ComparisonOperator> <SpaceStar> <ComparisonExpression> |
+                          <AdditiveExpression> <WhitespaceStar>
 
 <AdditiveOperator> -> Plus | Minus
-<AdditiveExpression> -> <MultiplicativeExpression> <WhitespaceStar> <AdditiveExpressionRest>
-<AdditiveExpressionRest> -> <AdditiveOperator> <SpaceStar> <AdditiveExpression> | ε
+<AdditiveExpression> -> <MultiplicativeExpression> <WhitespaceStar> <AdditiveOperator> <SpaceStar> <AdditiveExpression> |
+                        <MultiplicativeExpression> <WhitespaceStar>
 
 <MultiplicativeOperator> -> Star | Division | Percentage
-<MultiplicativeExpression> -> <MemberAccess> <WhitespaceStar> <MultiplicativeExpressionRest>
-<MultiplicativeExpressionRest> -> <MultiplicativeOperator> <SpaceStar> <MultiplicativeExpression> | ε
+<MultiplicativeExpression> -> <MemberAccess> <WhitespaceStar> <MultiplicativeOperator> <SpaceStar> <MultiplicativeExpression> |
+                              <MemberAccess> <WhitespaceStar>
 
 <DotOrQuestionedDot> -> Dot | NullAwareDot
-<MemberAccess> -> <Invocation> <WhitespaceStar> <MemberAccessRest>
-<MemberAccessRest> -> <DotOrQuestionedDot> <SpaceStar> <MemberAccess> | ε
+<MemberAccess> -> <Invocation> <WhitespaceStar> <DotOrQuestionedDot> <SpaceStar> <MemberAccess> |
+                  <Invocation> <WhitespaceStar>
 
 <Invocation> -> <SimpleOrParenthesizedExpression> <WhitespaceStar> <InvocationArgumentsStar>
 <InvocationArgumentsStar> -> <TypeArguments> <InvocationArguments> <WhitespaceStar> <InvocationArgumentsStar> |

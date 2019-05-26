@@ -63,7 +63,10 @@ private fun branchAsBranchText(
     val subBranchesOrResult =
         branch.subBranches.takeIf { it.isNotEmpty() }
             ?.let { getAllBranchesAsString(getSymbolFirstLetters, it, numOfChildren, depth + 1) }
-            ?: getBranchResult(branch, nextToken, depth, numOfChildren, multipleBranches)
+            ?: getBranchResult(
+                branch, nextToken, depth, numOfChildren, multipleBranches,
+                isEpsilonBranch(enterCondition)
+            )
 
     val body =
         listOf(commonLettersParse, subBranchesOrResult).filterNot { it.isBlank() }.joinToString("\n")
@@ -76,14 +79,15 @@ private fun getBranchResult(
     nextToken: String,
     depth: Int,
     numOfChildren: Int,
-    multipleBranches: Boolean
+    multipleBranches: Boolean,
+    isEpsilonBranch: Boolean
 ) =
     buildString {
-        if (depth <= 1 && !multipleBranches)
+        if (depth <= 1 && !multipleBranches && isEpsilonBranch)
             append("return ")
 
         val result =
-            if (depth == 0 && branch.isEpsilonBranch)
+            if (numOfChildren == 0)
                 "ParseTreeNodeResult(ParseTreeNode.EpsilonLeaf(nodeType), $nextToken)"
             else {
                 val childNames =
@@ -108,7 +112,7 @@ private fun getAllBranchesAsString(
     depth: Int = 0
 ): String {
     val branchTexts = branches.map {
-        branchAsBranchText(getSymbolFirstLetters, it, nextTokenIndex, depth, branches.size > 1)
+        branchAsBranchText(getSymbolFirstLetters, it, nextTokenIndex, depth + 1, branches.size > 1)
     }
     val epsilonBranchExists = isEpsilonBranchExists(branchTexts)
     return mergeBranchTexts(branchTexts, epsilonBranchExists, depth)
@@ -119,8 +123,8 @@ private fun mergeBranchTexts(branchTexts: List<BranchText>, epsilonBranchExists:
         branchTexts.single().body
     } else {
         val notEpsilonBranches =
-            branchTexts.filterNot { it.enterCondition == "true" }
-        val epsilonBranch = branchTexts.find { it.enterCondition == "true" }
+            branchTexts.filterNot { isEpsilonBranch(it.enterCondition) }
+        val epsilonBranch = branchTexts.find { isEpsilonBranch(it.enterCondition) }
         val elseBranch =
             epsilonBranch?.body?.wrappedWithBraces()
                 ?: """throw CompilationError("not matching alternative for nextToken.")"""
@@ -129,11 +133,12 @@ private fun mergeBranchTexts(branchTexts: List<BranchText>, epsilonBranchExists:
             val whenBody =
                 (notEpsilonBranches.map { "${enterConditionAsInWhenExpression(it.enterCondition)} -> ${it.body.wrappedWithBraces()}" } +
                         "else -> $elseBranch").joinToString("\n")
-            "return when ($nextTokenVariableName) ${whenBody.wrappedWithBraces()}"
+            val maybeReturn = if (depth == 0) "return " else ""
+            "${maybeReturn}when ($nextTokenVariableName) ${whenBody.wrappedWithBraces()}"
         } else {
             val ifBranches =
                 notEpsilonBranches.map { "if (${it.enterCondition}) ${it.body.wrappedWithBraces()}" }
-            val maybeReturn = if (depth == 0 && branchTexts.size > 1) "return " else ""
+            val maybeReturn = if (depth == 0) "return " else ""
             maybeReturn + (ifBranches + elseBranch).joinToString(" else ")
         }
     }
@@ -161,7 +166,9 @@ private fun parseFunctionAsString(
 }
 
 private fun isEpsilonBranchExists(branchesAsText: List<BranchText>): Boolean =
-    branchesAsText.any { it.enterCondition == "true" }
+    branchesAsText.any { isEpsilonBranch(it.enterCondition) }
+
+private fun isEpsilonBranch(enterCondition: String) = enterCondition == "true"
 
 private fun getBranchEnterCondition(firstLetters: Set<Symbol>, nextTokenIndex: Int) =
     if (Symbol.Epsilon in firstLetters)

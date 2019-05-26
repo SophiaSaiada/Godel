@@ -11,7 +11,16 @@ class TestASTBuilder : StringSpec({
     val inputs = parser.parse("./src/test/inputs/ASTs.json") as JsonObject
 
     fun lexThenParseThenTransform(sourceCode: String) =
-        ASTTransformer.transformAST(Parser.parse(Lexer.lex(sourceCode.asSequence())))
+        sourceCode.asSequence()
+            .let {
+                Lexer.lex(it)
+            }
+            .let {
+                Parser.parse(it)
+            }
+            .let {
+                ASTTransformer.transformAST(it)
+            }
 
     infix fun String.astShouldBe(expectedResultName: String) {
         val ast = lexThenParseThenTransform(this)
