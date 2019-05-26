@@ -1,5 +1,7 @@
 package com.godel.compiler
 
+import java.security.InvalidKeyException
+
 object ASTTransformer {
     fun transformAST(rootNode: ParseTreeNode) =
         when (rootNode) {
@@ -170,8 +172,37 @@ object ASTTransformer {
         return ASTNode.ValDeclaration(name, type, value)
     }
 
-    private fun transformClassDeclaration(rootNode: ParseTreeNode.Inner): ASTNode.Statement =
-        TODO()
+    private fun transformClassDeclaration(rootNode: ParseTreeNode.Inner): ASTNode.ClassDeclartion{
+        val name = (rootNode[3] as ParseTreeNode.Leaf).token.content
+        val members = transformMembers(rootNode[7])
+        val genericType = transformTypeParameters(rootNode[5] as ParseTreeNode.Inner)
+        return ASTNode.ClassDeclartion(name, genericType ,members)
+    }
+
+    private fun transformMembers(currentNode: ParseTreeNode): List<ASTNode.Member> =
+        when (currentNode) {
+            is ParseTreeNode.EpsilonLeaf -> emptyList()
+            is ParseTreeNode.Inner ->
+                when (currentNode.type) {
+                    Parser.InnerNodeType.MemberDeclarationStar ->
+                        listOf(transformMember(currentNode[0] as ParseTreeNode.Inner)) +
+                                transformMembers(currentNode.last())
+                    Parser.InnerNodeType.MemberDeclarationStarRest -> transformMembers(currentNode.last())
+                    else -> throwInvalidParseError()
+                }
+            else -> throwInvalidParseError()
+        }
+
+    private fun transformMember(rootNode: ParseTreeNode.Inner) : ASTNode.Member{
+        val privateOrPublic = transformPrivateOrPublic(rootNode[0])
+        val value = transformFuncDeclartionOrValDeclartion
+        return ASTNode.Member(privateOrPublic,value)
+    }
+
+    private fun transformPrivateOrPublic(rootNode: ParseTreeNode): ASTNode.PrivateOrPublic{
+        val type = (rootNode[0] as ParseTreeNode.Leaf).token.content
+        return ASTNode.PrivateOrPublic.valueOf(type)
+    }
 
     private fun transformIf(rootNode: ParseTreeNode.Inner): ASTNode.If {
         val condition = transformParenthesizedExpression(rootNode[2] as ParseTreeNode.Inner)

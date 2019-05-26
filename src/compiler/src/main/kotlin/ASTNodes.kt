@@ -58,6 +58,7 @@ class ASTNode {
     }
 
     interface FuncDeclarationsOrValDeclarations
+    interface Properties
 
     class TypeArgument(
         val name: String?,
@@ -82,12 +83,14 @@ class ASTNode {
 
     class ClassDeclartion(
         val name: String,
-        val Properties: List<Property>
+        //val type: List<Pair<String,Type?>>,
+        val type: Map<String, Type?>,
+        val Members: List<Member>
     ) : Statement
 
     enum class PrivateOrPublic { Public, Private }
 
-    class Property(
+    class Member(
         val publicOrPrivate: PrivateOrPublic,
         val value: FuncDeclarationsOrValDeclarations
     ) : Statement
