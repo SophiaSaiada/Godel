@@ -40,6 +40,7 @@ class ASTNode {
     ) : Serializable
 
     interface FuncDeclarationsOrValDeclarations
+    interface Properties
 
     // --------------- Literals --------------- //
 
@@ -59,12 +60,14 @@ class ASTNode {
 
     class ClassDeclartion(
         val name: String,
-        val Properties: List<Property>
+        //val type: List<Pair<String,Type?>>,
+        val type: Map<String, Type?>,
+        val Members: List<Member>
     ) : Statement
 
     enum class PrivateOrPublic { Public, Private }
 
-    class Property(
+    class Member(
         val publicOrPrivate: PrivateOrPublic,
         val value: FuncDeclarationsOrValDeclarations
     ) : Statement

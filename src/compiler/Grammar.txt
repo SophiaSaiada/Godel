@@ -69,7 +69,7 @@
 <ElseExpression> -> KeywordElse <SpaceStar> <BlockOrStatement>
 
 // Class
-<ClassDeclaration> -> KeywordClass <SpacePlus> SimpleName <SpaceStar> OpenBraces
+<ClassDeclaration> -> KeywordClass <SpacePlus> SimpleName <SpaceStar> <TypeParameters> <SpaceStar> OpenBraces
                       <SpaceStar> <MemberDeclarationStar> <SEMIOptional> CloseBraces
 <MemberDeclarationStar> -> <MemberDeclaration> <WhitespaceStar> <MemberDeclarationStarRest> | ε
 <MemberDeclarationStarRest> -> <SEMI> <MemberDeclarationStar> | ε
