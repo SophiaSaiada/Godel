@@ -48,9 +48,8 @@
 <Expression> -> <IfExpression> | <ElseExpression> | <ElvisExpression>
 <SimpleExpression> -> <Number> | <BooleanLiteral> | <StringLiteral> | SimpleName | <Lambda>
 <BooleanLiteral> -> KeywordFalse | KeywordTrue
-<Number> -> DecimalLiteral <NumberRest>
-<NumberRest> -> Dot <DecimalLiteralOrMemberAccess> | ε
-<DecimalLiteralOrMemberAccess> -> DecimalLiteral | <MemberAccessWithoutFirstDot>
+<Number> -> DecimalLiteral Dot DecimalLiteral | DecimalLiteral Dot <MemberAccessWithoutFirstDot> |
+            DecimalLiteral
 <MemberAccessWithoutFirstDot> -> <SpaceStar> SimpleName
 
 <StringLiteral> -> Apostrophes <AnythingEndsWithApostrophes>

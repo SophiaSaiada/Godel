@@ -544,26 +544,24 @@ object ASTTransformer {
 
     private fun transformNumber(rootNode: ParseTreeNode.Inner): ASTNode.Expression {
         val firstTokenContent = (rootNode[0] as ParseTreeNode.Leaf).token.content
-        return when (val numberRest = rootNode.last()) {
-            is ParseTreeNode.EpsilonLeaf -> ASTNode.IntLiteral(firstTokenContent.toInt())
-            is ParseTreeNode.Inner -> {
-                when (val decimalOrMemberAccess = (numberRest.last() as ParseTreeNode.Inner)[0]) {
-                    is ParseTreeNode.Leaf -> ASTNode.FloatLiteral(
-                        "$firstTokenContent.${decimalOrMemberAccess.token.content}".toFloat()
+        return if (rootNode.children.size == 1) {
+            ASTNode.IntLiteral(firstTokenContent.toInt())
+        } else {
+            when (val lastNode = rootNode.last()) {
+                is ParseTreeNode.Leaf -> ASTNode.FloatLiteral(
+                    "$firstTokenContent.${lastNode.token.content}".toFloat()
+                )
+                is ParseTreeNode.Inner -> {
+                    val member = ASTNode.IntLiteral(firstTokenContent.toInt())
+                    val propertyName = (lastNode[1] as ParseTreeNode.Leaf).token.content
+                    ASTNode.BinaryExpression(
+                        member,
+                        ASTNode.BinaryOperator.Dot,
+                        propertyName
                     )
-                    is ParseTreeNode.Inner -> {
-                        val member = ASTNode.IntLiteral(firstTokenContent.toInt())
-                        val propertyName = (decimalOrMemberAccess[1] as ParseTreeNode.Leaf).token.content
-                        ASTNode.BinaryExpression(
-                            member,
-                            ASTNode.BinaryOperator.Dot,
-                            propertyName
-                        )
-                    }
-                    else -> throwInvalidParseError()
                 }
+                else -> throwInvalidParseError()
             }
-            else -> throwInvalidParseError()
         }
     }
 
