@@ -343,41 +343,52 @@ class TestGrammar : StringSpec({
     }
     "grammar accepts function declaration"{
         shouldAccept(
+            "fun f(n: Int): Int { 4 }",
             """ fun myfun (){
                     val x: Int = 3.2
                     return 1
-                }""",
+                }""".trimIndent(),
             """fun myfun<Int  > (x:Int,y:double){
                     val x: Int = 3.2
-                }""",
+                }""".trimIndent(),
+            """fun myfun<Point: Int  > (x:Int,y:double){
+                    val x: Int = 3.2
+                }""".trimIndent(),
             """fun myfun<Int > () : Int{
                     val x: Int = 4
                     fun myfun<Int  > (x:Int,y:double){
                     val x: Int = 3.2
                 }
-                }""",
+                }""".trimIndent(),
             """
                 fun x():Int{
                 val z: Int? =1
                 val y = z ?: return 2
                 return 1
                 }
-            """
+            """.trimIndent()
         )
         shouldReject(
             """ fun! myfun (){
                     val x: Int = 3.2
-                }""",
+                }""".trimIndent(),
             """fun myfun<Int  > (x:Int,y:double,!){
                     val x: Int = 3.2
-                }""",
+                }""".trimIndent(),
             """fun myfun<Int > (!) : Int{
                     val x: Int = 3.2
                     x=4
-                }""",
+                }""".trimIndent(),
             """fun myfun<Int,Double > (!) : Int{
                     val x: Int = 3.2
-                }"""
+                }""".trimIndent(),
+            """
+                fun +x():Int{
+                val z: Int? =1
+                val y = z ?: return 2
+                return 1
+                }
+            """.trimIndent()
         )
 
     }
