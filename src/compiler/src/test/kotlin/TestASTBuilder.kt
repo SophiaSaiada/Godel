@@ -11,7 +11,16 @@ class TestASTBuilder : StringSpec({
     val inputs = parser.parse("./src/test/inputs/ASTs.json") as JsonObject
 
     fun lexThenParseThenTransform(sourceCode: String) =
-        ASTTransformer.transformAST(Parser.parse(Lexer.lex(sourceCode.asSequence())))
+        sourceCode.asSequence()
+            .let {
+                Lexer.lex(it)
+            }
+            .let {
+                Parser.parse(it)
+            }
+            .let {
+                ASTTransformer.transformAST(it)
+            }
 
     infix fun String.astShouldBe(expectedResultName: String) {
         val ast = lexThenParseThenTransform(this)
@@ -30,10 +39,12 @@ class TestASTBuilder : StringSpec({
         "val x = 3.14" astShouldBe "val declaration"
         "val x = if (true) 1 else val x y = 2".astShouldNotBeBuilt()
         "val x = if (true) 1".astShouldNotBeBuilt()
+        """val x: ((( R? , X,
+               |          () -> String,(String) -> Unit) -> T?)?)? = #{ -> 1 }""".trimMargin() astShouldBe "typed val declaration with lambda"
     }
 
     "operations precedence" {
-        "val x = 1 + 2 / 3 * 4 + 4.2 ?: 5.y.z(a, b, c) <= 6 == 7 > 8 && 9 || 10 to 11" astShouldBe "operations precedence"
+        "val x = 1 + 2 / 3 * 4 + 4.2 ?: 5.y.z<X=String>(a, b, c) <= 6 == 7 > 8 && 9 || 10 to 11" astShouldBe "operations precedence"
     }
 
     "function calls" {
@@ -41,6 +52,12 @@ class TestASTBuilder : StringSpec({
         "(1.a.b.c()).d(x)(y)(z)" astShouldBe "multiple member accesses and invocations" // associativity
         "(1.a.b).c().d(x)(y)(z)" astShouldBe "multiple member accesses and invocations"
         "1.a.b.c().d(x)(y)(a=z, b=x)" astShouldBe "multiple member accesses and invocations with named parameters"
+        """1.a.b.c().d(x)<T=
+            |List<
+            |T?
+            |>>(y)<X=
+            |String?, Y=Int
+            |,T=List<Int?>?>(a=z, b=x)""".trimMargin() astShouldBe "multiple member accesses and invocations with named regular and type parameters"
     }
 
     "if" {
@@ -51,5 +68,17 @@ class TestASTBuilder : StringSpec({
         """if (true) if(x) "hello" else 2""" astShouldBe "nested ifs"
         """if (true) if(x) 1 else 2 else 3""" astShouldBe "nested if expressions"
         """if (true) val x = if(x) 1 else 2 else 3""" astShouldBe "val with if inside if"
+        """if (x) { #{ y: Int -> val x = 3.14; "hello"} } else { #{ -> 2} }""" astShouldBe "if expression with lambdas"
+        """if (x) #{ -> val x = 3.14 } else { 2 }""" astShouldBe "if expression with positive branch lambda"
+        """if (x) { val x = 3.14; "hello"} else {#{->2} }""" astShouldBe "if expression with negative branch lambda"
+        """if (x) { val x = 3.14; "hello"; val y = 2.16 } else #{->2} """ astShouldBe "if statement with a lambda"
+        """if (x) #{ y: Int -> val x = 3.14;"hello"
+            |val y = 2.16;} else { #{ ->2} }""".trimMargin() astShouldBe "if expression that look pretty ambiguous"
+        """if (x) #{ -> val x = 3.14; "hello"; val y = 2.16 } else 2""" astShouldBe "if expression that look even more ambiguous"
+    }
+
+    "empty programs" {
+        "" astShouldBe "empty program"
+        "if (true) {} else 2" astShouldBe "empty if block"
     }
 })

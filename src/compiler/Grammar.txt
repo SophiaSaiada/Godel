@@ -1,12 +1,12 @@
 @Tokens
     WhiteSpace, SemiColon, BreakLine, Colon, Dot, Comma, Apostrophes,
     Percentage, Backslash, Star, Minus, Plus, Division, ExclamationMark, QuestionMark, Ampersand, SingleOr,
-    Keyword, Assignment, QuestionedDot,
+    Keyword, Assignment, QuestionedDot, Hash,
 
     OpenBraces, CloseBraces, OpenParenthesis, CloseParenthesis, OpenBrokets, CloseBrokets,
     DecimalLiteral, SimpleName,
 
-    Elvis, Or, And, Equal, NotEqual, GreaterThanEqual, LessThanEqual, NullAwareDot,
+    Elvis, Or, And, Equal, NotEqual, GreaterThanEqual, LessThanEqual, NullAwareDot, RightArrow,
 
     KeywordVal, KeywordVar, KeywordFun, KeywordClass, KeywordTrue, KeywordFalse,
     KeywordIf, KeywordElse, KeywordWhile, KeywordPrivate, KeywordPublic, KeywordWhen, KeywordReturn,
@@ -15,12 +15,9 @@
 
 @Rules
 <Program> -> <SpaceStar> <Statements> <SpaceStar>
-<Statements> -> <Statement> <WhitespaceStar> <StatementsRest> | ε
-<StatementsRest> -> <SEMI> <Statements> | ε
+<Statements> -> <Statement> | <Statement> <WhitespacePlus> <SEMI> <Statements> | <Statement> <SEMI> <Statements> | ε
 
 <Statement> -> <Expression> | <Declaration>
-<Block> -> OpenBraces <Program> CloseBraces
-<BlockOrStatement> -> <Block> | <Statement>
 
 <Declaration> -> <ValDeclaration> | <ClassDeclaration> | <FunctionDeclaration>
 
@@ -28,7 +25,18 @@
 <ValDeclarationRest> -> Colon <SpaceStar> <Type> <SpaceStar> Assignment <PaddedExpression> |
                         Assignment <PaddedExpression>
 
-<Type> -> SimpleName <TypeParameters> <QuestionMarkOptional>
+<Type> -> SimpleName <TypeArgumentsOptional> <QuestionMarkOptional> |
+          OpenParenthesis <SpaceStar> <TypeStar> <SpaceStar> CloseParenthesis <WhitespaceStar> <FunctionalOrNullableType>
+<FunctionalOrNullableType> -> RightArrow <SpaceStar> <Type> | QuestionMark | ε
+<TypeStar> -> <Type> <SpaceStar> <TypeStarRest> | ε
+<TypeStarRest> -> Comma <SpaceStar> <TypeStar> | ε
+
+<TypeArgumentsOptional> -> <TypeArguments> | ε
+<TypeArguments> -> OpenBrokets <SpaceStar> <TypeArgumentsContent> CloseBrokets
+<TypeArgumentsContent> -> <Type> <SpaceStar> <TypeNamedArgumentsOptional> <SpaceStar> <TypeArgumentsContentRest>
+<TypeNamedArgumentsOptional> -> Assignment <SpaceStar> <Type> | ε
+<TypeArgumentsContentRest> -> Comma <SpaceStar> <TypeArgumentsContent> | ε
+
 <TypeParameters> -> OpenBrokets <SpaceStar> <TypeParametersNamesPlus> <SpaceStar> CloseBrokets | ε
 <TypeParametersNamesPlus> -> SimpleName <SpaceStar> <TypeParametersInheritanceOptional> <TypeParametersNamesPlusRest>
 <TypeParametersInheritanceOptional> -> Colon <SpaceStar> <Type> | ε
@@ -38,7 +46,7 @@
 <ParenthesizedExpression> -> OpenParenthesis <SpaceStar> <Expression> <SpaceStar> CloseParenthesis
 <PaddedExpression> -> <SpaceStar> <Expression> <WhitespaceStar>
 <Expression> -> <IfExpression> | <ElseExpression> | <ElvisExpression>
-<SimpleExpression> -> <Number> | <BooleanLiteral> | <StringLiteral> | SimpleName
+<SimpleExpression> -> <Number> | <BooleanLiteral> | <StringLiteral> | SimpleName | <Lambda>
 <BooleanLiteral> -> KeywordFalse | KeywordTrue
 <Number> -> DecimalLiteral <NumberRest>
 <NumberRest> -> Dot <DecimalLiteralOrMemberAccess> | ε
@@ -49,14 +57,14 @@
 <AnythingButApostrophes> ->
     WhiteSpace | SemiColon | BreakLine | Colon | Dot | Comma |
     Percentage | Backslash | Star | Minus | Plus | Division | ExclamationMark | QuestionMark | Ampersand | SingleOr |
-    Assignment | QuestionedDot |
+    Assignment | QuestionedDot | Hash |
 
     OpenBraces | CloseBraces | OpenParenthesis | CloseParenthesis | OpenBrokets | CloseBrokets |
     DecimalLiteral | SimpleName |
 
     Elvis | Or | And | Equal |
     NotEqual | GreaterThanEqual |
-    LessThanEqual | NullAwareDot
+    LessThanEqual | NullAwareDot | RightArrow
 
     KeywordVal | KeywordVar | KeywordFun | KeywordClass | KeywordTrue | KeywordFalse |
     KeywordIf | KeywordElse | KeywordWhile | KeywordWhen |
@@ -64,9 +72,9 @@
     Unknown
 <AnythingEndsWithApostrophes> -> <AnythingButApostrophes> <AnythingEndsWithApostrophes> | Apostrophes
 <IfExpression> -> KeywordIf <SpaceStar> <ParenthesizedExpression> <SpaceStar>
-                  <BlockOrStatement> <WhitespaceStar> <IfExpressionRest>
+                  <StatementOrBlock> <WhitespaceStar> <IfExpressionRest>
 <IfExpressionRest> -> <ElseExpression> | ε
-<ElseExpression> -> KeywordElse <SpaceStar> <BlockOrStatement>
+<ElseExpression> -> KeywordElse <SpaceStar> <StatementOrBlock>
 
 // Class
 <ClassDeclaration> -> KeywordClass <SpacePlus> SimpleName <SpaceStar> <TypeParameters> <SpaceStar> OpenBraces
@@ -81,42 +89,43 @@
 
 
 // Binary Operators
-<ElvisExpression> -> <ReturnExpression> <WhitespaceStar> <ElvisExpressionRest>
-<ElvisExpressionRest> -> Elvis <SpaceStar> <ElvisExpression> | ε
+<ElvisExpression> -> <ReturnExpression> <WhitespaceStar> Elvis <SpaceStar> <ElvisExpression> |
+                     <ReturnExpression> <WhitespaceStar>
 
 <ReturnExpression> -> KeywordReturn <SpacePlus> <ReturnExpression> | <InfixExpression>
 
-<InfixExpression> -> <DisjunctionExpression> <WhitespaceStar> <InfixExpressionRest>
-<InfixExpressionRest> -> SimpleName <SpaceStar> <InfixExpression> | ε
+<InfixExpression> -> <DisjunctionExpression> <WhitespaceStar> SimpleName <SpaceStar> <InfixExpression> |
+                     <DisjunctionExpression> <WhitespaceStar>
 
-<DisjunctionExpression> -> <ConjunctionExpression> <WhitespaceStar> <DisjunctionExpressionRest>
-<DisjunctionExpressionRest> -> Or <SpaceStar> <DisjunctionExpression> | ε
+<DisjunctionExpression> -> <ConjunctionExpression> <WhitespaceStar> Or <SpaceStar> <DisjunctionExpression> |
+                           <ConjunctionExpression> <WhitespaceStar>
 
-<ConjunctionExpression> -> <EqualityExpression> <WhitespaceStar> <ConjunctionExpressionRest>
-<ConjunctionExpressionRest> -> And <SpaceStar> <ConjunctionExpression> | ε
+<ConjunctionExpression> -> <EqualityExpression> <WhitespaceStar> And <SpaceStar> <ConjunctionExpression> |
+                           <EqualityExpression> <WhitespaceStar>
 
 <EqualityOperator> -> Equal | NotEqual
-<EqualityExpression> -> <ComparisonExpression> <WhitespaceStar> <EqualityExpressionRest>
-<EqualityExpressionRest> -> <EqualityOperator> <SpaceStar> <EqualityExpression> | ε
+<EqualityExpression> -> <ComparisonExpression> <WhitespaceStar> <EqualityOperator> <SpaceStar> <EqualityExpression> |
+                        <ComparisonExpression> <WhitespaceStar>
 
 <ComparisonOperator> -> OpenBrokets | CloseBrokets | LessThanEqual | GreaterThanEqual
-<ComparisonExpression> -> <AdditiveExpression> <WhitespaceStar> <ComparisonExpressionRest>
-<ComparisonExpressionRest> -> <ComparisonOperator> <SpaceStar> <ComparisonExpression> | ε
+<ComparisonExpression> -> <AdditiveExpression> <WhitespaceStar> <ComparisonOperator> <SpaceStar> <ComparisonExpression> |
+                          <AdditiveExpression> <WhitespaceStar>
 
 <AdditiveOperator> -> Plus | Minus
-<AdditiveExpression> -> <MultiplicativeExpression> <WhitespaceStar> <AdditiveExpressionRest>
-<AdditiveExpressionRest> -> <AdditiveOperator> <SpaceStar> <AdditiveExpression> | ε
+<AdditiveExpression> -> <MultiplicativeExpression> <WhitespaceStar> <AdditiveOperator> <SpaceStar> <AdditiveExpression> |
+                        <MultiplicativeExpression> <WhitespaceStar>
 
 <MultiplicativeOperator> -> Star | Division | Percentage
-<MultiplicativeExpression> -> <MemberAccess> <WhitespaceStar> <MultiplicativeExpressionRest>
-<MultiplicativeExpressionRest> -> <MultiplicativeOperator> <SpaceStar> <MultiplicativeExpression> | ε
+<MultiplicativeExpression> -> <MemberAccess> <WhitespaceStar> <MultiplicativeOperator> <SpaceStar> <MultiplicativeExpression> |
+                              <MemberAccess> <WhitespaceStar>
 
 <DotOrQuestionedDot> -> Dot | NullAwareDot
-<MemberAccess> -> <Invocation> <WhitespaceStar> <MemberAccessRest>
-<MemberAccessRest> -> <DotOrQuestionedDot> <SpaceStar> <MemberAccess> | ε
+<MemberAccess> -> <Invocation> <WhitespaceStar> <DotOrQuestionedDot> <SpaceStar> <MemberAccess> |
+                  <Invocation> <WhitespaceStar>
 
 <Invocation> -> <SimpleOrParenthesizedExpression> <WhitespaceStar> <InvocationArgumentsStar>
-<InvocationArgumentsStar> -> <InvocationArguments> <WhitespaceStar> <InvocationArgumentsStar> | ε
+<InvocationArgumentsStar> -> <TypeArguments> <InvocationArguments> <WhitespaceStar> <InvocationArgumentsStar> |
+                             <InvocationArguments> <WhitespaceStar> <InvocationArgumentsStar> | ε
 <InvocationArguments> -> OpenParenthesis <SpaceStar> <ArgumentStar> CloseParenthesis
 <ArgumentStar> -> <Expression> <SpaceStar> <NamedArgumentPostfixOptional> <ArgumentStarRest> | ε
 <NamedArgumentPostfixOptional> -> Assignment <SpaceStar> <Expression> <SpaceStar> | ε
@@ -134,6 +143,13 @@
 <FunctionParameterStarRest> -> Comma <FunctionParameterStar> | ε
 <FunctionParameter> -> SimpleName Colon SimpleName
 
+<StatementOrBlock> -> <Block> | <Statement>
+<Block> -> OpenBraces <Program> CloseBraces
+
+// Lambda
+<Lambda> -> Hash OpenBraces <SpaceStar> <LambdaParametersStar> RightArrow <SpaceStar> <Program> CloseBraces
+<LambdaParametersStar> -> SimpleName <SpaceStar> Colon <SpaceStar> <Type> <SpaceStar> <LambdaParametersRest> | ε
+<LambdaParametersRest> -> Comma <SpaceStar> <LambdaParametersStar> | ε
 
 // General Stuff
 <WhiteSpaceOrBreakLine> -> WhiteSpace | BreakLine
@@ -149,6 +165,4 @@
 
 <SEMIOptional> -> <SEMI> | ε
 
-<BreakLineOptional> -> BreakLine | ε
 <SemiColonOptional> -> SemiColon | ε
-<AssignmentOptional> -> Assignment | ε

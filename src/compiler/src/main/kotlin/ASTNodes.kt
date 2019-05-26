@@ -9,6 +9,7 @@ class ASTNode {
     class Statements(statements: List<Statement>) : List<Statement> by statements, Serializable, ExpressionOrStatements
 
     interface Expression : Statement, ExpressionOrStatements
+
     sealed class Block(val statements: Statements) : Statement {
         abstract fun toBlockWithoutValue(): WithoutValue
         abstract fun maybeToBlockWithValue(): WithValue?
@@ -32,15 +33,37 @@ class ASTNode {
         }
     }
 
-    class Type(
-        val name: String,
-        // e.g. T extends Int -> T is the key and Int is the value
-        val typesParameters: Map<String, Type?>,
-        val nullable: Boolean
-    ) : Serializable
+    class Lambda(val parameters: List<Pair<String, Type>>, val statements: Statements, val returnValue: Expression) :
+        Expression
+
+    class Return(val value: Expression) : Expression
+
+    object Unit : Expression
+    sealed class Type : Serializable {
+        abstract fun withNullable(nullable: Boolean): Type
+        class Regular(
+            val name: String,
+            // e.g. T extends Int -> T is the key and Int is the value
+            val typesParameters: List<TypeArgument>,
+            val nullable: Boolean
+        ) : Type() {
+            override fun withNullable(nullable: Boolean) =
+                Regular(name, typesParameters, nullable)
+        }
+
+        class Functional(val parameterTypes: List<Type>, val resultType: Type, val nullable: Boolean) : Type() {
+            override fun withNullable(nullable: Boolean) =
+                Functional(parameterTypes, resultType, nullable)
+        }
+    }
 
     interface FuncDeclarationsOrValDeclarations
     interface Properties
+
+    class TypeArgument(
+        val name: String?,
+        val value: Type
+    )
 
     // --------------- Literals --------------- //
 
@@ -157,7 +180,12 @@ class ASTNode {
 
     class BinaryExpression<L, R>(val left: L, val operator: BinaryOperator, val right: R) : Expression
     class InfixExpression<L, R>(val left: L, val function: String, val right: R) : Expression
-    class Invocation(val function: Expression, val arguments: List<FunctionArgument>) : Expression
+    class Invocation(
+        val function: Expression,
+        val typeArguments: List<TypeArgument>,
+        val arguments: List<FunctionArgument>
+    ) : Expression
+
     class FunctionArgument(val name: String?, val value: Expression) : Serializable
 
     interface FunctionCall

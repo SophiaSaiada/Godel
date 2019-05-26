@@ -10,7 +10,7 @@ object ASTTransformer {
         }
 
     private fun transformProgram(rootNode: ParseTreeNode.Inner) =
-        transformStatements(rootNode[1] as ParseTreeNode.Inner)
+        transformStatements(rootNode[1])
             .also { assertSemanticChecks(it) }
 
     private fun mergeIfBranches(statements: List<ASTNode.Statement>): List<ASTNode.Statement> =
@@ -22,16 +22,18 @@ object ASTTransformer {
                 else statementsList + currentStatement
             }
 
-    private fun transformStatements(rootNode: ParseTreeNode.Inner): ASTNode.Statements {
+    private fun transformStatements(rootNode: ParseTreeNode): ASTNode.Statements {
         fun getStatements(currentNode: ParseTreeNode): List<ASTNode.Statement> =
             when (currentNode) {
                 is ParseTreeNode.EpsilonLeaf -> emptyList()
                 is ParseTreeNode.Inner ->
                     when (currentNode.type) {
                         Parser.InnerNodeType.Statements ->
-                            listOf(transformStatement(currentNode[0] as ParseTreeNode.Inner)) +
-                                    getStatements(currentNode.last())
-                        Parser.InnerNodeType.StatementsRest -> getStatements(currentNode.last())
+                            if (currentNode.children.size == 1)
+                                listOf(transformStatement(currentNode[0] as ParseTreeNode.Inner))
+                            else
+                                listOf(transformStatement(currentNode[0] as ParseTreeNode.Inner)) +
+                                        getStatements(currentNode.last())
                         else -> throwInvalidParseError()
                     }
                 else -> throwInvalidParseError()
@@ -57,12 +59,46 @@ object ASTTransformer {
         }
     }
 
-    private fun transformType(node: ParseTreeNode.Inner) =
-        ASTNode.Type(
-            name = (node[0] as ParseTreeNode.Leaf).token.content,
-            typesParameters = transformTypeParameters(node[1]),
-            nullable = node.children[2] is ParseTreeNode.Inner
-        )
+    private fun transformTypeStar(node: ParseTreeNode): List<ASTNode.Type> =
+        when (node) {
+            is ParseTreeNode.EpsilonLeaf -> emptyList()
+            is ParseTreeNode.Inner ->
+                when (node.type) {
+                    Parser.InnerNodeType.TypeStar ->
+                        listOf(transformType(node[0] as ParseTreeNode.Inner)) + transformTypeStar(node.last())
+                    Parser.InnerNodeType.TypeStarRest -> transformTypeStar(node.last())
+                    else -> throwInvalidParseError()
+                }
+            else -> throwInvalidParseError()
+        }
+
+    private fun transformType(node: ParseTreeNode.Inner): ASTNode.Type =
+        when (node.children.size) {
+            3 ->
+                ASTNode.Type.Regular(
+                    name = (node[0] as ParseTreeNode.Leaf).token.content,
+                    typesParameters = transformTypeArguments(node[1]),
+                    nullable = node.children[2] is ParseTreeNode.Inner
+                )
+            7 -> {
+                val innerTypes = transformTypeStar(node[2])
+                when (val functionalOrNullableTypeNode = node.last()) {
+                    is ParseTreeNode.EpsilonLeaf -> innerTypes.single()
+                    is ParseTreeNode.Inner ->
+                        if (functionalOrNullableTypeNode.children.size == 1)
+                            innerTypes.single().withNullable(true)
+                        else
+                            ASTNode.Type.Functional(
+                                parameterTypes = innerTypes,
+                                resultType = transformType(node.last().last() as ParseTreeNode.Inner),
+                                nullable = false
+                            )
+                    else -> throwInvalidParseError()
+                }
+            }
+            else -> throwInvalidParseError()
+        }
+
 
     private fun transformTypeParameters(node: ParseTreeNode): Map<String, ASTNode.Type?> =
         when (node) {
@@ -81,6 +117,47 @@ object ASTTransformer {
                         val parent = transformType(node[2] as ParseTreeNode.Inner)
                         mapOf(name to parent) + transformTypeParameters(node[3])
                     }
+                    else -> throwInvalidParseError()
+                }
+            }
+            else -> throwInvalidParseError()
+        }
+
+    private fun transformTypeArguments(
+        node: ParseTreeNode,
+        acc: List<ASTNode.TypeArgument> = emptyList()
+    ): List<ASTNode.TypeArgument> =
+        when (node) {
+            is ParseTreeNode.EpsilonLeaf -> {
+                when (node.type) {
+                    Parser.InnerNodeType.TypeArgumentsOptional,
+                    Parser.InnerNodeType.TypeArguments,
+                    Parser.InnerNodeType.TypeArgumentsContentRest -> acc
+                    else -> throwInvalidParseError()
+                }
+            }
+            is ParseTreeNode.Inner -> {
+                when (node.type) {
+                    Parser.InnerNodeType.TypeArgumentsOptional -> transformTypeArguments(node[0], acc)
+                    Parser.InnerNodeType.TypeArguments -> transformTypeArguments(node[2], acc)
+                    Parser.InnerNodeType.TypeArgumentsContent -> {
+                        val firstType = transformType(node[0] as ParseTreeNode.Inner)
+                        val typeArgument =
+                            when (val typeNamedArgumentsOptional = node[2]) {
+                                is ParseTreeNode.EpsilonLeaf -> ASTNode.TypeArgument(null, firstType)
+                                is ParseTreeNode.Inner -> {
+                                    if (firstType is ASTNode.Type.Regular && firstType.typesParameters.isEmpty() && !firstType.nullable)
+                                        ASTNode.TypeArgument(
+                                            firstType.name,
+                                            transformType(typeNamedArgumentsOptional.last() as ParseTreeNode.Inner)
+                                        )
+                                    else throwInvalidParseError()
+                                }
+                                else -> throwInvalidParseError()
+                            }
+                        transformTypeArguments(node.last(), acc + typeArgument)
+                    }
+                    Parser.InnerNodeType.TypeArgumentsContentRest -> transformTypeArguments(node.last(), acc)
                     else -> throwInvalidParseError()
                 }
             }
@@ -158,7 +235,7 @@ object ASTTransformer {
 
     private fun transformBlock(rootNode: ParseTreeNode.Inner): ASTNode.Block {
         val statements = transformProgram(rootNode[1] as ParseTreeNode.Inner)
-        val returnValue = statements.last()
+        val returnValue = statements.lastOrNull()
         return if (returnValue is ASTNode.Expression)
             ASTNode.Block.WithValue(
                 ASTNode.Statements(
@@ -168,6 +245,37 @@ object ASTTransformer {
             )
         else
             ASTNode.Block.WithoutValue(statements)
+    }
+
+    private fun transformLambdaParameters(node: ParseTreeNode): List<Pair<String, ASTNode.Type>> =
+        when (node) {
+            is ParseTreeNode.EpsilonLeaf ->
+                when (node.type) {
+                    Parser.InnerNodeType.LambdaParametersStar,
+                    Parser.InnerNodeType.LambdaParametersRest -> emptyList()
+                    else -> throwInvalidParseError()
+                }
+            is ParseTreeNode.Inner ->
+                when (node.type) {
+                    Parser.InnerNodeType.LambdaParametersStar -> {
+                        val parameterName = (node[0] as ParseTreeNode.Leaf).token.content
+                        val parameterType = transformType(node[4] as ParseTreeNode.Inner)
+                        listOf(parameterName to parameterType) + transformLambdaParameters(node.last())
+                    }
+                    Parser.InnerNodeType.LambdaParametersRest -> transformLambdaParameters(node.last())
+                    else -> throwInvalidParseError()
+                }
+            else -> throwInvalidParseError()
+        }
+
+    private fun transformLambda(rootNode: ParseTreeNode.Inner): ASTNode.Lambda {
+        val statements = transformProgram(rootNode[6] as ParseTreeNode.Inner)
+        val parameters = transformLambdaParameters(rootNode[3])
+        val returnValue = statements.lastOrNull()
+        return if (returnValue is ASTNode.Expression)
+            ASTNode.Lambda(parameters, ASTNode.Statements(statements.dropLast(1)), returnValue)
+        else
+            ASTNode.Lambda(parameters, ASTNode.Statements(statements), ASTNode.Unit)
     }
 
     private fun transformParenthesizedExpression(rootNode: ParseTreeNode.Inner): ASTNode.Expression =
@@ -223,6 +331,7 @@ object ASTTransformer {
                 if (this.operator.group == ASTNode.BinaryOperator.Group.MemberAccess) {
                     ASTNode.Invocation(
                         function = ASTNode.BinaryExpression(left, this.operator, right.function).rotated(),
+                        typeArguments = right.typeArguments,
                         arguments = right.arguments
                     )
                 } else this
@@ -244,111 +353,113 @@ object ASTTransformer {
         }
 
     private fun transformElvisExpression(rootNode: ParseTreeNode.Inner): ASTNode.Expression =
-        if (rootNode.last() is ParseTreeNode.EpsilonLeaf)
-            transformInfixExpression(rootNode[0] as ParseTreeNode.Inner)
+        if (rootNode.children.size == 2)
+            transformReturnExpression(rootNode[0] as ParseTreeNode.Inner)
         else
             ASTNode.BinaryExpression(
-                transformInfixExpression(rootNode[0] as ParseTreeNode.Inner),
+                transformReturnExpression(rootNode[0] as ParseTreeNode.Inner),
                 ASTNode.BinaryOperator.Elvis,
-                transformElvisExpression((rootNode.last() as ParseTreeNode.Inner).last() as ParseTreeNode.Inner)
+                transformElvisExpression(rootNode.last() as ParseTreeNode.Inner)
             ).rotated()
 
+    private fun transformReturnExpression(rootNode: ParseTreeNode.Inner): ASTNode.Expression =
+        when (rootNode.children.size) {
+            1 -> transformInfixExpression(rootNode[0] as ParseTreeNode.Inner)
+            3 -> ASTNode.Return(transformReturnExpression(rootNode.last() as ParseTreeNode.Inner))
+            else -> throwInvalidParseError()
+        }
+
     private fun transformInfixExpression(rootNode: ParseTreeNode.Inner): ASTNode.Expression =
-        if (rootNode.last() is ParseTreeNode.EpsilonLeaf)
+        if (rootNode.children.size == 2)
             transformDisjunctionExpression(rootNode[0] as ParseTreeNode.Inner)
         else {
-            val infixExpressionRest = rootNode.last() as ParseTreeNode.Inner
             ASTNode.InfixExpression(
                 transformDisjunctionExpression(rootNode[0] as ParseTreeNode.Inner),
-                (infixExpressionRest[0] as ParseTreeNode.Leaf).token.content,
-                transformInfixExpression(infixExpressionRest.last() as ParseTreeNode.Inner)
+                (rootNode[2] as ParseTreeNode.Leaf).token.content,
+                transformInfixExpression(rootNode.last() as ParseTreeNode.Inner)
             ).rotated()
         }
 
     private fun transformDisjunctionExpression(rootNode: ParseTreeNode.Inner): ASTNode.Expression =
-        if (rootNode.last() is ParseTreeNode.EpsilonLeaf)
+        if (rootNode.children.size == 2)
             transformConjunctionExpression(rootNode[0] as ParseTreeNode.Inner)
         else
             ASTNode.BinaryExpression(
                 transformConjunctionExpression(rootNode[0] as ParseTreeNode.Inner),
                 ASTNode.BinaryOperator.Or,
-                transformDisjunctionExpression((rootNode.last() as ParseTreeNode.Inner).last() as ParseTreeNode.Inner)
+                transformDisjunctionExpression(rootNode.last() as ParseTreeNode.Inner)
             ).rotated()
 
     private fun transformConjunctionExpression(rootNode: ParseTreeNode.Inner): ASTNode.Expression =
-        if (rootNode.last() is ParseTreeNode.EpsilonLeaf)
+        if (rootNode.children.size == 2)
             transformEqualityExpression(rootNode[0] as ParseTreeNode.Inner)
         else
             ASTNode.BinaryExpression(
                 transformEqualityExpression(rootNode[0] as ParseTreeNode.Inner),
                 ASTNode.BinaryOperator.And,
-                transformConjunctionExpression((rootNode.last() as ParseTreeNode.Inner).last() as ParseTreeNode.Inner)
+                transformConjunctionExpression(rootNode.last() as ParseTreeNode.Inner)
             ).rotated()
 
     private fun transformEqualityExpression(rootNode: ParseTreeNode.Inner): ASTNode.Expression =
-        if (rootNode.last() is ParseTreeNode.EpsilonLeaf)
+        if (rootNode.children.size == 2)
             transformComparisonExpression(rootNode[0] as ParseTreeNode.Inner)
         else {
-            val rest = rootNode.last() as ParseTreeNode.Inner
             ASTNode.BinaryExpression(
                 transformComparisonExpression(rootNode[0] as ParseTreeNode.Inner),
-                when ((rest[0][0] as ParseTreeNode.Leaf).token.type) {
+                when ((rootNode[2][0] as ParseTreeNode.Leaf).token.type) {
                     TokenType.Equal -> ASTNode.BinaryOperator.Equal
                     TokenType.NotEqual -> ASTNode.BinaryOperator.NotEqual
                     else -> throwInvalidParseError()
                 },
-                transformEqualityExpression(rest.last() as ParseTreeNode.Inner)
+                transformEqualityExpression(rootNode.last() as ParseTreeNode.Inner)
             ).rotated()
         }
 
     private fun transformComparisonExpression(rootNode: ParseTreeNode.Inner): ASTNode.Expression =
-        if (rootNode.last() is ParseTreeNode.EpsilonLeaf)
+        if (rootNode.children.size == 2)
             transformAdditiveExpression(rootNode[0] as ParseTreeNode.Inner)
         else {
-            val operator = rootNode.last()[0][0] as ParseTreeNode.Leaf
             ASTNode.BinaryExpression(
                 transformAdditiveExpression(rootNode[0] as ParseTreeNode.Inner),
-                when (operator.token.type) {
+                when ((rootNode[2][0] as ParseTreeNode.Leaf).token.type) {
                     TokenType.OpenBrokets -> ASTNode.BinaryOperator.LessThan
                     TokenType.CloseBrokets -> ASTNode.BinaryOperator.GreaterThan
                     TokenType.LessThanEqual -> ASTNode.BinaryOperator.LessThanEqual
                     TokenType.GreaterThanEqual -> ASTNode.BinaryOperator.GreaterThanEqual
                     else -> throwInvalidParseError()
                 },
-                transformComparisonExpression((rootNode.last() as ParseTreeNode.Inner).last() as ParseTreeNode.Inner)
+                transformComparisonExpression(rootNode.last() as ParseTreeNode.Inner)
             ).rotated()
         }
 
     private fun transformAdditiveExpression(rootNode: ParseTreeNode.Inner): ASTNode.Expression =
-        if (rootNode.last() is ParseTreeNode.EpsilonLeaf)
+        if (rootNode.children.size == 2)
             transformMultiplicativeExpression(rootNode[0] as ParseTreeNode.Inner)
         else {
-            val rest = rootNode.last() as ParseTreeNode.Inner
             ASTNode.BinaryExpression(
                 transformMultiplicativeExpression(rootNode[0] as ParseTreeNode.Inner),
-                when ((rest[0][0] as ParseTreeNode.Leaf).token.type) {
+                when ((rootNode[2][0] as ParseTreeNode.Leaf).token.type) {
                     TokenType.Plus -> ASTNode.BinaryOperator.Plus
                     TokenType.Minus -> ASTNode.BinaryOperator.Minus
                     else -> throwInvalidParseError()
                 },
-                transformAdditiveExpression(rest.last() as ParseTreeNode.Inner)
+                transformAdditiveExpression(rootNode.last() as ParseTreeNode.Inner)
             ).rotated()
         }
 
     private fun transformMultiplicativeExpression(rootNode: ParseTreeNode.Inner): ASTNode.Expression =
-        if (rootNode.last() is ParseTreeNode.EpsilonLeaf)
+        if (rootNode.children.size == 2)
             transformMemberAccess(rootNode[0] as ParseTreeNode.Inner)
         else {
-            val rest = rootNode.last() as ParseTreeNode.Inner
             ASTNode.BinaryExpression(
                 transformMemberAccess(rootNode[0] as ParseTreeNode.Inner),
-                when ((rest[0][0] as ParseTreeNode.Leaf).token.type) {
+                when ((rootNode[2][0] as ParseTreeNode.Leaf).token.type) {
                     TokenType.Percentage -> ASTNode.BinaryOperator.Modulo
                     TokenType.Star -> ASTNode.BinaryOperator.Times
                     TokenType.Division -> ASTNode.BinaryOperator.Division
                     else -> throwInvalidParseError()
                 },
-                transformMultiplicativeExpression(rest.last() as ParseTreeNode.Inner)
+                transformMultiplicativeExpression(rootNode.last() as ParseTreeNode.Inner)
             ).rotated()
         }
 
@@ -397,7 +508,9 @@ object ASTTransformer {
             else -> throwInvalidParseError()
         }
 
-        fun getFunctionArguments(node: ParseTreeNode): List<List<ASTNode.FunctionArgument>> =
+        fun getFunctionArguments(
+            node: ParseTreeNode
+        ): List<Pair<List<ASTNode.TypeArgument>, List<ASTNode.FunctionArgument>>> =
             when (node) {
                 is ParseTreeNode.EpsilonLeaf -> {
                     when (node.type) {
@@ -407,17 +520,23 @@ object ASTTransformer {
                 }
                 is ParseTreeNode.Inner -> {
                     when (node.type) {
-                        Parser.InnerNodeType.InvocationArgumentsStar ->
-                            listOf(transformInvocationArguments(node[0])) + getFunctionArguments(node.last())
+                        Parser.InnerNodeType.InvocationArgumentsStar -> {
+                            val arguments = if (node.children.size == 4)
+                                transformTypeArguments(node[0]) to transformInvocationArguments(node[1])
+                            else
+                                emptyList<ASTNode.TypeArgument>() to transformInvocationArguments(node[0])
+                            listOf(arguments) + getFunctionArguments(node.last())
+                        }
                         else -> throwInvalidParseError()
                     }
                 }
                 else -> throwInvalidParseError()
             }
-        return getFunctionArguments(rootNode[2]).fold(maybeFunction) { acc, functionArguments ->
+        return getFunctionArguments(rootNode[2]).fold(maybeFunction) { acc, arguments ->
             ASTNode.Invocation(
                 function = acc,
-                arguments = functionArguments
+                typeArguments = arguments.first,
+                arguments = arguments.second
             )
         }
     }
@@ -425,18 +544,17 @@ object ASTTransformer {
     private fun transformMemberAccess(rootNode: ParseTreeNode.Inner): ASTNode.Expression {
         val member = transformInvocation(rootNode[0] as ParseTreeNode.Inner)
 
-        return if (rootNode.last() is ParseTreeNode.EpsilonLeaf)
+        return if (rootNode.children.size == 2)
             member
         else {
-            val rest = rootNode.last() as ParseTreeNode.Inner
             ASTNode.BinaryExpression(
                 member,
-                when ((rest[0][0] as ParseTreeNode.Leaf).token.type) {
+                when ((rootNode[2][0] as ParseTreeNode.Leaf).token.type) {
                     TokenType.Dot -> ASTNode.BinaryOperator.Dot
                     TokenType.NullAwareDot -> ASTNode.BinaryOperator.NullAwareDot
                     else -> throwInvalidParseError()
                 },
-                transformMemberAccess(rest.last() as ParseTreeNode.Inner)
+                transformMemberAccess(rootNode.last() as ParseTreeNode.Inner)
             ).also { assert(it.right is ASTNode.Identifier || it.right is ASTNode.Invocation) }.rotated()
         }
     }
@@ -448,6 +566,7 @@ object ASTTransformer {
                 Parser.InnerNodeType.Number -> transformNumber(firstChild)
                 Parser.InnerNodeType.BooleanLiteral -> transformBooleanLiteral(firstChild)
                 Parser.InnerNodeType.StringLiteral -> transformStringLiteral(firstChild)
+                Parser.InnerNodeType.Lambda -> transformLambda(firstChild)
                 else -> throwInvalidParseError("firstChild.type is ${firstChild.type}")
             } else if (firstChild is ParseTreeNode.Leaf && firstChild.token.type == TokenType.SimpleName)
             ASTNode.Identifier(firstChild.token.content)

@@ -45,8 +45,18 @@ class TestGrammar : StringSpec({
     "val declaration" {
         shouldAccept(
             "val x: Int = 3.2",
-            "val x: Int<T: Int, X> = 3.2", // valid by the grammar, invalid by the AST level
+            "val x: Int<T= Int, X> = 3.2",
             "val x: Int<Int, String> = 3.2",
+            "val x: Int<Int, S=String> = 3.2",
+            "val x: Int<T=Int, S=String> = 3.2",
+            "val x: (R) -> T = 3.2",
+            "val x: () -> T = 3.2",
+            """val x: ( R ,
+               |        String ) -> T? = 3.2""".trimMargin(),
+            """val x: (( R ,
+               |        String ) -> T?)? = 3.2""".trimMargin(),
+            """val x: ((( R? , X,
+               |          String ) -> T?)?)? = 3.2""".trimMargin(),
             "val x = 3.2",
             "val _xYz = \"hello world!\"",
             "val _xyz = 4",
@@ -154,6 +164,7 @@ class TestGrammar : StringSpec({
             "x().a.b + 1(z).c()",
             "(x().a.b + 1)(z).c()",
             "(x().a.b + 1)(z).c()()()(1, 2, 3)",
+            "(x<Int>().a.b + 1)<String>(z).c<X=Int, t=Y>()()<T=List<X>>()(1, 2, 3)",
             "(x().a.b + 1)(z).c()()()(1, 2, 3, 4)",
             "(x().a.b + 1)(z).(c())", // Should be prevented when building AST
             "f(1, 2.3, \"hello\")",
@@ -371,4 +382,77 @@ class TestGrammar : StringSpec({
 
     }
 
+    "lambdas and blocks" {
+        shouldAccept(
+            """#{ ->
+                | "hello"
+                | }
+            """.trimMargin(),
+            """#{ x: Int,
+                |y :  List<X<Y>>  ,
+                |  z: String ->
+                |  4 + 2 * x / z
+                |  y + y
+                |  }
+            """.trimMargin(),
+            """if (x) {
+                | "hello"
+                | }
+            """.trimMargin(), // blocks can come only as a part of if statement or function declaration
+            """if(x) {
+                |  4 + 2 * x / z
+                |  y + y
+                |  }
+            """.trimMargin(),
+            "if (x){ x }",
+            "#{ x: Int -> x }"
+        )
+
+        shouldReject(
+            "{ x }",
+            """{ ->
+                | "hello"
+                | }
+            """.trimMargin(),
+            """{ x: Int,
+                |y :  List<X<Y>>  ,
+                |  z: String ->
+                |  4 + 2 * x / z
+                |  y + y
+                |  }
+            """.trimMargin(),
+            """#{
+                | "hello"
+                | }
+            """.trimMargin(),
+            """#{
+                |  4 + 2 * x / z
+                |  y + y
+                |  }
+            """.trimMargin(),
+            """{ -> ->
+                | "hello"
+                | }
+            """.trimMargin(),
+            """{ x: Int, x
+                |y :  List<X<Y>>  ,
+                |  z: String ->
+                |  4 + 2 * x / z
+                |  y + y
+                |  }
+            """.trimMargin(),
+            """{ y <-
+                | "hello"
+                | }
+            """.trimMargin(),
+            """{ x,
+                |  4 + 2 * x / z
+                |  y + y
+                |  }
+            """.trimMargin(),
+            "{ x: Int }",
+            "{ x: Int -> }",
+            "{ x: Int -> x }"
+        )
+    }
 })
