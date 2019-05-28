@@ -102,11 +102,11 @@ class ASTNode {
 
     class FunctionDeclaration(
         val name: String,
-        val typeParameters: Map<String, Type?>,
+        val typeParameters: List<Pair<String, Type?>>,
         val parameters: List<Parameter>,
         val returnType: Type?,
         val body: Block
-    )
+    ): Statement
 
     // ------------- Expressions ------------- //
 

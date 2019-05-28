@@ -81,4 +81,8 @@ class TestASTBuilder : StringSpec({
         "" astShouldBe "empty program"
         "if (true) {} else 2" astShouldBe "empty if block"
     }
+
+    "functions" {
+        "fun f(n: Int): Unit {}" astShouldBe "empty function"
+    }
 })

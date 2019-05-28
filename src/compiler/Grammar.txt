@@ -119,11 +119,11 @@
 // Function Declaration
 <FunctionDeclaration> -> KeywordFun <SpacePlus> SimpleName <SpaceStar> <TypeParameters> <SpaceStar>
                          <FunctionParameters> <SpaceStar> <ReturnTypeOptional> <SpaceStar> <Block>
-<ReturnTypeOptional> -> Colon <SpaceStar> SimpleName | ε
-<FunctionParameters> -> OpenParenthesis <FunctionParameterStar> CloseParenthesis
-<FunctionParameterStar> -> <FunctionParameter> <FunctionParameterStarRest> | ε
-<FunctionParameterStarRest> -> Comma <FunctionParameterStar> | ε
-<FunctionParameter> -> SimpleName Colon SimpleName
+<ReturnTypeOptional> -> Colon <SpaceStar> <Type> | ε
+<FunctionParameters> -> OpenParenthesis <SpaceStar> <FunctionParameterStar> <SpaceStar> CloseParenthesis
+<FunctionParameterStar> -> <FunctionParameter> <SpaceStar> <FunctionParameterStarRest> | ε
+<FunctionParameterStarRest> -> Comma <SpaceStar> <FunctionParameterStar> | ε
+<FunctionParameter> -> SimpleName <SpaceStar> Colon <SpaceStar> <Type>
 
 <StatementOrBlock> -> <Block> | <Statement>
 <Block> -> OpenBraces <Program> CloseBraces

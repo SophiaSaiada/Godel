@@ -1559,7 +1559,7 @@ object Parser : ParserBase() {
         return if (nextToken0 in setOf(TokenType.Colon)) {
             val (child0, nextToken1) = parseToken(TokenType.Colon).invoke(nextToken0, restOfTokens)
             val (child1, nextToken2) = parseSpaceStar(nextToken1, restOfTokens)
-            val (child2, nextToken3) = parseToken(TokenType.SimpleName).invoke(nextToken2, restOfTokens)
+            val (child2, nextToken3) = parseType(nextToken2, restOfTokens)
             ParseTreeNodeResult(
                 ParseTreeNode.Inner(listOf(child0, child1, child2), nodeType),
                 nextToken3
@@ -1573,11 +1573,13 @@ object Parser : ParserBase() {
         val nodeType = InnerNodeType.FunctionParameters
         return if (nextToken0 in setOf(TokenType.OpenParenthesis)) {
             val (child0, nextToken1) = parseToken(TokenType.OpenParenthesis).invoke(nextToken0, restOfTokens)
-            val (child1, nextToken2) = parseFunctionParameterStar(nextToken1, restOfTokens)
-            val (child2, nextToken3) = parseToken(TokenType.CloseParenthesis).invoke(nextToken2, restOfTokens)
+            val (child1, nextToken2) = parseSpaceStar(nextToken1, restOfTokens)
+            val (child2, nextToken3) = parseFunctionParameterStar(nextToken2, restOfTokens)
+            val (child3, nextToken4) = parseSpaceStar(nextToken3, restOfTokens)
+            val (child4, nextToken5) = parseToken(TokenType.CloseParenthesis).invoke(nextToken4, restOfTokens)
             ParseTreeNodeResult(
-                ParseTreeNode.Inner(listOf(child0, child1, child2), nodeType),
-                nextToken3
+                ParseTreeNode.Inner(listOf(child0, child1, child2, child3, child4), nodeType),
+                nextToken5
             )
         } else throw CompilationError("not matching alternative for nextToken.")
     }
@@ -1586,10 +1588,11 @@ object Parser : ParserBase() {
         val nodeType = InnerNodeType.FunctionParameterStar
         return if (nextToken0 in setOf(TokenType.SimpleName)) {
             val (child0, nextToken1) = parseFunctionParameter(nextToken0, restOfTokens)
-            val (child1, nextToken2) = parseFunctionParameterStarRest(nextToken1, restOfTokens)
+            val (child1, nextToken2) = parseSpaceStar(nextToken1, restOfTokens)
+            val (child2, nextToken3) = parseFunctionParameterStarRest(nextToken2, restOfTokens)
             ParseTreeNodeResult(
-                ParseTreeNode.Inner(listOf(child0, child1), nodeType),
-                nextToken2
+                ParseTreeNode.Inner(listOf(child0, child1, child2), nodeType),
+                nextToken3
             )
         } else {
             ParseTreeNodeResult(ParseTreeNode.EpsilonLeaf(nodeType), nextToken0)
@@ -1600,10 +1603,11 @@ object Parser : ParserBase() {
         val nodeType = InnerNodeType.FunctionParameterStarRest
         return if (nextToken0 in setOf(TokenType.Comma)) {
             val (child0, nextToken1) = parseToken(TokenType.Comma).invoke(nextToken0, restOfTokens)
-            val (child1, nextToken2) = parseFunctionParameterStar(nextToken1, restOfTokens)
+            val (child1, nextToken2) = parseSpaceStar(nextToken1, restOfTokens)
+            val (child2, nextToken3) = parseFunctionParameterStar(nextToken2, restOfTokens)
             ParseTreeNodeResult(
-                ParseTreeNode.Inner(listOf(child0, child1), nodeType),
-                nextToken2
+                ParseTreeNode.Inner(listOf(child0, child1, child2), nodeType),
+                nextToken3
             )
         } else {
             ParseTreeNodeResult(ParseTreeNode.EpsilonLeaf(nodeType), nextToken0)
@@ -1614,11 +1618,13 @@ object Parser : ParserBase() {
         val nodeType = InnerNodeType.FunctionParameter
         return if (nextToken0 in setOf(TokenType.SimpleName)) {
             val (child0, nextToken1) = parseToken(TokenType.SimpleName).invoke(nextToken0, restOfTokens)
-            val (child1, nextToken2) = parseToken(TokenType.Colon).invoke(nextToken1, restOfTokens)
-            val (child2, nextToken3) = parseToken(TokenType.SimpleName).invoke(nextToken2, restOfTokens)
+            val (child1, nextToken2) = parseSpaceStar(nextToken1, restOfTokens)
+            val (child2, nextToken3) = parseToken(TokenType.Colon).invoke(nextToken2, restOfTokens)
+            val (child3, nextToken4) = parseSpaceStar(nextToken3, restOfTokens)
+            val (child4, nextToken5) = parseType(nextToken4, restOfTokens)
             ParseTreeNodeResult(
-                ParseTreeNode.Inner(listOf(child0, child1, child2), nodeType),
-                nextToken3
+                ParseTreeNode.Inner(listOf(child0, child1, child2, child3, child4), nodeType),
+                nextToken5
             )
         } else throw CompilationError("not matching alternative for nextToken.")
     }

@@ -1721,5 +1721,54 @@
         }
       ]
     }
+  },
+  "empty function": {
+    "name": "Statements",
+    "props": {
+      "statements": [
+        {
+          "name": "FunctionDeclaration",
+          "props": {
+            "body": {
+              "name": "Block.WithoutValue",
+              "props": {
+                "statements": {
+                  "name": "Statements",
+                  "props": {
+                    "statements": []
+                  }
+                }
+              }
+            },
+            "name": "f",
+            "parameters": [
+              {
+                "name": "Parameter",
+                "props": {
+                  "name": "n",
+                  "type": {
+                    "name": "Type.Regular",
+                    "props": {
+                      "name": "Int",
+                      "nullable": false,
+                      "typesParameters": []
+                    }
+                  }
+                }
+              }
+            ],
+            "returnType": {
+              "name": "Type.Regular",
+              "props": {
+                "name": "Unit",
+                "nullable": false,
+                "typesParameters": []
+              }
+            },
+            "typeParameters": []
+          }
+        }
+      ]
+    }
   }
 }

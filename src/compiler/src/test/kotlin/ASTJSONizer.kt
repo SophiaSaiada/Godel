@@ -24,6 +24,7 @@ object ASTJSONizer {
             is ASTNode.Expression,
             is ASTNode.FunctionArgument,
             is ASTNode.TypeArgument,
+            is ASTNode.Parameter,
             is ASTNode.Type ->
                 this::class.memberProperties.map {
                     it.name to it.getter.call(this)
