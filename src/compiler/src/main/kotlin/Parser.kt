@@ -995,14 +995,16 @@ object Parser : ParserBase() {
             val (child1, nextToken2) = parseSpacePlus(nextToken1, restOfTokens)
             val (child2, nextToken3) = parseToken(TokenType.SimpleName).invoke(nextToken2, restOfTokens)
             val (child3, nextToken4) = parseSpaceStar(nextToken3, restOfTokens)
-            val (child4, nextToken5) = parseToken(TokenType.OpenBraces).invoke(nextToken4, restOfTokens)
+            val (child4, nextToken5) = parseTypeParameters(nextToken4, restOfTokens)
             val (child5, nextToken6) = parseSpaceStar(nextToken5, restOfTokens)
-            val (child6, nextToken7) = parseMemberDeclarationStar(nextToken6, restOfTokens)
-            val (child7, nextToken8) = parseSEMIOptional(nextToken7, restOfTokens)
-            val (child8, nextToken9) = parseToken(TokenType.CloseBraces).invoke(nextToken8, restOfTokens)
+            val (child6, nextToken7) = parseToken(TokenType.OpenBraces).invoke(nextToken6, restOfTokens)
+            val (child7, nextToken8) = parseSpaceStar(nextToken7, restOfTokens)
+            val (child8, nextToken9) = parseMemberDeclarationStar(nextToken8, restOfTokens)
+            val (child9, nextToken10) = parseSEMIOptional(nextToken9, restOfTokens)
+            val (child10, nextToken11) = parseToken(TokenType.CloseBraces).invoke(nextToken10, restOfTokens)
             ParseTreeNodeResult(
-                ParseTreeNode.Inner(listOf(child0, child1, child2, child3, child4, child5, child6, child7, child8), nodeType),
-                nextToken9
+                ParseTreeNode.Inner(listOf(child0, child1, child2, child3, child4, child5, child6, child7, child8, child9, child10), nodeType),
+                nextToken11
             )
         } else throw CompilationError("not matching alternative for nextToken.")
     }

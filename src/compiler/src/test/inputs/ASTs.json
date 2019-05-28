@@ -1770,5 +1770,569 @@
         }
       ]
     }
+  },
+  "class with primitive properties": {
+    "name": "Statements",
+    "props": {
+      "statements": [
+        {
+          "name": "ClassDeclaration",
+          "props": {
+            "name": "A",
+            "typeParameters": [],
+            "members": [
+              {
+                "name": "Member",
+                "props": {
+                  "publicOrPrivate": "Public",
+                  "declaration": {
+                    "name": "ValDeclaration",
+                    "props": {
+                      "name": "x",
+                      "type": null,
+                      "value": {
+                        "name": "IntLiteral",
+                        "props": {
+                          "value": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "name": "Member",
+                "props": {
+                  "publicOrPrivate": "Public",
+                  "declaration": {
+                    "name": "ValDeclaration",
+                    "props": {
+                      "name": "z",
+                      "type": null,
+                      "value": {
+                        "name": "IntLiteral",
+                        "props": {
+                          "value": 2
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "name": "Member",
+                "props": {
+                  "publicOrPrivate": "Private",
+                  "declaration": {
+                    "name": "ValDeclaration",
+                    "props": {
+                      "name": "h",
+                      "type": {
+                        "name": "Type.Functional",
+                        "props": {
+                          "parameterTypes": [
+                            {
+                              "name": "Type.Regular",
+                              "props": {
+                                "name": "Float",
+                                "nullable": false,
+                                "typesParameters": []
+                              }
+                            }
+                          ],
+                          "resultType": {
+                            "name": "Type.Regular",
+                            "props": {
+                              "name": "Int",
+                              "nullable": false,
+                              "typesParameters": []
+                            }
+                          },
+                          "nullable": false
+                        }
+                      },
+                      "value": {
+                        "name": "Lambda",
+                        "props": {
+                          "parameters": [
+                            {
+                              "name": "Pair",
+                              "props": {
+                                "first": "x",
+                                "second": {
+                                  "name": "Type.Regular",
+                                  "props": {
+                                    "name": "Float",
+                                    "nullable": false,
+                                    "typesParameters": []
+                                  }
+                                }
+                              }
+                            }
+                          ],
+                          "statements": {
+                            "name": "Statements",
+                            "props": {
+                              "statements": []
+                            }
+                          },
+                          "returnValue": {
+                            "name": "BinaryExpression",
+                            "props": {
+                              "left": {
+                                "name": "BinaryExpression",
+                                "props": {
+                                  "left": {
+                                    "name": "Identifier",
+                                    "props": {
+                                      "value": "this"
+                                    }
+                                  },
+                                  "right": {
+                                    "name": "Identifier",
+                                    "props": {
+                                      "value": "x"
+                                    }
+                                  },
+                                  "operator": "Dot"
+                                }
+                              },
+                              "right": {
+                                "name": "Identifier",
+                                "props": {
+                                  "value": "x"
+                                }
+                              },
+                              "operator": "Plus"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "class with methods": {
+    "name": "Statements",
+    "props": {
+      "statements": [
+        {
+          "name": "ClassDeclaration",
+          "props": {
+            "name": "A",
+            "typeParameters": [],
+            "members": [
+              {
+                "name": "Member",
+                "props": {
+                  "publicOrPrivate": "Public",
+                  "declaration": {
+                    "name": "FunctionDeclaration",
+                    "props": {
+                      "body": {
+                        "name": "Block.WithoutValue",
+                        "props": {
+                          "statements": {
+                            "name": "Statements",
+                            "props": {
+                              "statements": []
+                            }
+                          }
+                        }
+                      },
+                      "name": "x",
+                      "parameters": [],
+                      "returnType": null,
+                      "typeParameters": []
+                    }
+                  }
+                }
+              },
+              {
+                "name": "Member",
+                "props": {
+                  "publicOrPrivate": "Private",
+                  "declaration": {
+                    "name": "FunctionDeclaration",
+                    "props": {
+                      "body": {
+                        "name": "Block.WithoutValue",
+                        "props": {
+                          "statements": {
+                            "name": "Statements",
+                            "props": {
+                              "statements": []
+                            }
+                          }
+                        }
+                      },
+                      "name": "z",
+                      "parameters": [],
+                      "returnType": null,
+                      "typeParameters": []
+                    }
+                  }
+                }
+              },
+              {
+                "name": "Member",
+                "props": {
+                  "publicOrPrivate": "Public",
+                  "declaration": {
+                    "name": "FunctionDeclaration",
+                    "props": {
+                      "body": {
+                        "name": "Block.WithoutValue",
+                        "props": {
+                          "statements": {
+                            "name": "Statements",
+                            "props": {
+                              "statements": []
+                            }
+                          }
+                        }
+                      },
+                      "name": "h",
+                      "parameters": [],
+                      "returnType": null,
+                      "typeParameters": []
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "class with mixed properties no 1": {
+    "name": "Statements",
+    "props": {
+      "statements": [
+        {
+          "name": "ClassDeclaration",
+          "props": {
+            "name": "A",
+            "typeParameters": [],
+            "members": [
+              {
+                "name": "Member",
+                "props": {
+                  "publicOrPrivate": "Public",
+                  "declaration": {
+                    "name": "FunctionDeclaration",
+                    "props": {
+                      "body": {
+                        "name": "Block.WithoutValue",
+                        "props": {
+                          "statements": {
+                            "name": "Statements",
+                            "props": {
+                              "statements": []
+                            }
+                          }
+                        }
+                      },
+                      "name": "x",
+                      "parameters": [],
+                      "returnType": null,
+                      "typeParameters": []
+                    }
+                  }
+                }
+              },
+              {
+                "name": "Member",
+                "props": {
+                  "publicOrPrivate": "Private",
+                  "declaration": {
+                    "name": "FunctionDeclaration",
+                    "props": {
+                      "body": {
+                        "name": "Block.WithoutValue",
+                        "props": {
+                          "statements": {
+                            "name": "Statements",
+                            "props": {
+                              "statements": []
+                            }
+                          }
+                        }
+                      },
+                      "name": "z",
+                      "parameters": [],
+                      "returnType": null,
+                      "typeParameters": []
+                    }
+                  }
+                }
+              },
+              {
+                "name": "Member",
+                "props": {
+                  "publicOrPrivate": "Public",
+                  "declaration": {
+                    "name": "FunctionDeclaration",
+                    "props": {
+                      "body": {
+                        "name": "Block.WithoutValue",
+                        "props": {
+                          "statements": {
+                            "name": "Statements",
+                            "props": {
+                              "statements": []
+                            }
+                          }
+                        }
+                      },
+                      "name": "f",
+                      "parameters": [],
+                      "returnType": null,
+                      "typeParameters": []
+                    }
+                  }
+                }
+              },
+              {
+                "name": "Member",
+                "props": {
+                  "publicOrPrivate": "Public",
+                  "declaration": {
+                    "name": "FunctionDeclaration",
+                    "props": {
+                      "body": {
+                        "name": "Block.WithoutValue",
+                        "props": {
+                          "statements": {
+                            "name": "Statements",
+                            "props": {
+                              "statements": []
+                            }
+                          }
+                        }
+                      },
+                      "name": "h",
+                      "parameters": [],
+                      "returnType": null,
+                      "typeParameters": []
+                    }
+                  }
+                }
+              },
+              {
+                "name": "Member",
+                "props": {
+                  "publicOrPrivate": "Public",
+                  "declaration": {
+                    "name": "ValDeclaration",
+                    "props": {
+                      "name": "z",
+                      "type": null,
+                      "value": {
+                        "name": "IntLiteral",
+                        "props": {
+                          "value": 2
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "name": "Member",
+                "props": {
+                  "publicOrPrivate": "Public",
+                  "declaration": {
+                    "name": "FunctionDeclaration",
+                    "props": {
+                      "body": {
+                        "name": "Block.WithoutValue",
+                        "props": {
+                          "statements": {
+                            "name": "Statements",
+                            "props": {
+                              "statements": []
+                            }
+                          }
+                        }
+                      },
+                      "name": "y",
+                      "parameters": [],
+                      "returnType": null,
+                      "typeParameters": []
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "class with mixed properties no 2": {
+    "name": "Statements",
+    "props": {
+      "statements": [
+        {
+          "name": "ClassDeclaration",
+          "props": {
+            "name": "A",
+            "typeParameters": [],
+            "members": [
+              {
+                "name": "Member",
+                "props": {
+                  "publicOrPrivate": "Private",
+                  "declaration": {
+                    "name": "ValDeclaration",
+                    "props": {
+                      "name": "x",
+                      "type": null,
+                      "value": {
+                        "name": "IntLiteral",
+                        "props": {
+                          "value": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "name": "Member",
+                "props": {
+                  "publicOrPrivate": "Public",
+                  "declaration": {
+                    "name": "FunctionDeclaration",
+                    "props": {
+                      "body": {
+                        "name": "Block.WithoutValue",
+                        "props": {
+                          "statements": {
+                            "name": "Statements",
+                            "props": {
+                              "statements": []
+                            }
+                          }
+                        }
+                      },
+                      "name": "x",
+                      "parameters": [],
+                      "returnType": null,
+                      "typeParameters": []
+                    }
+                  }
+                }
+              },
+              {
+                "name": "Member",
+                "props": {
+                  "publicOrPrivate": "Private",
+                  "declaration": {
+                    "name": "FunctionDeclaration",
+                    "props": {
+                      "body": {
+                        "name": "Block.WithoutValue",
+                        "props": {
+                          "statements": {
+                            "name": "Statements",
+                            "props": {
+                              "statements": []
+                            }
+                          }
+                        }
+                      },
+                      "name": "z",
+                      "parameters": [],
+                      "returnType": null,
+                      "typeParameters": []
+                    }
+                  }
+                }
+              },
+              {
+                "name": "Member",
+                "props": {
+                  "publicOrPrivate": "Private",
+                  "declaration": {
+                    "name": "ValDeclaration",
+                    "props": {
+                      "name": "z",
+                      "type": null,
+                      "value": {
+                        "name": "IntLiteral",
+                        "props": {
+                          "value": 2
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "name": "Member",
+                "props": {
+                  "publicOrPrivate": "Public",
+                  "declaration": {
+                    "name": "FunctionDeclaration",
+                    "props": {
+                      "body": {
+                        "name": "Block.WithoutValue",
+                        "props": {
+                          "statements": {
+                            "name": "Statements",
+                            "props": {
+                              "statements": []
+                            }
+                          }
+                        }
+                      },
+                      "name": "h",
+                      "parameters": [],
+                      "returnType": null,
+                      "typeParameters": []
+                    }
+                  }
+                }
+              },
+              {
+                "name": "Member",
+                "props": {
+                  "publicOrPrivate": "Private",
+                  "declaration": {
+                    "name": "ValDeclaration",
+                    "props": {
+                      "name": "h",
+                      "type": {
+                        "name": "Type.Regular",
+                        "props": {
+                          "name": "Float",
+                          "nullable": false,
+                          "typesParameters": []
+                        }
+                      },
+                      "value": {
+                        "name": "FloatLiteral",
+                        "props": {
+                          "value": 3.2
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
   }
 }

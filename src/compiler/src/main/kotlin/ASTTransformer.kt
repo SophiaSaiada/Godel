@@ -1,7 +1,5 @@
 package com.godel.compiler
 
-import java.security.InvalidKeyException
-
 object ASTTransformer {
     fun transformAST(rootNode: ParseTreeNode) =
         when (rootNode) {
@@ -219,12 +217,12 @@ object ASTTransformer {
         return ASTNode.ValDeclaration(name, type, value)
     }
 
-    private fun transformClassDeclaration(rootNode: ParseTreeNode.Inner): ASTNode.ClassDeclartion{
-        val name = (rootNode[3] as ParseTreeNode.Leaf).token.content
-        val members = transformMembers(rootNode[7])
-        val genericType = transformTypeParameters(rootNode[5] as ParseTreeNode.Inner)
-        return ASTNode.ClassDeclartion(name, genericType ,members)
-    }
+    private fun transformClassDeclaration(rootNode: ParseTreeNode.Inner) =
+        ASTNode.ClassDeclaration(
+            name = (rootNode[2] as ParseTreeNode.Leaf).token.content,
+            typeParameters = transformTypeParameters(rootNode[4]),
+            members = transformMembers(rootNode[8])
+        )
 
     private fun transformMembers(currentNode: ParseTreeNode): List<ASTNode.Member> =
         when (currentNode) {
@@ -240,16 +238,23 @@ object ASTTransformer {
             else -> throwInvalidParseError()
         }
 
-    private fun transformMember(rootNode: ParseTreeNode.Inner) : ASTNode.Member{
+    private fun transformMember(rootNode: ParseTreeNode.Inner): ASTNode.Member {
         val privateOrPublic = transformPrivateOrPublic(rootNode[0])
-        val value = transformFuncDeclartionOrValDeclartion
-        return ASTNode.Member(privateOrPublic,value)
+        val functionDeclarationOrValDeclarationNode = rootNode[2][0] as ParseTreeNode.Inner
+        val declaration: ASTNode.FunctionDeclarationOrValDeclaration =
+            when (functionDeclarationOrValDeclarationNode.type) {
+                Parser.InnerNodeType.ValDeclaration -> transformValDeclaration(functionDeclarationOrValDeclarationNode)
+                Parser.InnerNodeType.FunctionDeclaration ->
+                    transformFunctionDeclaration(functionDeclarationOrValDeclarationNode)
+                else -> throwInvalidParseError(functionDeclarationOrValDeclarationNode.type.name)
+            }
+        return ASTNode.Member(privateOrPublic, declaration)
     }
 
-    private fun transformPrivateOrPublic(rootNode: ParseTreeNode): ASTNode.PrivateOrPublic{
-        val type = (rootNode[0] as ParseTreeNode.Leaf).token.content
-        return ASTNode.PrivateOrPublic.valueOf(type)
-    }
+    private fun transformPrivateOrPublic(rootNode: ParseTreeNode) =
+        ASTNode.PrivateOrPublic.values()
+            .find { (rootNode[0] as ParseTreeNode.Leaf).token.content == it.name.toLowerCase() }
+            ?: throwInvalidParseError()
 
     private fun transformIf(rootNode: ParseTreeNode.Inner): ASTNode.If {
         val condition = transformParenthesizedExpression(rootNode[2] as ParseTreeNode.Inner)
@@ -687,27 +692,4 @@ object ASTTransformer {
     private fun throwInvalidParseError(message: String? = null): Nothing =
         throw CompilationError("Invalid parse error" + message?.let { " $it" }.orEmpty())
 
-//
-//    private fun transformASTFromNumber(rootNode: ParseTreeNode.Inner): ASTNode.Expression {
-//        check(rootNode.children.size == 2)
-//        val leftSideNumberString = (rootNode.children[0] as ParseTreeNode.Leaf).token.content
-//        val numberRest = (rootNode.children[1] as ParseTreeNode.Inner)
-//        return if (numberRest.children.size == 2) {
-//            val rightSideNumberString = (numberRest.last() as ParseTreeNode.Leaf).token.content
-//            ASTNode.FloatLiteral("$leftSideNumberString.$rightSideNumberString".toFloat())
-//        } else ASTNode.IntLiteral(leftSideNumberString.toInt())
-//    }
-//
-//    private fun transformASTFromValDeclaration(rootNode: ParseTreeNode.Inner): ASTNode.ValDeclaration {
-//        check(rootNode.children.size == 6)
-//        val name = (rootNode.children[3] as ParseTreeNode.Leaf).token.content
-//        val type =
-//            if ((rootNode.children[5] as ParseTreeNode.Inner).children.size == 6)
-//                ((rootNode.children[5] as ParseTreeNode.Inner).children[2] as ParseTreeNode.Leaf).token.content
-//            else null
-//        throw CompilationError("")
-////        val value = transformAST((rootNode.children[5] as ParseTreeNode.Inner).last())
-////        check(value is ASTNode.Expression)
-////        return ASTNode.ValDeclaration(name, type, value)
-//    }
 }

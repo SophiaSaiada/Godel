@@ -85,4 +85,41 @@ class TestASTBuilder : StringSpec({
     "functions" {
         "fun f(n: Int): Unit {}" astShouldBe "empty function"
     }
+
+    "class" {
+        """class A {
+                |   public val x=1;
+                |   public val z=2;
+                |   private val h: (Float) -> Int=#{ x: Float -> this.x + x};
+                |}
+            """.trimMargin() astShouldBe "class with primitive properties"
+        """class A {
+                |   public fun x() {}
+                |   private fun z() {}
+                |   public fun h() {}
+                |}
+            """.trimMargin() astShouldBe "class with methods"
+        """class A {
+                |   public fun x() {}
+                |   ;
+                |   private fun z() {}   ;
+                |   public fun f() {}
+                |   public fun h() {};
+                |   public val z=2
+                |   public fun y() {}
+                |
+                |   ;
+                |
+                |}
+                |
+            """.trimMargin() astShouldBe "class with mixed properties no 1"
+        """class A {
+                |   private val x=1;  public fun x() {}
+                |   private fun z() {};
+                |   private val z=2;
+                |   public fun h() {}
+                |   private val h: Float=3.2;
+                |}
+            """.trimMargin() astShouldBe "class with mixed properties no 2"
+    }
 })

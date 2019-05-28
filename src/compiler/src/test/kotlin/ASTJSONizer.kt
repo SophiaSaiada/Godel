@@ -15,6 +15,17 @@ object ASTJSONizer {
                     "parameterTypes" to 0,
                     "resultType" to 1
                 ).getOrElse(name) { 2 }
+            is ASTNode.ClassDeclaration ->
+                mapOf(
+                    "name" to 0,
+                    "typeParameters" to 1,
+                    "members" to 2
+                ).getOrElse(name) { 3 }
+            is ASTNode.Member ->
+                mapOf(
+                    "publicOrPrivate" to 0,
+                    "declaration" to 1
+                ).getOrElse(name) { 2 }
             else -> name.compareTo("")
         }
 
@@ -25,6 +36,7 @@ object ASTJSONizer {
             is ASTNode.FunctionArgument,
             is ASTNode.TypeArgument,
             is ASTNode.Parameter,
+            is ASTNode.Member,
             is ASTNode.Type ->
                 this::class.memberProperties.map {
                     it.name to it.getter.call(this)
@@ -40,6 +52,7 @@ object ASTJSONizer {
             is Pair<Any?, Any?> ->
                 "{\"name\": \"Pair\", \"props\": {\"first\": ${this.first.toJSON()}, \"second\": ${this.second.toJSON()}}}"
             is ASTNode.BinaryOperator -> "\"${this.name}\""
+            is ASTNode.PrivateOrPublic -> "\"${this.name}\""
             is String -> "\"$this\""
             is Int -> this.toString()
             is Map<*, *> ->

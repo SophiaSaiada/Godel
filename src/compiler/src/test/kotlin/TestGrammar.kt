@@ -284,6 +284,7 @@ class TestGrammar : StringSpec({
             """class A { val x=1 val z=2 }"""
         )
     }
+
     "if" {
         shouldAccept(
             """if (x) 1 else 2""",

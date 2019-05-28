@@ -57,8 +57,7 @@ class ASTNode {
         }
     }
 
-    interface FuncDeclarationsOrValDeclarations
-    interface Properties
+    interface FunctionDeclarationOrValDeclaration
 
     class TypeArgument(
         val name: String?,
@@ -79,21 +78,20 @@ class ASTNode {
         val name: String,
         val type: Type?,
         val value: Expression
-    ) : Statement, FuncDeclarationsOrValDeclarations
+    ) : Statement, FunctionDeclarationOrValDeclaration
 
-    class ClassDeclartion(
+    class ClassDeclaration(
         val name: String,
-        //val type: List<Pair<String,Type?>>,
-        val type: Map<String, Type?>,
-        val Members: List<Member>
+        val typeParameters: List<Pair<String, Type?>>,
+        val members: List<Member>
     ) : Statement
 
     enum class PrivateOrPublic { Public, Private }
 
     class Member(
         val publicOrPrivate: PrivateOrPublic,
-        val value: FuncDeclarationsOrValDeclarations
-    ) : Statement
+        val declaration: FunctionDeclarationOrValDeclaration
+    )
 
     class Parameter(
         val name: String,
@@ -106,7 +104,7 @@ class ASTNode {
         val parameters: List<Parameter>,
         val returnType: Type?,
         val body: Block
-    ): Statement
+    ) : Statement, FunctionDeclarationOrValDeclaration
 
     // ------------- Expressions ------------- //
 
