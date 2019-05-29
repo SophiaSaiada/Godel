@@ -38,3 +38,5 @@ enum class Keyword {
 
     val asString = this.name.toLowerCase()
 }
+
+val simpleNameRegex = "_+|(_*[a-zA-Z][a-zA-Z0-9_]*)".toRegex()

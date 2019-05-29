@@ -130,4 +130,19 @@ class TestASTBuilder : StringSpec({
                 |}
             """.trimMargin() astShouldBe "class with mixed properties no 2"
     }
+
+    "semantic checks" {
+        lexThenParseThenTransform("3. a.b")
+        lexThenParseThenTransform("3 . a.\nb")
+        lexThenParseThenTransform("3.1.\nb")
+        lexThenParseThenTransform("3.1. b")
+        shouldThrow<CompilationError> {
+            lexThenParseThenTransform("3.1b")
+            lexThenParseThenTransform("3. 1.b")
+            lexThenParseThenTransform("3 .1.b")
+            lexThenParseThenTransform("3.2.1")
+            lexThenParseThenTransform("3.2.1.toString()")
+            lexThenParseThenTransform("a.2.1")
+        }
+    }
 })

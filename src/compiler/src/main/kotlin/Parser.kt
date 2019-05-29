@@ -499,26 +499,45 @@ object Parser : ParserBase() {
         val nodeType = InnerNodeType.Number
         return if (nextToken0 in setOf(TokenType.DecimalLiteral)) {
             val (child0, nextToken1) = parseToken(TokenType.DecimalLiteral).invoke(nextToken0, restOfTokens)
-            if (nextToken1 in setOf(TokenType.Dot)) {
-                val (child1, nextToken2) = parseToken(TokenType.Dot).invoke(nextToken1, restOfTokens)
-                if (nextToken2 in setOf(TokenType.DecimalLiteral)) {
-                    val (child2, nextToken3) = parseToken(TokenType.DecimalLiteral).invoke(nextToken2, restOfTokens)
+            when (nextToken1) {
+                in setOf(TokenType.Dot) -> {
+                    val (child1, nextToken2) = parseToken(TokenType.Dot).invoke(nextToken1, restOfTokens)
+                    if (nextToken2 in setOf(TokenType.DecimalLiteral)) {
+                        val (child2, nextToken3) = parseToken(TokenType.DecimalLiteral).invoke(nextToken2, restOfTokens)
+                        ParseTreeNodeResult(
+                            ParseTreeNode.Inner(listOf(child0, child1, child2), nodeType),
+                            nextToken3
+                        )
+                    } else {
+                        val (child2, nextToken3) = parseMemberAccessWithoutFirstDot(nextToken2, restOfTokens)
+                        ParseTreeNodeResult(
+                            ParseTreeNode.Inner(listOf(child0, child1, child2), nodeType),
+                            nextToken3
+                        )
+                    }
+                }
+                in setOf(TokenType.WhiteSpace) -> {
+                    val (child1, nextToken2) = parseWhitespacePlus(nextToken1, restOfTokens)
+                    if (nextToken2 in setOf(TokenType.Dot)) {
+                        val (child2, nextToken3) = parseToken(TokenType.Dot).invoke(nextToken2, restOfTokens)
+                        val (child3, nextToken4) = parseMemberAccessWithoutFirstDot(nextToken3, restOfTokens)
+                        ParseTreeNodeResult(
+                            ParseTreeNode.Inner(listOf(child0, child1, child2, child3), nodeType),
+                            nextToken4
+                        )
+                    } else {
+                        ParseTreeNodeResult(
+                            ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                            nextToken2
+                        )
+                    }
+                }
+                else -> {
                     ParseTreeNodeResult(
-                        ParseTreeNode.Inner(listOf(child0, child1, child2), nodeType),
-                        nextToken3
-                    )
-                } else {
-                    val (child2, nextToken3) = parseMemberAccessWithoutFirstDot(nextToken2, restOfTokens)
-                    ParseTreeNodeResult(
-                        ParseTreeNode.Inner(listOf(child0, child1, child2), nodeType),
-                        nextToken3
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
                     )
                 }
-            } else {
-                ParseTreeNodeResult(
-                    ParseTreeNode.Inner(listOf(child0), nodeType),
-                    nextToken1
-                )
             }
         } else throw CompilationError("not matching alternative for nextToken.")
     }

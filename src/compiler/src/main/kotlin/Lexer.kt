@@ -59,7 +59,7 @@ data class Token(val content: String, val type: TokenType) {
             ClassificationByGroup(Keyword.values().map { it.asString }) to TokenType.Keyword,
             ClassificationByRegex("[0-9]+") to TokenType.DecimalLiteral
         ) + classificationsByExactMatch + mapOf(
-            ClassificationByRegex("_+|(_*[a-zA-Z][a-zA-Z0-9_]*)") to TokenType.SimpleName
+            ClassificationByRegex(simpleNameRegex) to TokenType.SimpleName
         )
 
         fun classifyString(string: String) =
