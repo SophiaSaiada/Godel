@@ -9,8 +9,6 @@ class ClassificationByRegex(private val regex: Regex) : TokenClassificationMetho
 }
 
 class ClassificationByGroup(private val group: Iterable<String>) : TokenClassificationMethod {
-    constructor(vararg group: String) : this(group.asIterable())
-
     override fun matches(token: String) = group.contains(token)
 }
 
@@ -78,7 +76,6 @@ operator fun Set<Keyword>.contains(token: Token?) =
     token?.type == TokenType.Keyword && token.content in this.map { it.asString }
 
 fun listOfTokens(vararg list: Pair<String, TokenType>) = list.map { Token(it.first, it.second) }
-fun sequenceOfTokens(vararg list: Pair<String, TokenType>) = listOfTokens(*list).asSequence()
 
 object Lexer {
     private val splittingCharacters =

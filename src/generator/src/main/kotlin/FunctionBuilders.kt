@@ -7,9 +7,7 @@ data class Branch(
     val firstLetter: Symbol,
     val commonLetters: List<Symbol>,
     val subBranches: List<Branch>
-) {
-    val isEpsilonBranch = firstLetter is Symbol.Epsilon && commonLetters.isEmpty()
-}
+)
 
 
 fun normalizeBranches(branches: List<Branch>): List<Branch> =
