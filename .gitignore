@@ -11,6 +11,7 @@ src/compiler.iml
 src/build/
 src/compiler/build/
 src/generator/build/
+src/executor/build/
 src/common/build/
 src/local.properties
 .DS_Store
