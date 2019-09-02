@@ -1,5 +1,3 @@
-package com.godel.compiler
-
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 

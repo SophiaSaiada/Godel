@@ -1,5 +1,3 @@
-package com.godel.compiler
-
 interface NodeType
 
 enum class TokenType(vararg val combinationOf: TokenType) : NodeType {

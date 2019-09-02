@@ -1,5 +1,3 @@
-package com.godel.compiler
-
 fun ParseTreeNode.asTreeString() =
     this.asTreeString("", true).joinToString("\n")
 

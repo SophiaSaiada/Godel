@@ -1,4 +1,3 @@
-import com.godel.compiler.compile
 import io.kotlintest.specs.StringSpec
 
 class TestCompileDeepNestedCode : StringSpec({

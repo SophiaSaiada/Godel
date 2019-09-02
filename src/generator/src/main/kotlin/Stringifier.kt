@@ -1,5 +1,3 @@
-package com.godel.compiler
-
 import arrow.syntax.function.curried
 import kotlinx.collections.immutable.immutableMapOf
 
@@ -24,8 +22,7 @@ fun getParserText(
 }
 
 private fun withObjectWrapper(enumAndFunctionAsString: String, firsProductionRule: ProductionRule?) =
-    """|package com.godel.compiler
-       |
+    """|       |
        |object Parser : ParserBase() {
        |    override val start = ::parse${firsProductionRule?.sourceSymbol?.name}
        |

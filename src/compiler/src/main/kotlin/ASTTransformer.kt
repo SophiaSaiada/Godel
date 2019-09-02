@@ -1,5 +1,3 @@
-package com.godel.compiler
-
 object ASTTransformer {
     fun transformAST(rootNode: ParseTreeNode) =
         when (rootNode) {
@@ -369,20 +367,22 @@ object ASTTransformer {
     private fun ASTNode.BinaryExpression<*, *>.rotated(): ASTNode.Expression =
         when (right) {
             is ASTNode.BinaryExpression<*, *> -> {
-                if (right.operator.group == this.operator.group)
+                val binaryExpression = right as ASTNode.BinaryExpression<*, *>
+                if (binaryExpression.operator.group == this.operator.group)
                     ASTNode.BinaryExpression(
-                        left = ASTNode.BinaryExpression(left, operator, right.left).rotated(),
-                        operator = right.operator,
-                        right = right.right
+                        left = ASTNode.BinaryExpression(left, operator, binaryExpression.left).rotated(),
+                        operator = binaryExpression.operator,
+                        right = binaryExpression.right
                     )
                 else this
             }
             is ASTNode.Invocation ->
                 if (this.operator.group == ASTNode.BinaryOperator.Group.MemberAccess) {
+                    val invocation = right as ASTNode.Invocation
                     ASTNode.Invocation(
-                        function = ASTNode.BinaryExpression(left, this.operator, right.function).rotated(),
-                        typeArguments = right.typeArguments,
-                        arguments = right.arguments
+                        function = ASTNode.BinaryExpression(left, this.operator, invocation.function).rotated(),
+                        typeArguments = invocation.typeArguments,
+                        arguments = invocation.arguments
                     )
                 } else this
             else -> this
@@ -391,11 +391,12 @@ object ASTTransformer {
     private fun ASTNode.InfixExpression<*, *>.rotated(): ASTNode.InfixExpression<*, *> =
         when (right) {
             is ASTNode.InfixExpression<*, *> -> {
-                if (right.function == this.function)
+                val infixExpression = right as ASTNode.InfixExpression<*,*>
+                if (infixExpression.function == this.function)
                     ASTNode.InfixExpression(
-                        left = ASTNode.InfixExpression(left, function, right.left).rotated(),
+                        left = ASTNode.InfixExpression(left, function, infixExpression.left).rotated(),
                         function = function,
-                        right = right.right
+                        right = infixExpression.right
                     )
                 else this
             }

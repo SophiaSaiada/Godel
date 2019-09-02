@@ -1,5 +1,3 @@
-package com.godel.compiler
-
 data class ParseFunction(
     val name: String,
     val branches: List<Branch>

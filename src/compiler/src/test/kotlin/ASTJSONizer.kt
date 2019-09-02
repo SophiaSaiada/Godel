@@ -1,4 +1,4 @@
-import com.godel.compiler.ASTNode
+import ASTNode
 import kotlin.reflect.full.memberProperties
 
 object ASTJSONizer {
@@ -44,7 +44,9 @@ object ASTJSONizer {
                     specialOrder(this, name)
                 }.joinToString(", ") { (name, value) ->
                     """"$name": ${value?.toJSON()}"""
-                }.let { "{\"name\": \"${this::class.qualifiedName.orEmpty().removePrefix("com.godel.compiler.ASTNode.")}\", \"props\": {$it}}" }
+                }.let {
+                    "{\"name\": \"${this::class.qualifiedName.orEmpty().removePrefix("ASTNode.")}\", \"props\": {$it}}"
+                }
             is ASTNode.Statements ->
                 "{\"name\": \"Statements\", \"props\": {\"statements\": ${this.joinToString(", ") { it.toJSON() }.let { "[$it]" }}}}"
             is List<Any?> ->

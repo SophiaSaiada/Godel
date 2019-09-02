@@ -1,5 +1,3 @@
-package com.godel.compiler
-
 const val MODIFIER_SIGN = "@"
 const val HEADER_TOKENS = "Tokens"
 const val HEADER_RULES = "Rules"

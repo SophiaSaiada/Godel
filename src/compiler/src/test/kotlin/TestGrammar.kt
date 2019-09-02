@@ -1,4 +1,3 @@
-package com.godel.compiler
 
 import io.kotlintest.specs.StringSpec
 import io.kotlintest.*

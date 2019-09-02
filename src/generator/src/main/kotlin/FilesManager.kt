@@ -1,5 +1,3 @@
-package com.godel.compiler
-
 import java.io.File
 
 fun readGrammarFile() =

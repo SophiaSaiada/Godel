@@ -2,7 +2,7 @@ plugins {
     id 'org.jetbrains.kotlin.jvm'
 }
 
-group 'com.godel.compiler'
+group 'com.godel'
 version '0.1'
 
 repositories {

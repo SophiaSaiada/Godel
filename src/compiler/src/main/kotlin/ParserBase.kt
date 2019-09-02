@@ -1,5 +1,3 @@
-package com.godel.compiler
-
 abstract class ParserBase {
     abstract val start: (Token?, Iterator<Token>) -> ParseTreeNodeResult
 

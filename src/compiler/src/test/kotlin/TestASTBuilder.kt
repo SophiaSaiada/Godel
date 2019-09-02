@@ -1,5 +1,3 @@
-package com.godel.compiler
-
 import ASTJSONizer
 import com.beust.klaxon.JsonObject
 import io.kotlintest.shouldBe

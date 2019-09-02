@@ -1,6 +1,3 @@
-package com.godel.compiler
-
-
 fun performChecks(tokens: List<Symbol.Terminal>, productionRules: List<ProductionRule>) {
     allTokensInRulesExists(tokens, productionRules)
     noMissingRulesReferenced(productionRules)
