@@ -6,13 +6,17 @@ class ASTNode {
     interface Statement : Serializable
     class Statements(statements: List<Statement>) : List<Statement> by statements, Serializable, ExpressionOrStatements
 
-    interface Expression : Statement, ExpressionOrStatements
+    interface Expression : Statement, ExpressionOrStatements {
+        val type: TypeLiteral?
+    }
 
     sealed class Block(val statements: Statements) : Statement {
         abstract fun toBlockWithoutValue(): WithoutValue
         abstract fun maybeToBlockWithValue(): WithValue?
 
         class WithValue(statements: Statements, val returnValue: Expression) : Block(statements), Expression {
+            override val type: TypeLiteral? = returnValue.type
+
             override fun toBlockWithoutValue() =
                 WithoutValue(Statements(statements + returnValue))
 
@@ -64,11 +68,11 @@ class ASTNode {
 
     // --------------- Literals --------------- //
 
-    class BooleanLiteral(val value: Boolean) : Expression
-    class StringLiteral(val value: String) : Expression
-    class IntLiteral(val value: Int) : Expression
-    class FloatLiteral(val value: Float) : Expression
-    class Identifier(val value: String) : Expression
+    class BooleanLiteral(val value: Boolean, override val type: TypeLiteral? = TypeLiteral.Boolean) : Expression
+    class StringLiteral(val value: String, override val type: TypeLiteral? = TypeLiteral.String) : Expression
+    class IntLiteral(val value: Int, override val type: TypeLiteral? = TypeLiteral.Int) : Expression
+    class FloatLiteral(val value: Float, override val type: TypeLiteral? = TypeLiteral.Float) : Expression
+    class Identifier(val value: String, override val type: TypeLiteral? = null) : Expression
 
     // ------------- Declarations ------------- //
 
@@ -185,4 +189,12 @@ class ASTNode {
     class FunctionArgument(val name: String?, val value: Expression) : Serializable
 
     interface FunctionCall
+}
+
+sealed class TypeLiteral {
+    object Boolean : TypeLiteral()
+    object String : TypeLiteral()
+    object Int : TypeLiteral()
+    object Float : TypeLiteral()
+    class UserDefined(val name: String) : TypeLiteral()
 }
