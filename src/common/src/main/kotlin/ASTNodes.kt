@@ -103,7 +103,7 @@ class ASTNode {
     class Member(
         val publicOrPrivate: PrivateOrPublic,
         val declaration: FunctionDeclarationOrValDeclaration
-    )
+    ) : Statement
 
     class Parameter(
         val name: String,
