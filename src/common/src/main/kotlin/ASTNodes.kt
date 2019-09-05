@@ -2,14 +2,52 @@ import java.io.Serializable
 import java.lang.RuntimeException
 
 class ASTNode {
-    interface ExpressionOrStatements
-    interface Statement : Serializable {
-        val children: List<Statement>
+    interface CanBecomeTyped<T> {
+        /***
+         * @param identifierTypes: a [Map] from each avalaible value's name to it's [TypeLiteral].
+         * @param classMemberTypes: a [Map] from a [Pair] of [TypeLiteral] represents a user-defined or core class and an identifier to its type.
+         * @return a [Pair] of:
+         *          1. the statement with all types of its descendants resolved as concrete types (not `Union` types or `Unknown`)
+         *          2. and an updated `identifierTypes`.
+         */
+        fun typed(
+            identifierTypes: Map<String, TypeLiteral>,
+            classMemberTypes: Map<Pair<TypeLiteral, String>, TypeLiteral>
+        ): Pair<T, Map<String, TypeLiteral>>
     }
 
-    class Statements(statements: List<Statement>) : List<Statement> by statements, Serializable, ExpressionOrStatements
+    interface Statement : Serializable, CanBecomeTyped<Statement>
 
-    interface Expression : Statement, ExpressionOrStatements {
+    class Statements(statements: List<Statement>) : Serializable, CanBecomeTyped<Statements>,
+        List<Statement> by statements {
+        override fun typed(
+            identifierTypes: Map<String, TypeLiteral>,
+            classMemberTypes: Map<Pair<TypeLiteral, String>, TypeLiteral>
+        ): Pair<Statements, Map<String, TypeLiteral>> {
+            val (typedStatements, updatedIdentifierTypes) =
+                this.fold(
+                    emptyList<Statement>() to identifierTypes
+                ) { (typedStatements, collectedIdentifierTypes), statement ->
+                    val (typedStatement, updatedIdentifierTypes) =
+                        statement.typed(collectedIdentifierTypes, classMemberTypes)
+                    (typedStatements + typedStatement) to updatedIdentifierTypes
+                }
+            return Statements(typedStatements) to updatedIdentifierTypes
+
+//          Imperative version:
+//          val typedStatements = mutableListOf<Statement>()
+//          var collectedIdentifierTypes = identifierTypes
+//          for (statement in this) {
+//              val (typedStatement, updatedIdentifierTypes) =
+//                  statement.typed(collectedIdentifierTypes, classMemberTypes)
+//              typedStatements.add(typedStatement)
+//              collectedIdentifierTypes = updatedIdentifierTypes
+//          }
+//          return Statements(typedStatements) to collectedIdentifierTypes
+        }
+    }
+
+    interface Expression : Statement {
         val type: TypeLiteral
     }
 
@@ -230,3 +268,14 @@ sealed class TypeLiteral {
 
     class Union(val types: Set<TypeLiteral>) : TypeLiteral()
 }
+
+class A {
+    fun f(n: Int): String {
+        return n.toString()
+    }
+}
+
+A.f
+
+A.f()
+(Int) -> String
