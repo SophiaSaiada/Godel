@@ -3,10 +3,14 @@ import java.lang.RuntimeException
 
 class ASTNode {
     interface ExpressionOrStatements
-    interface Statement : Serializable
+    interface ExpressionOrStatement {
+        val children: List<ExpressionOrStatement>
+    }
+
+    interface Statement : Serializable, ExpressionOrStatement
     class Statements(statements: List<Statement>) : List<Statement> by statements, Serializable, ExpressionOrStatements
 
-    interface Expression : Statement, ExpressionOrStatements {
+    interface Expression : Statement, ExpressionOrStatements, ExpressionOrStatement {
         val type: TypeLiteral
     }
 
