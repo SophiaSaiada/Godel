@@ -7,7 +7,7 @@ class ASTNode {
     class Statements(statements: List<Statement>) : List<Statement> by statements, Serializable, ExpressionOrStatements
 
     interface Expression : Statement, ExpressionOrStatements {
-        val type: TypeLiteral?
+        val type: TypeLiteral
     }
 
     sealed class Block(val statements: Statements) : Statement {
@@ -15,7 +15,7 @@ class ASTNode {
         abstract fun maybeToBlockWithValue(): WithValue?
 
         class WithValue(statements: Statements, val returnValue: Expression) : Block(statements), Expression {
-            override val type: TypeLiteral? = returnValue.type
+            override val type: TypeLiteral = returnValue.type
 
             override fun toBlockWithoutValue() =
                 WithoutValue(Statements(statements + returnValue))
@@ -35,12 +35,18 @@ class ASTNode {
         }
     }
 
-    class Lambda(val parameters: List<Pair<String, Type>>, val statements: Statements, val returnValue: Expression) :
+    class Lambda(
+        val parameters: List<Pair<String, Type>>, val statements: Statements, val returnValue: Expression,
+        override val type: TypeLiteral = returnValue.type
+    ) :
         Expression
 
-    class Return(val value: Expression) : Expression
+    class Return(val value: Expression, override val type: TypeLiteral = value.type) : Expression
 
-    object Unit : Expression
+    object Unit : Expression {
+        override val type: TypeLiteral = TypeLiteral.Unit
+    }
+
     sealed class Type : Serializable {
         abstract fun withNullable(nullable: Boolean): Type
         class Regular(
@@ -68,11 +74,11 @@ class ASTNode {
 
     // --------------- Literals --------------- //
 
-    class BooleanLiteral(val value: Boolean, override val type: TypeLiteral? = TypeLiteral.Boolean) : Expression
-    class StringLiteral(val value: String, override val type: TypeLiteral? = TypeLiteral.String) : Expression
-    class IntLiteral(val value: Int, override val type: TypeLiteral? = TypeLiteral.Int) : Expression
-    class FloatLiteral(val value: Float, override val type: TypeLiteral? = TypeLiteral.Float) : Expression
-    class Identifier(val value: String, override val type: TypeLiteral? = null) : Expression
+    class BooleanLiteral(val value: Boolean, override val type: TypeLiteral = TypeLiteral.Boolean) : Expression
+    class StringLiteral(val value: String, override val type: TypeLiteral = TypeLiteral.String) : Expression
+    class IntLiteral(val value: Int, override val type: TypeLiteral = TypeLiteral.Int) : Expression
+    class FloatLiteral(val value: Float, override val type: TypeLiteral = TypeLiteral.Float) : Expression
+    class Identifier(val value: String, override val type: TypeLiteral = TypeLiteral.Unknown) : Expression
 
     // ------------- Declarations ------------- //
 
@@ -120,6 +126,8 @@ class ASTNode {
             positiveBranch: ASTNode.Expression,
             negativeBranch: ASTNode.Expression
         ) : If(condition, positiveBranch, negativeBranch), ASTNode.Expression {
+            override val type: TypeLiteral = TypeLiteral.Union(setOf(positiveBranch.type, negativeBranch.type))
+
             override fun asExpression(): Expression = this
         }
 
@@ -143,7 +151,10 @@ class ASTNode {
             }
         }
 
-        class NegativeBranchOnly(val negativeBranch: ASTNode.Statement) : ASTNode.Expression
+        class NegativeBranchOnly(
+            val negativeBranch: ASTNode.Statement,
+            override val type: TypeLiteral = TypeLiteral.Unknown
+        ) : ASTNode.Expression {}
 
         abstract fun asExpression(): Expression?
 
@@ -178,13 +189,25 @@ class ASTNode {
         }
     }
 
-    class BinaryExpression<L, R>(val left: L, val operator: BinaryOperator, val right: R) : Expression
-    class InfixExpression<L, R>(val left: L, val function: String, val right: R) : Expression
+    class BinaryExpression<L, R>(
+        val left: L, val operator: BinaryOperator, val right: R,
+        override val type: TypeLiteral = TypeLiteral.Unknown
+    ) : Expression
+
+    class InfixExpression<L, R>(
+        val left: L,
+        val function: String,
+        val right: R,
+        override val type: TypeLiteral = TypeLiteral.Unknown
+    ) : Expression
+
     class Invocation(
         val function: Expression,
         val typeArguments: List<TypeArgument>,
         val arguments: List<FunctionArgument>
-    ) : Expression
+    ) : Expression {
+        override val type: TypeLiteral = TypeLiteral.Unknown
+    }
 
     class FunctionArgument(val name: String?, val value: Expression) : Serializable
 
@@ -192,9 +215,15 @@ class ASTNode {
 }
 
 sealed class TypeLiteral {
+    object Unknown : TypeLiteral()
+
+    object Unit : TypeLiteral()
     object Boolean : TypeLiteral()
     object String : TypeLiteral()
     object Int : TypeLiteral()
     object Float : TypeLiteral()
+
     class UserDefined(val name: String) : TypeLiteral()
+
+    class Union(val types: Set<TypeLiteral>) : TypeLiteral()
 }
