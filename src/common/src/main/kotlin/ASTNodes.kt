@@ -4,16 +4,16 @@ import java.lang.RuntimeException
 class ASTNode {
     interface CanBecomeTyped<T> {
         /***
-         * @param identifierTypes: a [Map] from each avalaible value's name to it's [TypeLiteral].
-         * @param classMemberTypes: a [Map] from a [Pair] of [TypeLiteral] represents a user-defined or core class and an identifier to its type.
+         * @param identifierTypes: a [Map] from each avalaible value's name to it's [Type].
+         * @param classMemberTypes: a [Map] from a [Pair] of [Type] represents a user-defined or core class and an identifier to its type.
          * @return a [Pair] of:
          *          1. the statement with all types of its descendants resolved as concrete types (not `Union` types or `Unknown`)
          *          2. and an updated `identifierTypes`.
          */
         fun typed(
-            identifierTypes: Map<String, TypeLiteral>,
-            classMemberTypes: Map<Pair<TypeLiteral, String>, TypeLiteral>
-        ): Pair<T, Map<String, TypeLiteral>>
+            identifierTypes: Map<String, Type>,
+            classMemberTypes: Map<Pair<Type, String>, Type>
+        ): Pair<T, Map<String, Type>>
     }
 
     interface Statement : Serializable, CanBecomeTyped<Statement>
@@ -21,9 +21,9 @@ class ASTNode {
     class Statements(statements: List<Statement>) : Serializable, CanBecomeTyped<Statements>,
         List<Statement> by statements {
         override fun typed(
-            identifierTypes: Map<String, TypeLiteral>,
-            classMemberTypes: Map<Pair<TypeLiteral, String>, TypeLiteral>
-        ): Pair<Statements, Map<String, TypeLiteral>> {
+            identifierTypes: Map<String, Type>,
+            classMemberTypes: Map<Pair<Type, String>, Type>
+        ): Pair<Statements, Map<String, Type>> {
             val (typedStatements, updatedIdentifierTypes) =
                 this.fold(
                     emptyList<Statement>() to identifierTypes
@@ -48,7 +48,7 @@ class ASTNode {
     }
 
     interface Expression : Statement {
-        val type: TypeLiteral
+        val actualType: Type
     }
 
     sealed class Block(val statements: Statements) : Statement {
@@ -56,7 +56,7 @@ class ASTNode {
         abstract fun maybeToBlockWithValue(): WithValue?
 
         class WithValue(statements: Statements, val returnValue: Expression) : Block(statements), Expression {
-            override val type: TypeLiteral = returnValue.type
+            override val actualType: Type = returnValue.actualType
 
             override fun toBlockWithoutValue() =
                 WithoutValue(Statements(statements + returnValue))
@@ -78,14 +78,13 @@ class ASTNode {
 
     class Lambda(
         val parameters: List<Pair<String, Type>>, val statements: Statements, val returnValue: Expression,
-        override val type: TypeLiteral = returnValue.type
-    ) :
-        Expression
+        override val actualType: Type = returnValue.actualType
+    ) : Expression
 
-    class Return(val value: Expression, override val type: TypeLiteral = value.type) : Expression
+    class Return(val value: Expression, override val actualType: Type = value.actualType) : Expression
 
     object Unit : Expression {
-        override val type: TypeLiteral = TypeLiteral.Unit
+        override val actualType: Type = Type.Regular("Unit")
     }
 
     sealed class Type : Serializable {
@@ -93,8 +92,8 @@ class ASTNode {
         class Regular(
             val name: String,
             // e.g. T extends Int -> T is the key and Int is the value
-            val typesParameters: List<TypeArgument>,
-            val nullable: Boolean
+            val typesParameters: List<TypeArgument> = emptyList(),
+            val nullable: Boolean = false
         ) : Type() {
             override fun withNullable(nullable: Boolean) =
                 Regular(name, typesParameters, nullable)
@@ -103,6 +102,18 @@ class ASTNode {
         class Functional(val parameterTypes: List<Type>, val resultType: Type, val nullable: Boolean) : Type() {
             override fun withNullable(nullable: Boolean) =
                 Functional(parameterTypes, resultType, nullable)
+        }
+
+        object Unknown : Type() {
+            override fun withNullable(nullable: Boolean): Type {
+                throw ASTError("withNullable should'nt be called from object with type Type.Unknown.")
+            }
+        }
+
+        class Union(val types: Set<Type>) : Type() {
+            override fun withNullable(nullable: Boolean): Type {
+                throw ASTError("withNullable should'nt be called from object with type Type.Union.")
+            }
         }
     }
 
@@ -115,11 +126,11 @@ class ASTNode {
 
     // --------------- Literals --------------- //
 
-    class BooleanLiteral(val value: Boolean, override val type: TypeLiteral = TypeLiteral.Boolean) : Expression
-    class StringLiteral(val value: String, override val type: TypeLiteral = TypeLiteral.String) : Expression
-    class IntLiteral(val value: Int, override val type: TypeLiteral = TypeLiteral.Int) : Expression
-    class FloatLiteral(val value: Float, override val type: TypeLiteral = TypeLiteral.Float) : Expression
-    class Identifier(val value: String, override val type: TypeLiteral = TypeLiteral.Unknown) : Expression
+    class BooleanLiteral(val value: Boolean, override val actualType: Type = Type.Regular("Boolean")) : Expression
+    class StringLiteral(val value: String, override val actualType: Type = Type.Regular("String")) : Expression
+    class IntLiteral(val value: Int, override val actualType: Type = Type.Regular("Int")) : Expression
+    class FloatLiteral(val value: Float, override val actualType: Type = Type.Regular("Float")) : Expression
+    class Identifier(val value: String, override val actualType: Type = Type.Unknown) : Expression
 
     // ------------- Declarations ------------- //
 
@@ -167,7 +178,7 @@ class ASTNode {
             positiveBranch: ASTNode.Expression,
             negativeBranch: ASTNode.Expression
         ) : If(condition, positiveBranch, negativeBranch), ASTNode.Expression {
-            override val type: TypeLiteral = TypeLiteral.Union(setOf(positiveBranch.type, negativeBranch.type))
+            override val actualType: Type = Type.Union(setOf(positiveBranch.actualType, negativeBranch.actualType))
 
             override fun asExpression(): Expression = this
         }
@@ -194,7 +205,7 @@ class ASTNode {
 
         class NegativeBranchOnly(
             val negativeBranch: ASTNode.Statement,
-            override val type: TypeLiteral = TypeLiteral.Unknown
+            override val actualType: Type = Type.Unknown
         ) : ASTNode.Expression {}
 
         abstract fun asExpression(): Expression?
@@ -232,14 +243,14 @@ class ASTNode {
 
     class BinaryExpression<L, R>(
         val left: L, val operator: BinaryOperator, val right: R,
-        override val type: TypeLiteral = TypeLiteral.Unknown
+        override val actualType: Type = Type.Unknown
     ) : Expression
 
     class InfixExpression<L, R>(
         val left: L,
         val function: String,
         val right: R,
-        override val type: TypeLiteral = TypeLiteral.Unknown
+        override val actualType: Type = Type.Unknown
     ) : Expression
 
     class Invocation(
@@ -247,35 +258,10 @@ class ASTNode {
         val typeArguments: List<TypeArgument>,
         val arguments: List<FunctionArgument>
     ) : Expression {
-        override val type: TypeLiteral = TypeLiteral.Unknown
+        override val actualType: Type = Type.Unknown
     }
 
     class FunctionArgument(val name: String?, val value: Expression) : Serializable
 
     interface FunctionCall
 }
-
-sealed class TypeLiteral {
-    object Unknown : TypeLiteral()
-
-    object Unit : TypeLiteral()
-    object Boolean : TypeLiteral()
-    object String : TypeLiteral()
-    object Int : TypeLiteral()
-    object Float : TypeLiteral()
-
-    class UserDefined(val name: String) : TypeLiteral()
-
-    class Union(val types: Set<TypeLiteral>) : TypeLiteral()
-}
-
-class A {
-    fun f(n: Int): String {
-        return n.toString()
-    }
-}
-
-A.f
-
-A.f()
-(Int) -> String
