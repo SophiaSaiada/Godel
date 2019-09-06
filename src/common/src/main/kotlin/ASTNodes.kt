@@ -283,7 +283,7 @@ class ASTNode {
             val (typedRight, _) = right.typed(identifierTypes, classMemberTypes)
             val functionType =
                 classMemberTypes[typedLeft.actualType to function] as? Type.Functional
-                    ?: throw ASTError("Attempt to invoke non-functional memeber $function on object from type ${typedLeft.actualType}")
+                    ?: throw ASTError("Attempt to invoke non-functional member $function on object from type ${typedLeft.actualType}")
             return InfixExpression(typedLeft, function, typedRight, functionType.resultType) to identifierTypes
         }
     }
