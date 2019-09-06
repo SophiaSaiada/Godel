@@ -49,6 +49,11 @@ class ASTNode {
 
     interface Expression : Statement {
         val actualType: Type
+
+        override fun typed(
+            identifierTypes: Map<String, Type>,
+            classMemberTypes: Map<Pair<Type, String>, Type>
+        ): Pair<Expression, Map<String, Type>>
     }
 
     sealed class Block(val statements: Statements) : Statement {
@@ -97,23 +102,39 @@ class ASTNode {
         ) : Type() {
             override fun withNullable(nullable: Boolean) =
                 Regular(name, typesParameters, nullable)
+
+            override fun toString() =
+                name +
+                        typesParameters.takeUnless { it.isEmpty() }?.let {
+                            "<" + it.joinToString(", ") + ">"
+                        }.orEmpty() +
+                        "?".takeIf { nullable }.orEmpty()
         }
 
         class Functional(val parameterTypes: List<Type>, val resultType: Type, val nullable: Boolean) : Type() {
             override fun withNullable(nullable: Boolean) =
                 Functional(parameterTypes, resultType, nullable)
+
+            override fun toString() =
+                ("(" + parameterTypes.joinToString(", ") + ") -> " + resultType).let {
+                    if (nullable) "($it)" else it
+                }
         }
 
         object Unknown : Type() {
             override fun withNullable(nullable: Boolean): Type {
                 throw ASTError("withNullable should'nt be called from object with type Type.Unknown.")
             }
+
+            override fun toString() = "Unknown"
         }
 
         class Union(val types: Set<Type>) : Type() {
             override fun withNullable(nullable: Boolean): Type {
                 throw ASTError("withNullable should'nt be called from object with type Type.Union.")
             }
+
+            override fun toString() = "Union(${types.joinToString(", ")})"
         }
     }
 
@@ -122,7 +143,9 @@ class ASTNode {
     class TypeArgument(
         val name: String?,
         val value: Type
-    )
+    ) {
+        override fun toString() = "$name : $value"
+    }
 
     // --------------- Literals --------------- //
 
@@ -246,12 +269,24 @@ class ASTNode {
         override val actualType: Type = Type.Unknown
     ) : Expression
 
-    class InfixExpression<L, R>(
+    class InfixExpression<L : Expression, R : Expression>(
         val left: L,
         val function: String,
         val right: R,
         override val actualType: Type = Type.Unknown
-    ) : Expression
+    ) : Expression {
+        override fun typed(
+            identifierTypes: Map<String, Type>,
+            classMemberTypes: Map<Pair<Type, String>, Type>
+        ): Pair<Expression, Map<String, Type>> {
+            val (typedLeft, _) = left.typed(identifierTypes, classMemberTypes)
+            val (typedRight, _) = right.typed(identifierTypes, classMemberTypes)
+            val functionType =
+                classMemberTypes[typedLeft.actualType to function] as? Type.Functional
+                    ?: throw ASTError("Attempt to invoke non-functional memeber $function on object from type ${typedLeft.actualType}")
+            return InfixExpression(typedLeft, function, typedRight, functionType.resultType) to identifierTypes
+        }
+    }
 
     class Invocation(
         val function: Expression,
