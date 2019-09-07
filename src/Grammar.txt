@@ -1,5 +1,5 @@
 @Tokens
-    WhiteSpace, SemiColon, BreakLine, Colon, Dot, Comma, Apostrophes,
+    WhiteSpace, SemiColon, BreakLine, Colon, Dot, Comma, Apostrophes, Backtick,
     Percentage, Backslash, Star, Minus, Plus, Division, ExclamationMark, QuestionMark, Ampersand, SingleOr,
     Keyword, Assignment, QuestionedDot, Hash,
 
@@ -117,8 +117,9 @@
 
 
 // Function Declaration
-<FunctionDeclaration> -> KeywordFun <SpacePlus> SimpleName <SpaceStar> <TypeParameters> <SpaceStar>
+<FunctionDeclaration> -> KeywordFun <SpacePlus> <FunctionName> <SpaceStar> <TypeParameters> <SpaceStar>
                          <FunctionParameters> <SpaceStar> <ReturnTypeOptional> <SpaceStar> <Block>
+<FunctionName> -> SimpleName | Backtick <AnythingButBacktickPlus> Backtick
 <ReturnTypeOptional> -> Colon <SpaceStar> <Type> | ε
 <FunctionParameters> -> OpenParenthesis <SpaceStar> <FunctionParameterStar> <SpaceStar> CloseParenthesis
 <FunctionParameterStar> -> <FunctionParameter> <SpaceStar> <FunctionParameterStarRest> | ε
@@ -141,6 +142,8 @@
 
 <WhitespaceStar> -> WhiteSpace <WhitespaceStar> | ε
 <WhitespacePlus> -> WhiteSpace <WhitespaceStar>
+
+<AnythingButBacktickPlus> -> <AnythingBut@Backtick> | <AnythingBut@Backtick> <AnythingButBacktickPlus>
 
 <SEMI> -> <WhitespacePlus> <SEMIRest> <SpaceStar> | <SEMIRest> <SpaceStar>
 <SEMIRest> -> BreakLine <SpaceStar> <SemiColonOptional> | SemiColon

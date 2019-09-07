@@ -36,6 +36,7 @@ data class Token(val content: String, val type: TokenType) {
             ">" to TokenType.CloseBrokets,
             "." to TokenType.Dot,
             "," to TokenType.Comma,
+            "`" to TokenType.Backtick,
             "\"" to TokenType.Apostrophes,
             ";" to TokenType.SemiColon,
             "\n" to TokenType.BreakLine,
@@ -83,7 +84,7 @@ object Lexer {
     private val splittingCharacters =
         listOf(
             '=', ':', '{', '(', '<', '}', ')', '>', '.', ',', '"', ';', '?',
-            '\n', '+', '-', '*', '/', '\\', '%', '!', '|', '&', ' ', '\t', '#'
+            '\n', '+', '-', '*', '/', '\\', '%', '!', '|', '&', ' ', '\t', '#', '`'
         )
 
     fun tokenizeSourceCode(sourceCode: Sequence<Char>): Sequence<String> =

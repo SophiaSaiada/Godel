@@ -22,7 +22,7 @@ fun getParserText(
 }
 
 private fun withObjectWrapper(enumAndFunctionAsString: String, firsProductionRule: ProductionRule?) =
-    """|       |
+    """
        |object Parser : ParserBase() {
        |    override val start = ::parse${firsProductionRule?.sourceSymbol?.name}
        |

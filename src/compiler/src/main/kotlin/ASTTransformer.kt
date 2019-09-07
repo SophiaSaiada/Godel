@@ -96,14 +96,27 @@ object ASTTransformer {
             else -> throwInvalidParseError()
         }
 
-    private fun transformFunctionDeclaration(rootNode: ParseTreeNode.Inner): ASTNode.FunctionDeclaration =
-        ASTNode.FunctionDeclaration(
-            name = (rootNode[2] as ParseTreeNode.Leaf).token.content,
+    private fun transformFunctionDeclaration(rootNode: ParseTreeNode.Inner): ASTNode.FunctionDeclaration {
+        fun transformAnythingButBacktickPlus(node: ParseTreeNode.Inner): String =
+            (node[0] as ParseTreeNode.Leaf).token.content +
+                    node.children.getOrNull(1)
+                        ?.let { transformAnythingButBacktickPlus(it as ParseTreeNode.Inner) }
+                        .orEmpty()
+
+        val functionName = rootNode[2] as ParseTreeNode.Inner
+        val name = when (functionName.children.size) {
+            1 -> (functionName[0] as ParseTreeNode.Leaf).token.content
+            3 -> transformAnythingButBacktickPlus(functionName[1] as ParseTreeNode.Inner)
+            else -> throwInvalidParseError()
+        }
+        return ASTNode.FunctionDeclaration(
+            name = name,
             typeParameters = transformTypeParameters(rootNode[4]),
             parameters = transformFunctionParameters(rootNode[6]),
             returnType = (rootNode[8] as? ParseTreeNode.Inner)?.let { transformType(it[2] as ParseTreeNode.Inner) },
             body = transformBlock(rootNode.last() as ParseTreeNode.Inner)
         )
+    }
 
     /* private fun transformType(node: ParseTreeNode.Inner) =
         ASTNode.Type(
@@ -391,7 +404,7 @@ object ASTTransformer {
     private fun ASTNode.InfixExpression<*, *>.rotated(): ASTNode.InfixExpression<*, *> =
         when (right) {
             is ASTNode.InfixExpression<*, *> -> {
-                val infixExpression = right as ASTNode.InfixExpression<*,*>
+                val infixExpression = right as ASTNode.InfixExpression<*, *>
                 if (infixExpression.function == this.function)
                     ASTNode.InfixExpression(
                         left = ASTNode.InfixExpression(left, function, infixExpression.left).rotated(),

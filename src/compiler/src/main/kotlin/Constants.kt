@@ -1,7 +1,7 @@
 interface NodeType
 
 enum class TokenType(vararg val combinationOf: TokenType) : NodeType {
-    WhiteSpace, SemiColon, BreakLine, Colon, Dot, Comma, Apostrophes,
+    WhiteSpace, SemiColon, BreakLine, Colon, Dot, Comma, Apostrophes, Backtick,
     Percentage, Backslash, Star, Minus, Plus, Division, ExclamationMark, QuestionMark, Ampersand, SingleOr,
     Keyword, Assignment, QuestionedDot, Hash,
 

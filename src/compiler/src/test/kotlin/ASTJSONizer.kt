@@ -38,15 +38,17 @@ object ASTJSONizer {
             is ASTNode.Parameter,
             is ASTNode.Member,
             is ASTNode.Type ->
-                this::class.memberProperties.map {
-                    it.name to it.getter.call(this)
-                }.sortedBy { (name, _) ->
-                    specialOrder(this, name)
-                }.joinToString(", ") { (name, value) ->
-                    """"$name": ${value?.toJSON()}"""
-                }.let {
-                    "{\"name\": \"${this::class.qualifiedName.orEmpty().removePrefix("ASTNode.")}\", \"props\": {$it}}"
-                }
+                this::class.memberProperties
+                    .filter { it.name != "actualType" }
+                    .map {
+                        it.name to it.getter.call(this)
+                    }.sortedBy { (name, _) ->
+                        specialOrder(this, name)
+                    }.joinToString(", ") { (name, value) ->
+                        """"$name": ${value?.toJSON()}"""
+                    }.let {
+                        "{\"name\": \"${this::class.qualifiedName.orEmpty().removePrefix("ASTNode.")}\", \"props\": {$it}}"
+                    }
             is ASTNode.Statements ->
                 "{\"name\": \"Statements\", \"props\": {\"statements\": ${this.joinToString(", ") { it.toJSON() }.let { "[$it]" }}}}"
             is List<Any?> ->

@@ -16,7 +16,7 @@ class TestLexer : StringSpec({
     "tokenize multi-line string without classifying each token" {
         val input = "fun main() {\n" +
                 "  val list = listOf(4, 2, 5, 1)\n" +
-                "  val sortedList = mergeSort(list, 0, list.count())\n" +
+                "  val sortedList = mergeSort(list, `+`, 0, list.count())\n" +
                 "  println(sortedList)\n" +
                 "}"
         Lexer.tokenizeSourceCode(input.asSequence()).toList() shouldBe listOf(
@@ -24,7 +24,8 @@ class TestLexer : StringSpec({
             " ", " ", "val", " ", "list", " ", "=", " ",
             "listOf", "(", "4", ",", " ", "2", ",", " ", "5", ",", " ", "1", ")", "\n",
             " ", " ", "val", " ", "sortedList", " ", "=", " ",
-            "mergeSort", "(", "list", ",", " ", "0", ",", " ", "list", ".", "count", "(", ")", ")", "\n",
+            "mergeSort", "(", "list", ",", " ", "`", "+", "`", ",", " ", "0", ",", " ",
+            "list", ".", "count", "(", ")", ")", "\n",
             " ", " ", "println", "(", "sortedList", ")", "\n",
             "}"
         )
@@ -43,6 +44,7 @@ class TestLexer : StringSpec({
         Token.classifyString("a_A") shouldBe SimpleName
         Token.classifyString("__a_A") shouldBe SimpleName
         Token.classifyString("aBc") shouldBe SimpleName
+        Token.classifyString("`") shouldBe Backtick
 
         Token.classifyString("=") shouldBe Assignment
         Token.classifyString(":") shouldBe Colon

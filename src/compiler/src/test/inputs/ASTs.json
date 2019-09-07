@@ -2118,7 +2118,33 @@
                           }
                         }
                       },
-                      "name": "h",
+                      "name": "@ a",
+                      "parameters": [],
+                      "returnType": null,
+                      "typeParameters": []
+                    }
+                  }
+                }
+              },
+              {
+                "name": "Member",
+                "props": {
+                  "publicOrPrivate": "Public",
+                  "declaration": {
+                    "name": "FunctionDeclaration",
+                    "props": {
+                      "body": {
+                        "name": "Block.WithoutValue",
+                        "props": {
+                          "statements": {
+                            "name": "Statements",
+                            "props": {
+                              "statements": []
+                            }
+                          }
+                        }
+                      },
+                      "name": "+",
                       "parameters": [],
                       "returnType": null,
                       "typeParameters": []

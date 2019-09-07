@@ -2,7 +2,7 @@ object Parser : ParserBase() {
     override val start = ::parseProgram
 
     enum class InnerNodeType : NodeType {
-        Program, Statements, Statement, Declaration, ValDeclaration, ValDeclarationRest, Type, FunctionalOrNullableType, TypeStar, TypeStarRest, TypeArgumentsOptional, TypeArguments, TypeArgumentsContent, TypeNamedArgumentsOptional, TypeArgumentsContentRest, TypeParameters, TypeParametersNamesPlus, TypeParametersInheritanceOptional, TypeParametersNamesPlusRest, QuestionMarkOptional, ParenthesizedExpression, PaddedExpression, Expression, SimpleExpression, BooleanLiteral, Number, MemberAccessWithoutFirstDot, StringLiteral, AnythingEndsWithApostrophes, IfExpression, ElseExpression, ClassDeclaration, MemberDeclarationStar, MemberDeclarationStarRest, MemberDeclaration, MemberDeclarationRest, PrivateOrPublic, ElvisExpression, ReturnExpression, InfixExpression, DisjunctionExpression, ConjunctionExpression, EqualityOperator, EqualityExpression, ComparisonOperator, ComparisonExpression, AdditiveOperator, AdditiveExpression, MultiplicativeOperator, MultiplicativeExpression, DotOrQuestionedDot, MemberAccess, Invocation, InvocationArgumentsStar, InvocationArguments, ArgumentStar, NamedArgumentPostfixOptional, ArgumentStarRest, SimpleOrParenthesizedExpression, FunctionDeclaration, ReturnTypeOptional, FunctionParameters, FunctionParameterStar, FunctionParameterStarRest, FunctionParameter, StatementOrBlock, Block, Lambda, LambdaParametersStar, LambdaParametersRest, WhiteSpaceOrBreakLine, SpaceStar, SpacePlus, WhitespaceStar, WhitespacePlus, SEMI, SEMIRest, SEMIOptional, SemiColonOptional
+        Program, Statements, Statement, Declaration, ValDeclaration, ValDeclarationRest, Type, FunctionalOrNullableType, TypeStar, TypeStarRest, TypeArgumentsOptional, TypeArguments, TypeArgumentsContent, TypeNamedArgumentsOptional, TypeArgumentsContentRest, TypeParameters, TypeParametersNamesPlus, TypeParametersInheritanceOptional, TypeParametersNamesPlusRest, QuestionMarkOptional, ParenthesizedExpression, PaddedExpression, Expression, SimpleExpression, BooleanLiteral, Number, MemberAccessWithoutFirstDot, StringLiteral, AnythingEndsWithApostrophes, IfExpression, ElseExpression, ClassDeclaration, MemberDeclarationStar, MemberDeclarationStarRest, MemberDeclaration, MemberDeclarationRest, PrivateOrPublic, ElvisExpression, ReturnExpression, InfixExpression, DisjunctionExpression, ConjunctionExpression, EqualityOperator, EqualityExpression, ComparisonOperator, ComparisonExpression, AdditiveOperator, AdditiveExpression, MultiplicativeOperator, MultiplicativeExpression, DotOrQuestionedDot, MemberAccess, Invocation, InvocationArgumentsStar, InvocationArguments, ArgumentStar, NamedArgumentPostfixOptional, ArgumentStarRest, SimpleOrParenthesizedExpression, FunctionDeclaration, FunctionName, ReturnTypeOptional, FunctionParameters, FunctionParameterStar, FunctionParameterStarRest, FunctionParameter, StatementOrBlock, Block, Lambda, LambdaParametersStar, LambdaParametersRest, WhiteSpaceOrBreakLine, SpaceStar, SpacePlus, WhitespaceStar, WhitespacePlus, AnythingButBacktickPlus, SEMI, SEMIRest, SEMIOptional, SemiColonOptional
     }
 
     private fun parseProgram(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
@@ -18,23 +18,7 @@ object Parser : ParserBase() {
 
     private fun parseStatements(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.Statements
-        return if (nextToken0 in setOf(
-                TokenType.DecimalLiteral,
-                TokenType.Apostrophes,
-                TokenType.SimpleName,
-                TokenType.Hash,
-                TokenType.OpenParenthesis
-            ) || nextToken0 in setOf(
-                Keyword.If,
-                Keyword.Else,
-                Keyword.Return,
-                Keyword.False,
-                Keyword.True,
-                Keyword.Val,
-                Keyword.Class,
-                Keyword.Fun
-            )
-        ) {
+        return if (nextToken0 in setOf(TokenType.DecimalLiteral, TokenType.Apostrophes, TokenType.SimpleName, TokenType.Hash, TokenType.OpenParenthesis) || nextToken0 in setOf(Keyword.If, Keyword.Else, Keyword.Return, Keyword.False, Keyword.True, Keyword.Val, Keyword.Class, Keyword.Fun)) {
             val (child0, nextToken1) = parseStatement(nextToken0, restOfTokens)
             when (nextToken1) {
                 in setOf(TokenType.WhiteSpace) -> {
@@ -68,14 +52,7 @@ object Parser : ParserBase() {
 
     private fun parseStatement(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.Statement
-        return if (nextToken0 in setOf(
-                TokenType.DecimalLiteral,
-                TokenType.Apostrophes,
-                TokenType.SimpleName,
-                TokenType.Hash,
-                TokenType.OpenParenthesis
-            ) || nextToken0 in setOf(Keyword.If, Keyword.Else, Keyword.Return, Keyword.False, Keyword.True)
-        ) {
+        return if (nextToken0 in setOf(TokenType.DecimalLiteral, TokenType.Apostrophes, TokenType.SimpleName, TokenType.Hash, TokenType.OpenParenthesis) || nextToken0 in setOf(Keyword.If, Keyword.Else, Keyword.Return, Keyword.False, Keyword.True)) {
             val (child0, nextToken1) = parseExpression(nextToken0, restOfTokens)
             ParseTreeNodeResult(
                 ParseTreeNode.Inner(listOf(child0), nodeType),
@@ -278,10 +255,7 @@ object Parser : ParserBase() {
         } else throw CompilationError("not matching alternative for nextToken.")
     }
 
-    private fun parseTypeNamedArgumentsOptional(
-        nextToken0: Token?,
-        restOfTokens: Iterator<Token>
-    ): ParseTreeNodeResult {
+    private fun parseTypeNamedArgumentsOptional(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.TypeNamedArgumentsOptional
         return if (nextToken0 in setOf(TokenType.Assignment)) {
             val (child0, nextToken1) = parseToken(TokenType.Assignment).invoke(nextToken0, restOfTokens)
@@ -342,10 +316,7 @@ object Parser : ParserBase() {
         } else throw CompilationError("not matching alternative for nextToken.")
     }
 
-    private fun parseTypeParametersInheritanceOptional(
-        nextToken0: Token?,
-        restOfTokens: Iterator<Token>
-    ): ParseTreeNodeResult {
+    private fun parseTypeParametersInheritanceOptional(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.TypeParametersInheritanceOptional
         return if (nextToken0 in setOf(TokenType.Colon)) {
             val (child0, nextToken1) = parseToken(TokenType.Colon).invoke(nextToken0, restOfTokens)
@@ -360,10 +331,7 @@ object Parser : ParserBase() {
         }
     }
 
-    private fun parseTypeParametersNamesPlusRest(
-        nextToken0: Token?,
-        restOfTokens: Iterator<Token>
-    ): ParseTreeNodeResult {
+    private fun parseTypeParametersNamesPlusRest(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.TypeParametersNamesPlusRest
         return if (nextToken0 in setOf(TokenType.Comma)) {
             val (child0, nextToken1) = parseToken(TokenType.Comma).invoke(nextToken0, restOfTokens)
@@ -434,13 +402,7 @@ object Parser : ParserBase() {
                     nextToken1
                 )
             }
-            in setOf(
-                TokenType.DecimalLiteral,
-                TokenType.Apostrophes,
-                TokenType.SimpleName,
-                TokenType.Hash,
-                TokenType.OpenParenthesis
-            ),
+            in setOf(TokenType.DecimalLiteral, TokenType.Apostrophes, TokenType.SimpleName, TokenType.Hash, TokenType.OpenParenthesis),
             in setOf(Keyword.Return, Keyword.False, Keyword.True) -> {
                 val (child0, nextToken1) = parseElvisExpression(nextToken0, restOfTokens)
                 ParseTreeNodeResult(
@@ -539,10 +501,7 @@ object Parser : ParserBase() {
         } else throw CompilationError("not matching alternative for nextToken.")
     }
 
-    private fun parseMemberAccessWithoutFirstDot(
-        nextToken0: Token?,
-        restOfTokens: Iterator<Token>
-    ): ParseTreeNodeResult {
+    private fun parseMemberAccessWithoutFirstDot(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.MemberAccessWithoutFirstDot
         val (child0, nextToken1) = parseSpaceStar(nextToken0, restOfTokens)
         val (child1, nextToken2) = parseToken(TokenType.SimpleName).invoke(nextToken1, restOfTokens)
@@ -564,10 +523,7 @@ object Parser : ParserBase() {
         } else throw CompilationError("not matching alternative for nextToken.")
     }
 
-    private fun parseAnythingEndsWithApostrophes(
-        nextToken0: Token?,
-        restOfTokens: Iterator<Token>
-    ): ParseTreeNodeResult {
+    private fun parseAnythingEndsWithApostrophes(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.AnythingEndsWithApostrophes
         return when (nextToken0) {
             in setOf(TokenType.WhiteSpace) -> {
@@ -612,6 +568,14 @@ object Parser : ParserBase() {
             }
             in setOf(TokenType.Comma) -> {
                 val (child0, nextToken1) = parseToken(TokenType.Comma).invoke(nextToken0, restOfTokens)
+                val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
+                ParseTreeNodeResult(
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
+                )
+            }
+            in setOf(TokenType.Backtick) -> {
+                val (child0, nextToken1) = parseToken(TokenType.Backtick).invoke(nextToken0, restOfTokens)
                 val (child1, nextToken2) = parseAnythingEndsWithApostrophes(nextToken1, restOfTokens)
                 ParseTreeNodeResult(
                     ParseTreeNode.Inner(listOf(child0, child1), nodeType),
@@ -997,33 +961,13 @@ object Parser : ParserBase() {
             if (nextToken2 in setOf(TokenType.OpenParenthesis)) {
                 val (child2, nextToken3) = parseParenthesizedExpression(nextToken2, restOfTokens)
                 val (child3, nextToken4) = parseSpaceStar(nextToken3, restOfTokens)
-                if (nextToken4 in setOf(
-                        TokenType.OpenBraces,
-                        TokenType.DecimalLiteral,
-                        TokenType.Apostrophes,
-                        TokenType.SimpleName,
-                        TokenType.Hash,
-                        TokenType.OpenParenthesis
-                    ) || nextToken4 in setOf(
-                        Keyword.If,
-                        Keyword.Else,
-                        Keyword.Return,
-                        Keyword.False,
-                        Keyword.True,
-                        Keyword.Val,
-                        Keyword.Class,
-                        Keyword.Fun
-                    )
-                ) {
+                if (nextToken4 in setOf(TokenType.OpenBraces, TokenType.DecimalLiteral, TokenType.Apostrophes, TokenType.SimpleName, TokenType.Hash, TokenType.OpenParenthesis) || nextToken4 in setOf(Keyword.If, Keyword.Else, Keyword.Return, Keyword.False, Keyword.True, Keyword.Val, Keyword.Class, Keyword.Fun)) {
                     val (child4, nextToken5) = parseStatementOrBlock(nextToken4, restOfTokens)
                     val (child5, nextToken6) = parseWhitespaceStar(nextToken5, restOfTokens)
                     if (nextToken6 in setOf(Keyword.Else)) {
                         val (child6, nextToken7) = parseElseExpression(nextToken6, restOfTokens)
                         ParseTreeNodeResult(
-                            ParseTreeNode.Inner(
-                                listOf(child0, child1, child2, child3, child4, child5, child6),
-                                nodeType
-                            ),
+                            ParseTreeNode.Inner(listOf(child0, child1, child2, child3, child4, child5, child6), nodeType),
                             nextToken7
                         )
                     } else {
@@ -1065,21 +1009,7 @@ object Parser : ParserBase() {
             val (child9, nextToken10) = parseSEMIOptional(nextToken9, restOfTokens)
             val (child10, nextToken11) = parseToken(TokenType.CloseBraces).invoke(nextToken10, restOfTokens)
             ParseTreeNodeResult(
-                ParseTreeNode.Inner(
-                    listOf(
-                        child0,
-                        child1,
-                        child2,
-                        child3,
-                        child4,
-                        child5,
-                        child6,
-                        child7,
-                        child8,
-                        child9,
-                        child10
-                    ), nodeType
-                ),
+                ParseTreeNode.Inner(listOf(child0, child1, child2, child3, child4, child5, child6, child7, child8, child9, child10), nodeType),
                 nextToken11
             )
         } else throw CompilationError("not matching alternative for nextToken.")
@@ -1163,14 +1093,7 @@ object Parser : ParserBase() {
 
     private fun parseElvisExpression(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.ElvisExpression
-        return if (nextToken0 in setOf(
-                TokenType.DecimalLiteral,
-                TokenType.Apostrophes,
-                TokenType.SimpleName,
-                TokenType.Hash,
-                TokenType.OpenParenthesis
-            ) || nextToken0 in setOf(Keyword.Return, Keyword.False, Keyword.True)
-        ) {
+        return if (nextToken0 in setOf(TokenType.DecimalLiteral, TokenType.Apostrophes, TokenType.SimpleName, TokenType.Hash, TokenType.OpenParenthesis) || nextToken0 in setOf(Keyword.Return, Keyword.False, Keyword.True)) {
             val (child0, nextToken1) = parseReturnExpression(nextToken0, restOfTokens)
             val (child1, nextToken2) = parseWhitespaceStar(nextToken1, restOfTokens)
             if (nextToken2 in setOf(TokenType.Elvis)) {
@@ -1200,14 +1123,7 @@ object Parser : ParserBase() {
                 ParseTreeNode.Inner(listOf(child0, child1, child2), nodeType),
                 nextToken3
             )
-        } else if (nextToken0 in setOf(
-                TokenType.DecimalLiteral,
-                TokenType.Apostrophes,
-                TokenType.SimpleName,
-                TokenType.Hash,
-                TokenType.OpenParenthesis
-            ) || nextToken0 in setOf(Keyword.False, Keyword.True)
-        ) {
+        } else if (nextToken0 in setOf(TokenType.DecimalLiteral, TokenType.Apostrophes, TokenType.SimpleName, TokenType.Hash, TokenType.OpenParenthesis) || nextToken0 in setOf(Keyword.False, Keyword.True)) {
             val (child0, nextToken1) = parseInfixExpression(nextToken0, restOfTokens)
             ParseTreeNodeResult(
                 ParseTreeNode.Inner(listOf(child0), nodeType),
@@ -1218,14 +1134,7 @@ object Parser : ParserBase() {
 
     private fun parseInfixExpression(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.InfixExpression
-        return if (nextToken0 in setOf(
-                TokenType.DecimalLiteral,
-                TokenType.Apostrophes,
-                TokenType.SimpleName,
-                TokenType.Hash,
-                TokenType.OpenParenthesis
-            ) || nextToken0 in setOf(Keyword.False, Keyword.True)
-        ) {
+        return if (nextToken0 in setOf(TokenType.DecimalLiteral, TokenType.Apostrophes, TokenType.SimpleName, TokenType.Hash, TokenType.OpenParenthesis) || nextToken0 in setOf(Keyword.False, Keyword.True)) {
             val (child0, nextToken1) = parseDisjunctionExpression(nextToken0, restOfTokens)
             val (child1, nextToken2) = parseWhitespaceStar(nextToken1, restOfTokens)
             if (nextToken2 in setOf(TokenType.SimpleName)) {
@@ -1247,14 +1156,7 @@ object Parser : ParserBase() {
 
     private fun parseDisjunctionExpression(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.DisjunctionExpression
-        return if (nextToken0 in setOf(
-                TokenType.DecimalLiteral,
-                TokenType.Apostrophes,
-                TokenType.SimpleName,
-                TokenType.Hash,
-                TokenType.OpenParenthesis
-            ) || nextToken0 in setOf(Keyword.False, Keyword.True)
-        ) {
+        return if (nextToken0 in setOf(TokenType.DecimalLiteral, TokenType.Apostrophes, TokenType.SimpleName, TokenType.Hash, TokenType.OpenParenthesis) || nextToken0 in setOf(Keyword.False, Keyword.True)) {
             val (child0, nextToken1) = parseConjunctionExpression(nextToken0, restOfTokens)
             val (child1, nextToken2) = parseWhitespaceStar(nextToken1, restOfTokens)
             if (nextToken2 in setOf(TokenType.Or)) {
@@ -1276,14 +1178,7 @@ object Parser : ParserBase() {
 
     private fun parseConjunctionExpression(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.ConjunctionExpression
-        return if (nextToken0 in setOf(
-                TokenType.DecimalLiteral,
-                TokenType.Apostrophes,
-                TokenType.SimpleName,
-                TokenType.Hash,
-                TokenType.OpenParenthesis
-            ) || nextToken0 in setOf(Keyword.False, Keyword.True)
-        ) {
+        return if (nextToken0 in setOf(TokenType.DecimalLiteral, TokenType.Apostrophes, TokenType.SimpleName, TokenType.Hash, TokenType.OpenParenthesis) || nextToken0 in setOf(Keyword.False, Keyword.True)) {
             val (child0, nextToken1) = parseEqualityExpression(nextToken0, restOfTokens)
             val (child1, nextToken2) = parseWhitespaceStar(nextToken1, restOfTokens)
             if (nextToken2 in setOf(TokenType.And)) {
@@ -1322,14 +1217,7 @@ object Parser : ParserBase() {
 
     private fun parseEqualityExpression(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.EqualityExpression
-        return if (nextToken0 in setOf(
-                TokenType.DecimalLiteral,
-                TokenType.Apostrophes,
-                TokenType.SimpleName,
-                TokenType.Hash,
-                TokenType.OpenParenthesis
-            ) || nextToken0 in setOf(Keyword.False, Keyword.True)
-        ) {
+        return if (nextToken0 in setOf(TokenType.DecimalLiteral, TokenType.Apostrophes, TokenType.SimpleName, TokenType.Hash, TokenType.OpenParenthesis) || nextToken0 in setOf(Keyword.False, Keyword.True)) {
             val (child0, nextToken1) = parseComparisonExpression(nextToken0, restOfTokens)
             val (child1, nextToken2) = parseWhitespaceStar(nextToken1, restOfTokens)
             if (nextToken2 in setOf(TokenType.Equal, TokenType.NotEqual)) {
@@ -1386,23 +1274,10 @@ object Parser : ParserBase() {
 
     private fun parseComparisonExpression(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.ComparisonExpression
-        return if (nextToken0 in setOf(
-                TokenType.DecimalLiteral,
-                TokenType.Apostrophes,
-                TokenType.SimpleName,
-                TokenType.Hash,
-                TokenType.OpenParenthesis
-            ) || nextToken0 in setOf(Keyword.False, Keyword.True)
-        ) {
+        return if (nextToken0 in setOf(TokenType.DecimalLiteral, TokenType.Apostrophes, TokenType.SimpleName, TokenType.Hash, TokenType.OpenParenthesis) || nextToken0 in setOf(Keyword.False, Keyword.True)) {
             val (child0, nextToken1) = parseAdditiveExpression(nextToken0, restOfTokens)
             val (child1, nextToken2) = parseWhitespaceStar(nextToken1, restOfTokens)
-            if (nextToken2 in setOf(
-                    TokenType.OpenBrokets,
-                    TokenType.CloseBrokets,
-                    TokenType.LessThanEqual,
-                    TokenType.GreaterThanEqual
-                )
-            ) {
+            if (nextToken2 in setOf(TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.LessThanEqual, TokenType.GreaterThanEqual)) {
                 val (child2, nextToken3) = parseComparisonOperator(nextToken2, restOfTokens)
                 val (child3, nextToken4) = parseSpaceStar(nextToken3, restOfTokens)
                 val (child4, nextToken5) = parseComparisonExpression(nextToken4, restOfTokens)
@@ -1438,14 +1313,7 @@ object Parser : ParserBase() {
 
     private fun parseAdditiveExpression(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.AdditiveExpression
-        return if (nextToken0 in setOf(
-                TokenType.DecimalLiteral,
-                TokenType.Apostrophes,
-                TokenType.SimpleName,
-                TokenType.Hash,
-                TokenType.OpenParenthesis
-            ) || nextToken0 in setOf(Keyword.False, Keyword.True)
-        ) {
+        return if (nextToken0 in setOf(TokenType.DecimalLiteral, TokenType.Apostrophes, TokenType.SimpleName, TokenType.Hash, TokenType.OpenParenthesis) || nextToken0 in setOf(Keyword.False, Keyword.True)) {
             val (child0, nextToken1) = parseMultiplicativeExpression(nextToken0, restOfTokens)
             val (child1, nextToken2) = parseWhitespaceStar(nextToken1, restOfTokens)
             if (nextToken2 in setOf(TokenType.Plus, TokenType.Minus)) {
@@ -1495,14 +1363,7 @@ object Parser : ParserBase() {
 
     private fun parseMultiplicativeExpression(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.MultiplicativeExpression
-        return if (nextToken0 in setOf(
-                TokenType.DecimalLiteral,
-                TokenType.Apostrophes,
-                TokenType.SimpleName,
-                TokenType.Hash,
-                TokenType.OpenParenthesis
-            ) || nextToken0 in setOf(Keyword.False, Keyword.True)
-        ) {
+        return if (nextToken0 in setOf(TokenType.DecimalLiteral, TokenType.Apostrophes, TokenType.SimpleName, TokenType.Hash, TokenType.OpenParenthesis) || nextToken0 in setOf(Keyword.False, Keyword.True)) {
             val (child0, nextToken1) = parseMemberAccess(nextToken0, restOfTokens)
             val (child1, nextToken2) = parseWhitespaceStar(nextToken1, restOfTokens)
             if (nextToken2 in setOf(TokenType.Star, TokenType.Division, TokenType.Percentage)) {
@@ -1541,14 +1402,7 @@ object Parser : ParserBase() {
 
     private fun parseMemberAccess(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.MemberAccess
-        return if (nextToken0 in setOf(
-                TokenType.DecimalLiteral,
-                TokenType.Apostrophes,
-                TokenType.SimpleName,
-                TokenType.Hash,
-                TokenType.OpenParenthesis
-            ) || nextToken0 in setOf(Keyword.False, Keyword.True)
-        ) {
+        return if (nextToken0 in setOf(TokenType.DecimalLiteral, TokenType.Apostrophes, TokenType.SimpleName, TokenType.Hash, TokenType.OpenParenthesis) || nextToken0 in setOf(Keyword.False, Keyword.True)) {
             val (child0, nextToken1) = parseInvocation(nextToken0, restOfTokens)
             val (child1, nextToken2) = parseWhitespaceStar(nextToken1, restOfTokens)
             if (nextToken2 in setOf(TokenType.Dot, TokenType.NullAwareDot)) {
@@ -1570,14 +1424,7 @@ object Parser : ParserBase() {
 
     private fun parseInvocation(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.Invocation
-        return if (nextToken0 in setOf(
-                TokenType.DecimalLiteral,
-                TokenType.Apostrophes,
-                TokenType.SimpleName,
-                TokenType.Hash,
-                TokenType.OpenParenthesis
-            ) || nextToken0 in setOf(Keyword.False, Keyword.True)
-        ) {
+        return if (nextToken0 in setOf(TokenType.DecimalLiteral, TokenType.Apostrophes, TokenType.SimpleName, TokenType.Hash, TokenType.OpenParenthesis) || nextToken0 in setOf(Keyword.False, Keyword.True)) {
             val (child0, nextToken1) = parseSimpleOrParenthesizedExpression(nextToken0, restOfTokens)
             val (child1, nextToken2) = parseWhitespaceStar(nextToken1, restOfTokens)
             val (child2, nextToken3) = parseInvocationArgumentsStar(nextToken2, restOfTokens)
@@ -1632,14 +1479,7 @@ object Parser : ParserBase() {
 
     private fun parseArgumentStar(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.ArgumentStar
-        return if (nextToken0 in setOf(
-                TokenType.DecimalLiteral,
-                TokenType.Apostrophes,
-                TokenType.SimpleName,
-                TokenType.Hash,
-                TokenType.OpenParenthesis
-            ) || nextToken0 in setOf(Keyword.If, Keyword.Else, Keyword.Return, Keyword.False, Keyword.True)
-        ) {
+        return if (nextToken0 in setOf(TokenType.DecimalLiteral, TokenType.Apostrophes, TokenType.SimpleName, TokenType.Hash, TokenType.OpenParenthesis) || nextToken0 in setOf(Keyword.If, Keyword.Else, Keyword.Return, Keyword.False, Keyword.True)) {
             val (child0, nextToken1) = parseExpression(nextToken0, restOfTokens)
             val (child1, nextToken2) = parseSpaceStar(nextToken1, restOfTokens)
             val (child2, nextToken3) = parseNamedArgumentPostfixOptional(nextToken2, restOfTokens)
@@ -1653,10 +1493,7 @@ object Parser : ParserBase() {
         }
     }
 
-    private fun parseNamedArgumentPostfixOptional(
-        nextToken0: Token?,
-        restOfTokens: Iterator<Token>
-    ): ParseTreeNodeResult {
+    private fun parseNamedArgumentPostfixOptional(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.NamedArgumentPostfixOptional
         return if (nextToken0 in setOf(TokenType.Assignment)) {
             val (child0, nextToken1) = parseToken(TokenType.Assignment).invoke(nextToken0, restOfTokens)
@@ -1687,18 +1524,9 @@ object Parser : ParserBase() {
         }
     }
 
-    private fun parseSimpleOrParenthesizedExpression(
-        nextToken0: Token?,
-        restOfTokens: Iterator<Token>
-    ): ParseTreeNodeResult {
+    private fun parseSimpleOrParenthesizedExpression(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
         val nodeType = InnerNodeType.SimpleOrParenthesizedExpression
-        return if (nextToken0 in setOf(
-                TokenType.DecimalLiteral,
-                TokenType.Apostrophes,
-                TokenType.SimpleName,
-                TokenType.Hash
-            ) || nextToken0 in setOf(Keyword.False, Keyword.True)
-        ) {
+        return if (nextToken0 in setOf(TokenType.DecimalLiteral, TokenType.Apostrophes, TokenType.SimpleName, TokenType.Hash) || nextToken0 in setOf(Keyword.False, Keyword.True)) {
             val (child0, nextToken1) = parseSimpleExpression(nextToken0, restOfTokens)
             ParseTreeNodeResult(
                 ParseTreeNode.Inner(listOf(child0), nodeType),
@@ -1718,7 +1546,7 @@ object Parser : ParserBase() {
         return if (nextToken0 in setOf(Keyword.Fun)) {
             val (child0, nextToken1) = parseToken(Keyword.Fun).invoke(nextToken0, restOfTokens)
             val (child1, nextToken2) = parseSpacePlus(nextToken1, restOfTokens)
-            val (child2, nextToken3) = parseToken(TokenType.SimpleName).invoke(nextToken2, restOfTokens)
+            val (child2, nextToken3) = parseFunctionName(nextToken2, restOfTokens)
             val (child3, nextToken4) = parseSpaceStar(nextToken3, restOfTokens)
             val (child4, nextToken5) = parseTypeParameters(nextToken4, restOfTokens)
             val (child5, nextToken6) = parseSpaceStar(nextToken5, restOfTokens)
@@ -1728,22 +1556,27 @@ object Parser : ParserBase() {
             val (child9, nextToken10) = parseSpaceStar(nextToken9, restOfTokens)
             val (child10, nextToken11) = parseBlock(nextToken10, restOfTokens)
             ParseTreeNodeResult(
-                ParseTreeNode.Inner(
-                    listOf(
-                        child0,
-                        child1,
-                        child2,
-                        child3,
-                        child4,
-                        child5,
-                        child6,
-                        child7,
-                        child8,
-                        child9,
-                        child10
-                    ), nodeType
-                ),
+                ParseTreeNode.Inner(listOf(child0, child1, child2, child3, child4, child5, child6, child7, child8, child9, child10), nodeType),
                 nextToken11
+            )
+        } else throw CompilationError("not matching alternative for nextToken.")
+    }
+
+    private fun parseFunctionName(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
+        val nodeType = InnerNodeType.FunctionName
+        return if (nextToken0 in setOf(TokenType.SimpleName)) {
+            val (child0, nextToken1) = parseToken(TokenType.SimpleName).invoke(nextToken0, restOfTokens)
+            ParseTreeNodeResult(
+                ParseTreeNode.Inner(listOf(child0), nodeType),
+                nextToken1
+            )
+        } else if (nextToken0 in setOf(TokenType.Backtick)) {
+            val (child0, nextToken1) = parseToken(TokenType.Backtick).invoke(nextToken0, restOfTokens)
+            val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+            val (child2, nextToken3) = parseToken(TokenType.Backtick).invoke(nextToken2, restOfTokens)
+            ParseTreeNodeResult(
+                ParseTreeNode.Inner(listOf(child0, child1, child2), nodeType),
+                nextToken3
             )
         } else throw CompilationError("not matching alternative for nextToken.")
     }
@@ -1831,23 +1664,7 @@ object Parser : ParserBase() {
                 ParseTreeNode.Inner(listOf(child0), nodeType),
                 nextToken1
             )
-        } else if (nextToken0 in setOf(
-                TokenType.DecimalLiteral,
-                TokenType.Apostrophes,
-                TokenType.SimpleName,
-                TokenType.Hash,
-                TokenType.OpenParenthesis
-            ) || nextToken0 in setOf(
-                Keyword.If,
-                Keyword.Else,
-                Keyword.Return,
-                Keyword.False,
-                Keyword.True,
-                Keyword.Val,
-                Keyword.Class,
-                Keyword.Fun
-            )
-        ) {
+        } else if (nextToken0 in setOf(TokenType.DecimalLiteral, TokenType.Apostrophes, TokenType.SimpleName, TokenType.Hash, TokenType.OpenParenthesis) || nextToken0 in setOf(Keyword.If, Keyword.Else, Keyword.Return, Keyword.False, Keyword.True, Keyword.Val, Keyword.Class, Keyword.Fun)) {
             val (child0, nextToken1) = parseStatement(nextToken0, restOfTokens)
             ParseTreeNodeResult(
                 ParseTreeNode.Inner(listOf(child0), nodeType),
@@ -1988,6 +1805,793 @@ object Parser : ParserBase() {
                 nextToken2
             )
         } else throw CompilationError("not matching alternative for nextToken.")
+    }
+
+    private fun parseAnythingButBacktickPlus(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
+        val nodeType = InnerNodeType.AnythingButBacktickPlus
+        return when (nextToken0) {
+            in setOf(TokenType.WhiteSpace) -> {
+                val (child0, nextToken1) = parseToken(TokenType.WhiteSpace).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.SemiColon) -> {
+                val (child0, nextToken1) = parseToken(TokenType.SemiColon).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.BreakLine) -> {
+                val (child0, nextToken1) = parseToken(TokenType.BreakLine).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.Colon) -> {
+                val (child0, nextToken1) = parseToken(TokenType.Colon).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.Dot) -> {
+                val (child0, nextToken1) = parseToken(TokenType.Dot).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.Comma) -> {
+                val (child0, nextToken1) = parseToken(TokenType.Comma).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.Apostrophes) -> {
+                val (child0, nextToken1) = parseToken(TokenType.Apostrophes).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.Percentage) -> {
+                val (child0, nextToken1) = parseToken(TokenType.Percentage).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.Backslash) -> {
+                val (child0, nextToken1) = parseToken(TokenType.Backslash).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.Star) -> {
+                val (child0, nextToken1) = parseToken(TokenType.Star).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.Minus) -> {
+                val (child0, nextToken1) = parseToken(TokenType.Minus).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.Plus) -> {
+                val (child0, nextToken1) = parseToken(TokenType.Plus).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.Division) -> {
+                val (child0, nextToken1) = parseToken(TokenType.Division).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.ExclamationMark) -> {
+                val (child0, nextToken1) = parseToken(TokenType.ExclamationMark).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.QuestionMark) -> {
+                val (child0, nextToken1) = parseToken(TokenType.QuestionMark).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.Ampersand) -> {
+                val (child0, nextToken1) = parseToken(TokenType.Ampersand).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.SingleOr) -> {
+                val (child0, nextToken1) = parseToken(TokenType.SingleOr).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.Keyword) -> {
+                val (child0, nextToken1) = parseToken(TokenType.Keyword).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.Assignment) -> {
+                val (child0, nextToken1) = parseToken(TokenType.Assignment).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.QuestionedDot) -> {
+                val (child0, nextToken1) = parseToken(TokenType.QuestionedDot).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.Hash) -> {
+                val (child0, nextToken1) = parseToken(TokenType.Hash).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.OpenBraces) -> {
+                val (child0, nextToken1) = parseToken(TokenType.OpenBraces).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.CloseBraces) -> {
+                val (child0, nextToken1) = parseToken(TokenType.CloseBraces).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.OpenParenthesis) -> {
+                val (child0, nextToken1) = parseToken(TokenType.OpenParenthesis).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.CloseParenthesis) -> {
+                val (child0, nextToken1) = parseToken(TokenType.CloseParenthesis).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.OpenBrokets) -> {
+                val (child0, nextToken1) = parseToken(TokenType.OpenBrokets).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.CloseBrokets) -> {
+                val (child0, nextToken1) = parseToken(TokenType.CloseBrokets).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.DecimalLiteral) -> {
+                val (child0, nextToken1) = parseToken(TokenType.DecimalLiteral).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.SimpleName) -> {
+                val (child0, nextToken1) = parseToken(TokenType.SimpleName).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.Elvis) -> {
+                val (child0, nextToken1) = parseToken(TokenType.Elvis).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.Or) -> {
+                val (child0, nextToken1) = parseToken(TokenType.Or).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.And) -> {
+                val (child0, nextToken1) = parseToken(TokenType.And).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.Equal) -> {
+                val (child0, nextToken1) = parseToken(TokenType.Equal).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.NotEqual) -> {
+                val (child0, nextToken1) = parseToken(TokenType.NotEqual).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.GreaterThanEqual) -> {
+                val (child0, nextToken1) = parseToken(TokenType.GreaterThanEqual).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.LessThanEqual) -> {
+                val (child0, nextToken1) = parseToken(TokenType.LessThanEqual).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.NullAwareDot) -> {
+                val (child0, nextToken1) = parseToken(TokenType.NullAwareDot).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.RightArrow) -> {
+                val (child0, nextToken1) = parseToken(TokenType.RightArrow).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(Keyword.Val) -> {
+                val (child0, nextToken1) = parseToken(Keyword.Val).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(Keyword.Var) -> {
+                val (child0, nextToken1) = parseToken(Keyword.Var).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(Keyword.Fun) -> {
+                val (child0, nextToken1) = parseToken(Keyword.Fun).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(Keyword.Class) -> {
+                val (child0, nextToken1) = parseToken(Keyword.Class).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(Keyword.True) -> {
+                val (child0, nextToken1) = parseToken(Keyword.True).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(Keyword.False) -> {
+                val (child0, nextToken1) = parseToken(Keyword.False).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(Keyword.If) -> {
+                val (child0, nextToken1) = parseToken(Keyword.If).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(Keyword.Else) -> {
+                val (child0, nextToken1) = parseToken(Keyword.Else).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(Keyword.While) -> {
+                val (child0, nextToken1) = parseToken(Keyword.While).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(Keyword.Private) -> {
+                val (child0, nextToken1) = parseToken(Keyword.Private).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(Keyword.Public) -> {
+                val (child0, nextToken1) = parseToken(Keyword.Public).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(Keyword.When) -> {
+                val (child0, nextToken1) = parseToken(Keyword.When).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(Keyword.Return) -> {
+                val (child0, nextToken1) = parseToken(Keyword.Return).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            in setOf(TokenType.Unknown) -> {
+                val (child0, nextToken1) = parseToken(TokenType.Unknown).invoke(nextToken0, restOfTokens)
+                if (nextToken1 in setOf(TokenType.WhiteSpace, TokenType.SemiColon, TokenType.BreakLine, TokenType.Colon, TokenType.Dot, TokenType.Comma, TokenType.Apostrophes, TokenType.Percentage, TokenType.Backslash, TokenType.Star, TokenType.Minus, TokenType.Plus, TokenType.Division, TokenType.ExclamationMark, TokenType.QuestionMark, TokenType.Ampersand, TokenType.SingleOr, TokenType.Keyword, TokenType.Assignment, TokenType.QuestionedDot, TokenType.Hash, TokenType.OpenBraces, TokenType.CloseBraces, TokenType.OpenParenthesis, TokenType.CloseParenthesis, TokenType.OpenBrokets, TokenType.CloseBrokets, TokenType.DecimalLiteral, TokenType.SimpleName, TokenType.Elvis, TokenType.Or, TokenType.And, TokenType.Equal, TokenType.NotEqual, TokenType.GreaterThanEqual, TokenType.LessThanEqual, TokenType.NullAwareDot, TokenType.RightArrow, TokenType.Unknown) || nextToken1 in setOf(Keyword.Val, Keyword.Var, Keyword.Fun, Keyword.Class, Keyword.True, Keyword.False, Keyword.If, Keyword.Else, Keyword.While, Keyword.Private, Keyword.Public, Keyword.When, Keyword.Return)) {
+                    val (child1, nextToken2) = parseAnythingButBacktickPlus(nextToken1, restOfTokens)
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                        nextToken2
+                    )
+                } else {
+                    ParseTreeNodeResult(
+                        ParseTreeNode.Inner(listOf(child0), nodeType),
+                        nextToken1
+                    )
+                }
+            }
+            else -> throw CompilationError("not matching alternative for nextToken.")
+        }
     }
 
     private fun parseSEMI(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {

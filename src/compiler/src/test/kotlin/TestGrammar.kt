@@ -1,4 +1,3 @@
-
 import io.kotlintest.specs.StringSpec
 import io.kotlintest.*
 import java.lang.AssertionError
@@ -345,6 +344,14 @@ class TestGrammar : StringSpec({
         shouldAccept(
             "fun f(n: Int): Int { 4 }",
             """ fun myfun (){
+                    val x: Int = 3.2
+                    return 1
+                }""".trimIndent(),
+            """ fun `mk + @ sd` (){
+                    val x: Int = 3.2
+                    return 1
+                }""".trimIndent(),
+            """ fun `+` (){
                     val x: Int = 3.2
                     return 1
                 }""".trimIndent(),

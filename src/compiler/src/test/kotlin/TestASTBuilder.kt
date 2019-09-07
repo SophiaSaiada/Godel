@@ -102,7 +102,8 @@ class TestASTBuilder : StringSpec({
                 |   ;
                 |   private fun z() {}   ;
                 |   public fun f() {}
-                |   public fun h() {};
+                |   public fun `@ a`() {};
+                |   public fun `+`() {};
                 |   public val z=2
                 |   public fun y() {}
                 |
