@@ -32,7 +32,7 @@ class ASTNode {
                         statement.typed(collectedIdentifierTypes, classMemberTypes)
                     (typedStatements + typedStatement) to updatedIdentifierTypes
                 }
-            return Statements(typedStatements) to updatedIdentifierTypes
+            return Statements(typedStatements) to identifierTypes
 
 //          Imperative version:
 //          val typedStatements = mutableListOf<Statement>()
@@ -61,6 +61,13 @@ class ASTNode {
         abstract fun maybeToBlockWithValue(): WithValue?
 
         class WithValue(statements: Statements, val returnValue: Expression) : Block(statements), Expression {
+            override fun typed(
+                identifierTypes: Map<String, Type>,
+                classMemberTypes: Map<Pair<Type, String>, Type>
+            ): Pair<Block.WithValue, Map<String, Type>> {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
             override val actualType: Type = returnValue.actualType
 
             override fun toBlockWithoutValue() =
@@ -70,6 +77,13 @@ class ASTNode {
         }
 
         class WithoutValue(statements: Statements) : Block(statements), Statement {
+            override fun typed(
+                identifierTypes: Map<String, Type>,
+                classMemberTypes: Map<Pair<Type, String>, Type>
+            ): Pair<Block.WithoutValue, Map<String, Type>> {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
             override fun toBlockWithoutValue() = this
 
             override fun maybeToBlockWithValue(): WithValue? {
@@ -83,7 +97,7 @@ class ASTNode {
 
     class Lambda(
         val parameters: List<Pair<String, Type>>, val statements: Statements, val returnValue: Expression,
-        override val actualType: Type = returnValue.actualType
+        override val actualType: Type = Type.Unknown
     ) : Expression
 
     class Return(val value: Expression, override val actualType: Type = value.actualType) : Expression
@@ -138,7 +152,7 @@ class ASTNode {
         }
     }
 
-    interface FunctionDeclarationOrValDeclaration
+    interface FunctionDeclarationOrValDeclaration : Statement
 
     class TypeArgument(
         val name: String?,
@@ -153,7 +167,17 @@ class ASTNode {
     class StringLiteral(val value: String, override val actualType: Type = Type.Regular("String")) : Expression
     class IntLiteral(val value: Int, override val actualType: Type = Type.Regular("Int")) : Expression
     class FloatLiteral(val value: Float, override val actualType: Type = Type.Regular("Float")) : Expression
-    class Identifier(val value: String, override val actualType: Type = Type.Unknown) : Expression
+
+    class Identifier(val value: String, override val actualType: Type = Type.Unknown) : Expression {
+        override fun typed(
+            identifierTypes: Map<String, Type>,
+            classMemberTypes: Map<Pair<Type, String>, Type>
+        ) =
+            Identifier(
+                value,
+                identifierTypes[value] ?: throw ASTError("Use of undeclared value named $value.")
+            ) to identifierTypes
+    }
 
     // ------------- Declarations ------------- //
 
@@ -161,20 +185,51 @@ class ASTNode {
         val name: String,
         val type: Type?,
         val value: Expression
-    ) : Statement, FunctionDeclarationOrValDeclaration
+    ) : FunctionDeclarationOrValDeclaration {
+        override fun typed(
+            identifierTypes: Map<String, Type>,
+            classMemberTypes: Map<Pair<Type, String>, Type>
+        ): Pair<ValDeclaration, Map<String, Type>> {
+            val (typedValue, _) = value.typed(identifierTypes, classMemberTypes)
+            if (type != null && typedValue.actualType != type) {
+                throw ASTError("*****")
+            }
+            return ValDeclaration(name, type, typedValue) to
+                    (identifierTypes + (name to typedValue.actualType))
+        }
+    }
 
     class ClassDeclaration(
         val name: String,
         val typeParameters: List<Pair<String, Type?>>,
         val members: List<Member>
-    ) : Statement
+    ) : Statement {
+        override fun typed(
+            identifierTypes: Map<String, Type>,
+            classMemberTypes: Map<Pair<Type, String>, Type>
+        ) =
+            ClassDeclaration(
+                name,
+                typeParameters,
+                members.map { it.typed(identifierTypes, classMemberTypes).first }
+            ) to identifierTypes
+    }
 
     enum class PrivateOrPublic { Public, Private }
 
     class Member(
         val publicOrPrivate: PrivateOrPublic,
         val declaration: FunctionDeclarationOrValDeclaration
-    ) : Statement
+    ) : Statement {
+        override fun typed(
+            identifierTypes: Map<String, Type>,
+            classMemberTypes: Map<Pair<Type, String>, Type>
+        ) =
+            Member(
+                publicOrPrivate,
+                declaration.typed(identifierTypes, classMemberTypes).first as FunctionDeclarationOrValDeclaration
+            ) to identifierTypes
+    }
 
     class Parameter(
         val name: String,
@@ -187,7 +242,19 @@ class ASTNode {
         val parameters: List<Parameter>,
         val returnType: Type?,
         val body: Block
-    ) : Statement, FunctionDeclarationOrValDeclaration
+    ) : FunctionDeclarationOrValDeclaration {
+        override fun typed(
+            identifierTypes: Map<String, Type>,
+            classMemberTypes: Map<Pair<Type, String>, Type>
+        ) =
+            FunctionDeclaration(
+                name,
+                typeParameters,
+                parameters,
+                returnType,
+                body.typed(identifierTypes, classMemberTypes).first as Block
+            ) to identifierTypes
+    }
 
     // ------------- Expressions ------------- //
 
@@ -229,7 +296,12 @@ class ASTNode {
         class NegativeBranchOnly(
             val negativeBranch: ASTNode.Statement,
             override val actualType: Type = Type.Unknown
-        ) : ASTNode.Expression {}
+        ) : ASTNode.Expression {
+            override fun typed(
+                identifierTypes: Map<String, Type>,
+                classMemberTypes: Map<Pair<Type, String>, Type>
+            ) = this to identifierTypes
+        }
 
         abstract fun asExpression(): Expression?
 
@@ -242,10 +314,11 @@ class ASTNode {
 
     // ---------- Binary Operations ---------- //
 
-    enum class BinaryOperator {
-        Elvis, Or, And, Equal, NotEqual, GreaterThanEqual, LessThanEqual, GreaterThan, LessThan,
-        Plus, Minus, Modulo, Times, Division,
-        Dot, NullAwareDot;
+    enum class BinaryOperator(val asString: String) {
+        Elvis("?:"), Or("||"), And("&&"), Equal("=="), NotEqual("!="),
+        GreaterThanEqual(">="), LessThanEqual("<="), GreaterThan(">"), LessThan("<"),
+        Plus("+"), Minus("-"), Modulo("%"), Times("*"), Division("/"),
+        Dot("."), NullAwareDot("?.");
 
         enum class Group(val operators: Set<BinaryOperator>) {
             Elvis(setOf(BinaryOperator.Elvis)),
@@ -264,10 +337,33 @@ class ASTNode {
         }
     }
 
-    class BinaryExpression<L, R>(
+    class BinaryExpression<L : Expression, R : Expression>(
         val left: L, val operator: BinaryOperator, val right: R,
         override val actualType: Type = Type.Unknown
-    ) : Expression
+    ) : Expression {
+        override fun typed(
+            identifierTypes: Map<String, Type>,
+            classMemberTypes: Map<Pair<Type, String>, Type>
+        ): Pair<Expression, Map<String, Type>> {
+            if (operator == BinaryOperator.Dot) {
+                TODO()
+            } else {
+                val (typedLeft, _) = left.typed(identifierTypes, classMemberTypes)
+                val (typedRight, _) = right.typed(identifierTypes, classMemberTypes)
+                val functionType =
+                    classMemberTypes[typedLeft.actualType to operator.asString] as? Type.Functional
+                        ?: throw ASTError("Attempt to invoke non-functional member ${operator.asString} on object from type ${typedLeft.actualType}")
+
+                if (functionType.parameterTypes.size != 1 || functionType.parameterTypes.first().toString() != typedRight.actualType.toString())
+                    throw ASTError(
+                        "Actual argument's types (${typedRight.actualType}) don't match the expected types (${
+                        functionType.parameterTypes.joinToString(", ")})."
+                    )
+
+                return BinaryExpression(typedLeft, operator, typedRight, functionType.resultType) to identifierTypes
+            }
+        }
+    }
 
     class InfixExpression<L : Expression, R : Expression>(
         val left: L,
@@ -284,6 +380,13 @@ class ASTNode {
             val functionType =
                 classMemberTypes[typedLeft.actualType to function] as? Type.Functional
                     ?: throw ASTError("Attempt to invoke non-functional member $function on object from type ${typedLeft.actualType}")
+
+            if (functionType.parameterTypes.size != 1 || functionType.parameterTypes.first().toString() != typedRight.actualType.toString())
+                throw ASTError(
+                    "Actual argument's types (${typedRight.actualType}) don't match the expected types (${
+                    functionType.parameterTypes.joinToString(", ")})."
+                )
+
             return InfixExpression(typedLeft, function, typedRight, functionType.resultType) to identifierTypes
         }
     }
@@ -294,9 +397,29 @@ class ASTNode {
         val arguments: List<FunctionArgument>
     ) : Expression {
         override val actualType: Type = Type.Unknown
+
+        override fun typed(
+            identifierTypes: Map<String, Type>,
+            classMemberTypes: Map<Pair<Type, String>, Type>
+        ): Pair<Expression, Map<String, Type>> {
+            val (typedFunction, _) = function.typed(identifierTypes, classMemberTypes)
+            val typedArguments = arguments.map {
+                it.copy(value = it.value.typed(identifierTypes, classMemberTypes).first)
+            }
+            val functionType =
+                typedFunction.actualType as? Type.Functional
+                    ?: throw ASTError("Attempt to invoke non-functional value $function.")
+
+            val expectedArgumentTypes = functionType.parameterTypes.joinToString(", ")
+            val actualArgumentTypes = typedArguments.joinToString(", ")
+            if (expectedArgumentTypes != actualArgumentTypes)
+                throw ASTError("Actual argument's types ($actualArgumentTypes) don't match the expected types ($expectedArgumentTypes).")
+
+            return Invocation(typedFunction, typeArguments, typedArguments) to identifierTypes
+        }
     }
 
-    class FunctionArgument(val name: String?, val value: Expression) : Serializable
+    data class FunctionArgument(val name: String?, val value: Expression) : Serializable
 
     interface FunctionCall
 }
