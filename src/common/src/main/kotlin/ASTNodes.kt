@@ -1,18 +1,40 @@
 import java.io.Serializable
 import java.lang.RuntimeException
 
+interface ClassMemberTypeResolver {
+    /***
+     * If there is a member named [memberName] in class [classType] that accepts [argumentTypes], returns the type of this member.
+     * Otherwise, throws ASTError describing the issue.
+     */
+    fun resolve(
+        classType: ASTNode.Type,
+        memberName: String
+    ): ASTNode.Type
+
+    /***
+     * If there is a **functional** member named [memberName] in class [classType] that accepts [argumentTypes], returns the type of this member.
+     * Otherwise, throws ASTError describing the issue.
+     */
+    fun resolve(
+        classType: ASTNode.Type,
+        memberName: String,
+        argumentTypes: List<ASTNode.Type>
+    ): ASTNode.Type.Functional
+}
+
 class ASTNode {
+
     interface CanBecomeTyped<T> {
         /***
          * @param identifierTypes: a [Map] from each avalaible value's name to it's [Type].
-         * @param classMemberTypes: a [Map] from a [Pair] of [Type] represents a user-defined or core class and an identifier to its type.
+         * @param classMemberTypeResolver: a [Map] from a [Pair] of [Type] represents a user-defined or core class and an identifier to its type.
          * @return a [Pair] of:
          *          1. the statement with all types of its descendants resolved as concrete types (not `Union` types or `Unknown`)
          *          2. and an updated `identifierTypes`.
          */
         fun typed(
             identifierTypes: Map<String, Type>,
-            classMemberTypes: Map<Pair<Type, String>, Type>
+            classMemberTypeResolver: ClassMemberTypeResolver
         ): Pair<T, Map<String, Type>>
     }
 
@@ -22,14 +44,14 @@ class ASTNode {
         List<Statement> by statements {
         override fun typed(
             identifierTypes: Map<String, Type>,
-            classMemberTypes: Map<Pair<Type, String>, Type>
+            classMemberTypeResolver: ClassMemberTypeResolver
         ): Pair<Statements, Map<String, Type>> {
             val (typedStatements, updatedIdentifierTypes) =
                 this.fold(
                     emptyList<Statement>() to identifierTypes
                 ) { (typedStatements, collectedIdentifierTypes), statement ->
                     val (typedStatement, updatedIdentifierTypes) =
-                        statement.typed(collectedIdentifierTypes, classMemberTypes)
+                        statement.typed(collectedIdentifierTypes, classMemberTypeResolver)
                     (typedStatements + typedStatement) to updatedIdentifierTypes
                 }
             return Statements(typedStatements) to identifierTypes
@@ -39,7 +61,7 @@ class ASTNode {
 //          var collectedIdentifierTypes = identifierTypes
 //          for (statement in this) {
 //              val (typedStatement, updatedIdentifierTypes) =
-//                  statement.typed(collectedIdentifierTypes, classMemberTypes)
+//                  statement.typed(collectedIdentifierTypes, classMemberTypeResolver)
 //              typedStatements.add(typedStatement)
 //              collectedIdentifierTypes = updatedIdentifierTypes
 //          }
@@ -52,7 +74,7 @@ class ASTNode {
 
         override fun typed(
             identifierTypes: Map<String, Type>,
-            classMemberTypes: Map<Pair<Type, String>, Type>
+            classMemberTypeResolver: ClassMemberTypeResolver
         ): Pair<Expression, Map<String, Type>>
     }
 
@@ -63,7 +85,7 @@ class ASTNode {
         class WithValue(statements: Statements, val returnValue: Expression) : Block(statements), Expression {
             override fun typed(
                 identifierTypes: Map<String, Type>,
-                classMemberTypes: Map<Pair<Type, String>, Type>
+                classMemberTypeResolver: ClassMemberTypeResolver
             ): Pair<Block.WithValue, Map<String, Type>> {
                 TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
             }
@@ -79,7 +101,7 @@ class ASTNode {
         class WithoutValue(statements: Statements) : Block(statements), Statement {
             override fun typed(
                 identifierTypes: Map<String, Type>,
-                classMemberTypes: Map<Pair<Type, String>, Type>
+                classMemberTypeResolver: ClassMemberTypeResolver
             ): Pair<Block.WithoutValue, Map<String, Type>> {
                 TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
             }
@@ -171,7 +193,7 @@ class ASTNode {
     class Identifier(val value: String, override val actualType: Type = Type.Unknown) : Expression {
         override fun typed(
             identifierTypes: Map<String, Type>,
-            classMemberTypes: Map<Pair<Type, String>, Type>
+            classMemberTypeResolver: ClassMemberTypeResolver
         ) =
             Identifier(
                 value,
@@ -188,9 +210,9 @@ class ASTNode {
     ) : FunctionDeclarationOrValDeclaration {
         override fun typed(
             identifierTypes: Map<String, Type>,
-            classMemberTypes: Map<Pair<Type, String>, Type>
+            classMemberTypeResolver: ClassMemberTypeResolver
         ): Pair<ValDeclaration, Map<String, Type>> {
-            val (typedValue, _) = value.typed(identifierTypes, classMemberTypes)
+            val (typedValue, _) = value.typed(identifierTypes, classMemberTypeResolver)
             if (type != null && typedValue.actualType != type) {
                 throw ASTError("*****")
             }
@@ -206,12 +228,12 @@ class ASTNode {
     ) : Statement {
         override fun typed(
             identifierTypes: Map<String, Type>,
-            classMemberTypes: Map<Pair<Type, String>, Type>
+            classMemberTypeResolver: ClassMemberTypeResolver
         ) =
             ClassDeclaration(
                 name,
                 typeParameters,
-                members.map { it.typed(identifierTypes, classMemberTypes).first }
+                members.map { it.typed(identifierTypes, classMemberTypeResolver).first }
             ) to identifierTypes
     }
 
@@ -223,11 +245,11 @@ class ASTNode {
     ) : Statement {
         override fun typed(
             identifierTypes: Map<String, Type>,
-            classMemberTypes: Map<Pair<Type, String>, Type>
+            classMemberTypeResolver: ClassMemberTypeResolver
         ) =
             Member(
                 publicOrPrivate,
-                declaration.typed(identifierTypes, classMemberTypes).first as FunctionDeclarationOrValDeclaration
+                declaration.typed(identifierTypes, classMemberTypeResolver).first as FunctionDeclarationOrValDeclaration
             ) to identifierTypes
     }
 
@@ -245,14 +267,14 @@ class ASTNode {
     ) : FunctionDeclarationOrValDeclaration {
         override fun typed(
             identifierTypes: Map<String, Type>,
-            classMemberTypes: Map<Pair<Type, String>, Type>
+            classMemberTypeResolver: ClassMemberTypeResolver
         ) =
             FunctionDeclaration(
                 name,
                 typeParameters,
                 parameters,
                 returnType,
-                body.typed(identifierTypes, classMemberTypes).first as Block
+                body.typed(identifierTypes, classMemberTypeResolver).first as Block
             ) to identifierTypes
     }
 
@@ -299,7 +321,7 @@ class ASTNode {
         ) : ASTNode.Expression {
             override fun typed(
                 identifierTypes: Map<String, Type>,
-                classMemberTypes: Map<Pair<Type, String>, Type>
+                classMemberTypeResolver: ClassMemberTypeResolver
             ) = this to identifierTypes
         }
 
@@ -343,21 +365,18 @@ class ASTNode {
     ) : Expression {
         override fun typed(
             identifierTypes: Map<String, Type>,
-            classMemberTypes: Map<Pair<Type, String>, Type>
+            classMemberTypeResolver: ClassMemberTypeResolver
         ): Pair<Expression, Map<String, Type>> {
             if (operator == BinaryOperator.Dot) {
                 TODO()
             } else {
-                val (typedLeft, _) = left.typed(identifierTypes, classMemberTypes)
-                val (typedRight, _) = right.typed(identifierTypes, classMemberTypes)
+                val (typedLeft, _) = left.typed(identifierTypes, classMemberTypeResolver)
+                val (typedRight, _) = right.typed(identifierTypes, classMemberTypeResolver)
                 val functionType =
-                    classMemberTypes[typedLeft.actualType to operator.asString] as? Type.Functional
-                        ?: throw ASTError("Attempt to invoke non-functional member ${operator.asString} on object from type ${typedLeft.actualType}")
-
-                if (functionType.parameterTypes.size != 1 || functionType.parameterTypes.first().toString() != typedRight.actualType.toString())
-                    throw ASTError(
-                        "Actual argument's types (${typedRight.actualType}) don't match the expected types (${
-                        functionType.parameterTypes.joinToString(", ")})."
+                    classMemberTypeResolver.resolve(
+                        typedLeft.actualType,
+                        operator.asString,
+                        listOf(typedRight.actualType)
                     )
 
                 return BinaryExpression(typedLeft, operator, typedRight, functionType.resultType) to identifierTypes
@@ -373,18 +392,15 @@ class ASTNode {
     ) : Expression {
         override fun typed(
             identifierTypes: Map<String, Type>,
-            classMemberTypes: Map<Pair<Type, String>, Type>
+            classMemberTypeResolver: ClassMemberTypeResolver
         ): Pair<Expression, Map<String, Type>> {
-            val (typedLeft, _) = left.typed(identifierTypes, classMemberTypes)
-            val (typedRight, _) = right.typed(identifierTypes, classMemberTypes)
+            val (typedLeft, _) = left.typed(identifierTypes, classMemberTypeResolver)
+            val (typedRight, _) = right.typed(identifierTypes, classMemberTypeResolver)
             val functionType =
-                classMemberTypes[typedLeft.actualType to function] as? Type.Functional
-                    ?: throw ASTError("Attempt to invoke non-functional member $function on object from type ${typedLeft.actualType}")
-
-            if (functionType.parameterTypes.size != 1 || functionType.parameterTypes.first().toString() != typedRight.actualType.toString())
-                throw ASTError(
-                    "Actual argument's types (${typedRight.actualType}) don't match the expected types (${
-                    functionType.parameterTypes.joinToString(", ")})."
+                classMemberTypeResolver.resolve(
+                    typedLeft.actualType,
+                    function,
+                    listOf(typedRight.actualType)
                 )
 
             return InfixExpression(typedLeft, function, typedRight, functionType.resultType) to identifierTypes
@@ -400,11 +416,11 @@ class ASTNode {
 
         override fun typed(
             identifierTypes: Map<String, Type>,
-            classMemberTypes: Map<Pair<Type, String>, Type>
+            classMemberTypeResolver: ClassMemberTypeResolver
         ): Pair<Expression, Map<String, Type>> {
-            val (typedFunction, _) = function.typed(identifierTypes, classMemberTypes)
+            val (typedFunction, _) = function.typed(identifierTypes, classMemberTypeResolver)
             val typedArguments = arguments.map {
-                it.copy(value = it.value.typed(identifierTypes, classMemberTypes).first)
+                it.copy(value = it.value.typed(identifierTypes, classMemberTypeResolver).first)
             }
             val functionType =
                 typedFunction.actualType as? Type.Functional
