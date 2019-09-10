@@ -4,21 +4,25 @@ import java.lang.RuntimeException
 interface ClassMemberTypeResolver {
     /***
      * If there is a member named [memberName] in class [classType] that accepts [argumentTypes], returns the type of this member.
-     * Otherwise, throws ASTError describing the issue.
-     */
-    fun resolve(
-        classType: ASTNode.Type,
-        memberName: String
-    ): ASTNode.Type
-
-    /***
-     * If there is a **functional** member named [memberName] in class [classType] that accepts [argumentTypes], returns the type of this member.
+     * When [isSafeCall] is `true`, also looking for a match in the not nullable version of [classType].
      * Otherwise, throws ASTError describing the issue.
      */
     fun resolve(
         classType: ASTNode.Type,
         memberName: String,
-        argumentTypes: List<ASTNode.Type>
+        isSafeCall: Boolean = false
+    ): ASTNode.Type
+
+    /***
+     * If there is a **functional** member named [memberName] in class [classType] that accepts [argumentTypes], returns the type of this member.
+     * When [isSafeCall] is `true`, also looking for a match in the not nullable version of [classType].
+     * Otherwise, throws ASTError describing the issue.
+     */
+    fun resolve(
+        classType: ASTNode.Type,
+        memberName: String,
+        argumentTypes: List<ASTNode.Type>,
+        isSafeCall: Boolean = false
     ): ASTNode.Type.Functional
 }
 
@@ -130,11 +134,13 @@ class ASTNode {
 
     sealed class Type : Serializable {
         abstract fun withNullable(nullable: Boolean): Type
+        abstract val nullable: Boolean
+
         class Regular(
             val name: String,
             // e.g. T extends Int -> T is the key and Int is the value
             val typesParameters: List<TypeArgument> = emptyList(),
-            val nullable: Boolean = false
+            override val nullable: Boolean = false
         ) : Type() {
             override fun withNullable(nullable: Boolean) =
                 Regular(name, typesParameters, nullable)
@@ -147,7 +153,8 @@ class ASTNode {
                         "?".takeIf { nullable }.orEmpty()
         }
 
-        class Functional(val parameterTypes: List<Type>, val resultType: Type, val nullable: Boolean) : Type() {
+        class Functional(val parameterTypes: List<Type>, val resultType: Type, override val nullable: Boolean) :
+            Type() {
             override fun withNullable(nullable: Boolean) =
                 Functional(parameterTypes, resultType, nullable)
 
@@ -158,6 +165,8 @@ class ASTNode {
         }
 
         object Unknown : Type() {
+            override val nullable = false
+
             override fun withNullable(nullable: Boolean): Type {
                 throw ASTError("withNullable should'nt be called from object with type Type.Unknown.")
             }
@@ -166,6 +175,8 @@ class ASTNode {
         }
 
         class Union(val types: Set<Type>) : Type() {
+            override val nullable = false
+
             override fun withNullable(nullable: Boolean): Type {
                 throw ASTError("withNullable should'nt be called from object with type Type.Union.")
             }
@@ -367,10 +378,18 @@ class ASTNode {
             identifierTypes: Map<String, Type>,
             classMemberTypeResolver: ClassMemberTypeResolver
         ): Pair<Expression, Map<String, Type>> {
-            if (operator == BinaryOperator.Dot) {
-                TODO()
+            val (typedLeft, _) = left.typed(identifierTypes, classMemberTypeResolver)
+            if (operator.group == BinaryOperator.Group.MemberAccess) {
+                val memberName = (right as Identifier).value
+                val isSafeCall = operator == BinaryOperator.NullAwareDot
+                val memberType =
+                    classMemberTypeResolver.resolve(
+                        typedLeft.actualType,
+                        memberName,
+                        isSafeCall = isSafeCall
+                    )
+                return BinaryExpression(typedLeft, operator, right, memberType) to identifierTypes
             } else {
-                val (typedLeft, _) = left.typed(identifierTypes, classMemberTypeResolver)
                 val (typedRight, _) = right.typed(identifierTypes, classMemberTypeResolver)
                 val functionType =
                     classMemberTypeResolver.resolve(
