@@ -58,7 +58,7 @@ class ASTNode {
                         statement.typed(collectedIdentifierTypes, classMemberTypeResolver)
                     (typedStatements + typedStatement) to updatedIdentifierTypes
                 }
-            return Statements(typedStatements) to identifierTypes
+            return Statements(typedStatements) to updatedIdentifierTypes
 
 //          Imperative version:
 //          val typedStatements = mutableListOf<Statement>()
@@ -124,17 +124,51 @@ class ASTNode {
     class Lambda(
         val parameters: List<Pair<String, Type>>, val statements: Statements, val returnValue: Expression,
         override val actualType: Type = Type.Unknown
-    ) : Expression
+    ) : Expression {
+        override fun typed(
+            identifierTypes: Map<String, Type>,
+            classMemberTypeResolver: ClassMemberTypeResolver
+        ): Pair<Lambda, Map<String, Type>> {
+            val (typedStatements, updatedIdentifierTypes) = statements.typed(identifierTypes, classMemberTypeResolver)
+            val (typedReturnValue, _) = returnValue.typed(updatedIdentifierTypes, classMemberTypeResolver)
+            return Lambda(
+                parameters,
+                typedStatements,
+                typedReturnValue,
+                Type.Functional(
+                    parameterTypes = parameters.map { it.second },
+                    resultType = typedReturnValue.actualType,
+                    nullable = false
+                )
+            ) to identifierTypes
+        }
+    }
 
-    class Return(val value: Expression, override val actualType: Type = value.actualType) : Expression
+    class Return(val value: Expression, override val actualType: Type = value.actualType) : Expression {
+        override fun typed(
+            identifierTypes: Map<String, Type>,
+            classMemberTypeResolver: ClassMemberTypeResolver
+        ): Pair<Return, Map<String, Type>> {
+            val typedValue = value.typed(identifierTypes, classMemberTypeResolver).first
+            return Return(typedValue, typedValue.actualType) to identifierTypes
+        }
+    }
 
     object Unit : Expression {
         override val actualType: Type = Type.Regular("Unit")
+        override fun typed(
+            identifierTypes: Map<String, Type>,
+            classMemberTypeResolver: ClassMemberTypeResolver
+        ) = this to identifierTypes
     }
 
     sealed class Type : Serializable {
         abstract fun withNullable(nullable: Boolean): Type
         abstract val nullable: Boolean
+
+        override fun equals(other: Any?) =
+            if (other is Type) toString() == other.toString()
+            else false
 
         class Regular(
             val name: String,
@@ -174,14 +208,11 @@ class ASTNode {
             override fun toString() = "Unknown"
         }
 
-        class Union(val types: Set<Type>) : Type() {
-            override val nullable = false
-
-            override fun withNullable(nullable: Boolean): Type {
-                throw ASTError("withNullable should'nt be called from object with type Type.Union.")
-            }
-
-            override fun toString() = "Union(${types.joinToString(", ")})"
+        object Core {
+            val boolean = Regular("Boolean")
+            val int = Regular("Int")
+            val float = Regular("Float")
+            val string = Regular("String")
         }
     }
 
@@ -196,10 +227,33 @@ class ASTNode {
 
     // --------------- Literals --------------- //
 
-    class BooleanLiteral(val value: Boolean, override val actualType: Type = Type.Regular("Boolean")) : Expression
-    class StringLiteral(val value: String, override val actualType: Type = Type.Regular("String")) : Expression
-    class IntLiteral(val value: Int, override val actualType: Type = Type.Regular("Int")) : Expression
-    class FloatLiteral(val value: Float, override val actualType: Type = Type.Regular("Float")) : Expression
+    class BooleanLiteral(val value: Boolean, override val actualType: Type = Type.Core.boolean) : Expression {
+        override fun typed(
+            identifierTypes: Map<String, Type>,
+            classMemberTypeResolver: ClassMemberTypeResolver
+        ) = this to identifierTypes
+    }
+
+    class StringLiteral(val value: String, override val actualType: Type = Type.Core.string) : Expression {
+        override fun typed(
+            identifierTypes: Map<String, Type>,
+            classMemberTypeResolver: ClassMemberTypeResolver
+        ) = this to identifierTypes
+    }
+
+    class IntLiteral(val value: Int, override val actualType: Type = Type.Core.int) : Expression {
+        override fun typed(
+            identifierTypes: Map<String, Type>,
+            classMemberTypeResolver: ClassMemberTypeResolver
+        ) = this to identifierTypes
+    }
+
+    class FloatLiteral(val value: Float, override val actualType: Type = Type.Core.float) : Expression {
+        override fun typed(
+            identifierTypes: Map<String, Type>,
+            classMemberTypeResolver: ClassMemberTypeResolver
+        ) = this to identifierTypes
+    }
 
     class Identifier(val value: String, override val actualType: Type = Type.Unknown) : Expression {
         override fun typed(
@@ -293,15 +347,46 @@ class ASTNode {
 
     sealed class If(
         val condition: ASTNode.Expression,
-        val positiveBranch: ASTNode.Statement,
-        val negativeBranch: ASTNode.Statement?
+        open val positiveBranch: ASTNode.Statement,
+        open val negativeBranch: ASTNode.Statement?
     ) : Statement {
+        fun getTypedCondition(
+            identifierTypes: Map<String, Type>,
+            classMemberTypeResolver: ClassMemberTypeResolver
+        ): ASTNode.Expression {
+            val (typedCondition, _) = condition.typed(identifierTypes, classMemberTypeResolver)
+            if (typedCondition.actualType != Type.Core.boolean)
+                throw ASTError("If's condition must be a Boolean.")
+            return typedCondition
+        }
+
         class Expression(
             condition: ASTNode.Expression,
-            positiveBranch: ASTNode.Expression,
-            negativeBranch: ASTNode.Expression
+            override val positiveBranch: ASTNode.Expression,
+            override val negativeBranch: ASTNode.Expression,
+            override val actualType: Type = Type.Unknown
         ) : If(condition, positiveBranch, negativeBranch), ASTNode.Expression {
-            override val actualType: Type = Type.Union(setOf(positiveBranch.actualType, negativeBranch.actualType))
+            override fun typed(
+                identifierTypes: Map<String, Type>,
+                classMemberTypeResolver: ClassMemberTypeResolver
+            ): Pair<Expression, Map<String, Type>> {
+                val typedCondition = getTypedCondition(identifierTypes, classMemberTypeResolver)
+                val (typedPositiveBranch, _) = positiveBranch.typed(identifierTypes, classMemberTypeResolver)
+                val (typedNegativeBranch, _) = negativeBranch.typed(identifierTypes, classMemberTypeResolver)
+                if (
+                    typedNegativeBranch.actualType.withNullable(false)
+                    != typedNegativeBranch.actualType.withNullable(false)
+                )
+                    throw ASTError("If expression's both branches should yield values from the same type.")
+                val actualType =
+                    typedPositiveBranch.actualType.withNullable(typedPositiveBranch.actualType.nullable || typedNegativeBranch.actualType.nullable)
+                return Expression(
+                    typedCondition,
+                    typedPositiveBranch,
+                    typedNegativeBranch,
+                    actualType
+                ) to identifierTypes
+            }
 
             override fun asExpression(): Expression = this
         }
@@ -311,6 +396,20 @@ class ASTNode {
             positiveBranch: ASTNode.Statement,
             negativeBranch: ASTNode.Statement?
         ) : If(condition, positiveBranch, negativeBranch), ASTNode.Statement {
+            override fun typed(
+                identifierTypes: Map<String, Type>,
+                classMemberTypeResolver: ClassMemberTypeResolver
+            ): Pair<Statement, Map<String, Type>> {
+                val typedCondition = getTypedCondition(identifierTypes, classMemberTypeResolver)
+                val (typedPositiveBranch, _) = positiveBranch.typed(identifierTypes, classMemberTypeResolver)
+                val typedNegativeBranch = negativeBranch?.typed(identifierTypes, classMemberTypeResolver)?.first
+                return Statement(
+                    typedCondition,
+                    typedPositiveBranch,
+                    typedNegativeBranch
+                ) to identifierTypes
+            }
+
             override fun asExpression(): Expression? {
                 val positiveBranchMaybeAsExpression =
                     (positiveBranch as? Block)?.maybeToBlockWithValue() ?: positiveBranch
