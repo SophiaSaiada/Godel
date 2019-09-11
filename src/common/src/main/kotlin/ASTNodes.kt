@@ -262,7 +262,7 @@ class ASTNode {
         ) =
             Identifier(
                 value,
-                identifierTypes[value] ?: throw ASTError("Use of undeclared value named $value.")
+                identifierTypes[value] ?: throw CompilationError("Use of undeclared value named $value.")
             ) to identifierTypes
     }
 
@@ -278,11 +278,11 @@ class ASTNode {
             classMemberTypeResolver: ClassMemberTypeResolver
         ): Pair<ValDeclaration, Map<String, Type>> {
             val (typedValue, _) = value.typed(identifierTypes, classMemberTypeResolver)
-            if (type != null && typedValue.actualType != type) {
-                throw ASTError("*****")
-            }
-            return ValDeclaration(name, type, typedValue) to
-                    (identifierTypes + (name to typedValue.actualType))
+            if (type != null && typedValue.actualType != type && typedValue.actualType.withNullable(false) != type)
+                throw CompilationError("Type mismatch. Required: $type, Found: ${typedValue.actualType}")
+            val actualType = type ?: typedValue.actualType
+            return ValDeclaration(name, actualType, typedValue) to
+                    (identifierTypes + (name to actualType))
         }
     }
 
@@ -356,7 +356,7 @@ class ASTNode {
         ): ASTNode.Expression {
             val (typedCondition, _) = condition.typed(identifierTypes, classMemberTypeResolver)
             if (typedCondition.actualType != Type.Core.boolean)
-                throw ASTError("If's condition must be a Boolean.")
+                throw CompilationError("If's condition must be a Boolean.")
             return typedCondition
         }
 
@@ -377,7 +377,7 @@ class ASTNode {
                     typedNegativeBranch.actualType.withNullable(false)
                     != typedNegativeBranch.actualType.withNullable(false)
                 )
-                    throw ASTError("If expression's both branches should yield values from the same type.")
+                    throw CompilationError("If expression's both branches should yield values from the same type.")
                 val actualType =
                     typedPositiveBranch.actualType.withNullable(typedPositiveBranch.actualType.nullable || typedNegativeBranch.actualType.nullable)
                 return Expression(
@@ -542,12 +542,12 @@ class ASTNode {
             }
             val functionType =
                 typedFunction.actualType as? Type.Functional
-                    ?: throw ASTError("Attempt to invoke non-functional value $function.")
+                    ?: throw CompilationError("Attempt to invoke non-functional value $function.")
 
             val expectedArgumentTypes = functionType.parameterTypes.joinToString(", ")
             val actualArgumentTypes = typedArguments.joinToString(", ")
             if (expectedArgumentTypes != actualArgumentTypes)
-                throw ASTError("Actual argument's types ($actualArgumentTypes) don't match the expected types ($expectedArgumentTypes).")
+                throw CompilationError("Actual argument's types ($actualArgumentTypes) don't match the expected types ($expectedArgumentTypes).")
 
             return Invocation(typedFunction, typeArguments, typedArguments) to identifierTypes
         }
