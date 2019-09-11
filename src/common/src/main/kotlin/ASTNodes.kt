@@ -327,7 +327,7 @@ class ASTNode {
         val name: String,
         val typeParameters: List<Pair<String, Type?>>,
         val parameters: List<Parameter>,
-        val returnType: Type?,
+        val returnType: Type,
         val body: Block
     ) : FunctionDeclarationOrValDeclaration {
         override fun typed(
