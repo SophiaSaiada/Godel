@@ -113,7 +113,8 @@ object ASTTransformer {
             name = name,
             typeParameters = transformTypeParameters(rootNode[4]),
             parameters = transformFunctionParameters(rootNode[6]),
-            returnType = (rootNode[8] as? ParseTreeNode.Inner)?.let { transformType(it[2] as ParseTreeNode.Inner) },
+            returnType = (rootNode[8] as? ParseTreeNode.Inner)?.let { transformType(it[2] as ParseTreeNode.Inner) }
+                ?: ASTNode.Type.Core.unit,
             body = transformBlock(rootNode.last() as ParseTreeNode.Inner)
         )
     }
@@ -648,7 +649,7 @@ object ASTTransformer {
                 )
                 is ParseTreeNode.Inner -> {
                     val member = ASTNode.IntLiteral(firstTokenContent.toInt())
-                    val propertyName = (lastNode[1] as ParseTreeNode.Leaf).token.content
+                    val propertyName = ASTNode.Identifier((lastNode[1] as ParseTreeNode.Leaf).token.content)
                     ASTNode.BinaryExpression(
                         member,
                         ASTNode.BinaryOperator.Dot,
@@ -691,11 +692,6 @@ object ASTTransformer {
     private fun assertNoIfNegativeBranch(statements: ASTNode.Statements) {
         assert(statements.all { it !is ASTNode.If.NegativeBranchOnly })
     }
-
-    private fun requireByGrammar(value: Boolean, message: String? = null) =
-        require(value) {
-            "Invalid parse error${message?.let { ": $it" }.orEmpty()}."
-        }
 
     private operator fun ParseTreeNode.get(index: Int) =
         (this as ParseTreeNode.Inner).children[index]

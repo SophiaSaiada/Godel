@@ -20,20 +20,24 @@ data class ClassDescription(
 
 object TypeChecker {
 
-    fun valOrFunctionDeclaration(m: ASTNode.Member): ClassDescription.Member{
-        return if(m.declaration is ASTNode.FunctionDeclaration){
-            val t =m.declaration as ASTNode.FunctionDeclaration
-            ClassDescription.Member.Method(t.name,t.parameters.map { it.type },t.returnType)
-        }
-        else {
-            val t =m.declaration as ASTNode.ValDeclaration
-            ClassDescription.Member.Property(t.name,t.type!!)
+    private fun getClassMemberDescription(member: ASTNode.Member): ClassDescription.Member {
+        return if (member.declaration is ASTNode.FunctionDeclaration) {
+            val functionDeclaration = member.declaration as ASTNode.FunctionDeclaration
+            ClassDescription.Member.Method(
+                functionDeclaration.name,
+                functionDeclaration.parameters.map { it.type },
+                functionDeclaration.returnType
+            )
+        } else {
+            val valDeclaration = member.declaration as ASTNode.ValDeclaration
+            ClassDescription.Member.Property(valDeclaration.name, valDeclaration.type!!)
         }
     }
 
-    fun f (my_class: ASTNode.ClassDeclaration): ClassDescription{
-        return ClassDescription(my_class.name, my_class.members.map { valOrFunctionDeclaration(it) })
+    private fun getClassDescription(classDeclaration: ASTNode.ClassDeclaration): ClassDescription {
+        return ClassDescription(classDeclaration.name, classDeclaration.members.map { getClassMemberDescription(it) })
     }
+
     fun checkTypes(classRoots: List<ASTNode.ClassDeclaration>): List<ASTNode.ClassDeclaration> {
 
     }

@@ -9,14 +9,17 @@ fun compile(sourceCode: Sequence<Char>) {
     var mainFunction: ASTNode.FunctionDeclaration? = null
     for (statement in abstractSyntaxTree) {
         when (statement) {
-            is ASTNode.ClassDeclaration -> classDeclarations.add(statement)
-            is ASTNode.FunctionDeclaration -> if (statement.name == "main" && mainFunction == null) {
-                mainFunction = statement
-            } else
-                throw ASTError("There needs to be only one function named main!")
+            is ASTNode.ClassDeclaration ->
+                classDeclarations.add(statement)
+            is ASTNode.FunctionDeclaration ->
+                if (statement.name == "main" && mainFunction == null) {
+                    mainFunction = statement
+                } else {
+                    throw CompilationError("There needs to be only one function named main!")
+                }
         }
     }
     if (mainFunction == null) {
-        throw ASTError("There needs to be at least one function named main!")
+        throw CompilationError("There needs to be at least one function named main!")
     }
 }

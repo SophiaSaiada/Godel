@@ -213,6 +213,7 @@ class ASTNode {
             val int = Regular("Int")
             val float = Regular("Float")
             val string = Regular("String")
+            val unit = Regular("Unit")
         }
     }
 
