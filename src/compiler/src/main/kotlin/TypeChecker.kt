@@ -39,21 +39,21 @@ object TypeChecker {
     }
 
     fun checkTypes(classRoots: List<ASTNode.ClassDeclaration>): List<ASTNode.ClassDeclaration> {
+        val classDescriptions = classRoots.map { it.name to getClassDescription(it) }.toMap()
         val classMemberTypeResolver = object : ClassMemberTypeResolver {
             override fun resolve(classType: ASTNode.Type, memberName: String, isSafeCall: Boolean): ASTNode.Type {
                 if (classType.nullable && !isSafeCall)
-                    throw ASTError("****")
-                val t = classType as ASTNode.Type.Regular
-                for (c in classRoots)
-                    if (c.name == t.name) {
-                        val classDescription: ClassDescription = getClassDescription(c)
+                    throw CompilationError("Only safe (?.) calls are allowed on a nullable receiver of type $classType")
+                for (classRoot in classRoots)
+                    if (classRoot.name == classType.toString()) {
+                        val classDescription = classDescriptions[classRoot.name]
+                            ?: error("classDescriptions doesn't contains description for class ${classRoot.name}")
                         for (member in classDescription.members)
                             if (member.name == memberName)
                                 return if (member is ClassDescription.Member.Property)
                                     member.type
                                 else {
-                                    val methodMember: ClassDescription.Member.Method =
-                                        member as ClassDescription.Member.Method
+                                    val methodMember = member as ClassDescription.Member.Method
                                     ASTNode.Type.Functional(
                                         methodMember.parameterTypes,
                                         member.resultType,
@@ -61,7 +61,7 @@ object TypeChecker {
                                     )
                                 }
                     }
-                throw ASTError("Class didn't exist")
+                throw CompilationError("Class doesn't exist")
             }
 
             override fun resolve(
@@ -71,18 +71,17 @@ object TypeChecker {
                 isSafeCall: Boolean
             ): ASTNode.Type.Functional {
                 if (classType.nullable && !isSafeCall)
-                    throw ASTError("****")
-                val t = classType as ASTNode.Type.Regular
-                for (c in classRoots)
-                    if (c.name == t.name) {
-                        val classDescription: ClassDescription = getClassDescription(c)
+                    throw CompilationError("Only safe (?.) calls are allowed on a nullable receiver of type $classType")
+                for (classRoot in classRoots)
+                    if (classRoot.name == classType.toString()) {
+                        val classDescription = classDescriptions[classRoot.name]
+                            ?: error("classDescriptions doesn't contains description for class ${classRoot.name}")
                         for (member in classDescription.members)
                             if (member.name == memberName)
                                 if (member is ClassDescription.Member.Property)
-                                    throw ASTError("the member isn't function")
+                                    throw ASTError("Member $memberName in class $classType cannot be invoked as a function.")
                                 else {
-                                    val methodMember: ClassDescription.Member.Method =
-                                        member as ClassDescription.Member.Method
+                                    val methodMember = member as ClassDescription.Member.Method
                                     if (argumentTypes == methodMember.parameterTypes)
                                         return ASTNode.Type.Functional(
                                             methodMember.parameterTypes,
@@ -90,7 +89,13 @@ object TypeChecker {
                                             member.resultType.nullable
                                         )
                                     else
-                                        throw ASTError("parameter list doesn't fit")
+                                        throw ASTError(
+                                            """
+                                            |Types of passed arguments don't match the expected parameters types.
+                                            |Expected: ${methodMember.parameterTypes}
+                                            |Passed:   $argumentTypes
+                                        """.trimMargin()
+                                        )
                                 }
                     }
                 throw ASTError("Class didn't exist")
