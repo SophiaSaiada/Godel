@@ -1,6 +1,10 @@
+import java.util.*
+
 class Executor(
     val classes: Map<String, ASTNode.ClassDeclaration>
 ) {
+    val parameters: Stack<MutableMap<String, ASTNode.Expression>> = Stack()
+
     constructor(classes: Set<ASTNode.ClassDeclaration>) : this(classes.map { it.name to it }.toMap())
 
     fun run(mainFunction: ASTNode.FunctionDeclaration) {
@@ -41,5 +45,9 @@ class Executor(
     }
     private fun evalute(member:ASTNode.Member){
 
+    }
+
+    private fun evaluate(valDeclaration: ASTNode.ValDeclaration) {
+        parameters.peek()[valDeclaration.name] = valDeclaration.value
     }
 }
