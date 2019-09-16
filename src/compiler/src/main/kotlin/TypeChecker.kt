@@ -1,23 +1,3 @@
-data class ClassDescription(
-    val name: String,
-    val members: List<Member>
-) {
-    sealed class Member {
-        abstract val name: String
-
-        class Property(
-            override val name: String,
-            val type: ASTNode.Type
-        ) : Member()
-
-        class Method(
-            override val name: String,
-            val parameterTypes: List<ASTNode.Type>,
-            val resultType: ASTNode.Type
-        ) : Member()
-    }
-}
-
 object TypeChecker {
 
     private fun getClassMemberDescription(member: ASTNode.Member): ClassDescription.Member {
@@ -35,11 +15,17 @@ object TypeChecker {
     }
 
     private fun getClassDescription(classDeclaration: ASTNode.ClassDeclaration): ClassDescription {
-        return ClassDescription(classDeclaration.name, classDeclaration.members.map { getClassMemberDescription(it) })
+        return ClassDescription(
+            classDeclaration.name,
+            classDeclaration.members.map { getClassMemberDescription(it) },
+            isNative = false
+        )
     }
 
     fun checkTypes(classRoots: List<ASTNode.ClassDeclaration>): List<ASTNode.ClassDeclaration> {
-        val classDescriptions = classRoots.map { it.name to getClassDescription(it) }.toMap()
+        val classDescriptions =
+            classRoots.map { it.name to getClassDescription(it) }.toMap() +
+                    coreClasses.map { it.key to it.value.description }.toMap()
         val classMemberTypeResolver = object : ClassMemberTypeResolver {
             override fun resolve(classType: ASTNode.Type, memberName: String, isSafeCall: Boolean): ASTNode.Type {
                 if (classType.nullable && !isSafeCall)
