@@ -1,6 +1,3 @@
-fun main(args: Array<String>) {
-}
-
 fun compile(sourceCode: Sequence<Char>) {
     val tokenSequence = Lexer.lex(sourceCode)
     val abstractSyntaxTree =
@@ -12,10 +9,13 @@ fun compile(sourceCode: Sequence<Char>) {
             is ASTNode.ClassDeclaration ->
                 classDeclarations.add(statement)
             is ASTNode.FunctionDeclaration ->
-                if (statement.name == "main" && mainFunction == null) {
-                    mainFunction = statement
-                } else {
-                    throw CompilationError("There needs to be only one function named main!")
+                when {
+                    statement.name != "main" ->
+                        throw CompilationError("Only main function can be a top-level function.")
+                    mainFunction == null ->
+                        mainFunction = statement
+                    else ->
+                        throw CompilationError("There needs to be only one function named main!")
                 }
         }
     }
