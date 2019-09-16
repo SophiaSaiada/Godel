@@ -1,4 +1,9 @@
-fun compile(sourceCode: Sequence<Char>) {
+data class CompilationResult(
+    val classDeclarations: List<ASTNode.ClassDeclaration>,
+    val mainFunction: ASTNode.FunctionDeclaration
+)
+
+fun compile(sourceCode: Sequence<Char>): CompilationResult {
     val tokenSequence = Lexer.lex(sourceCode)
     val abstractSyntaxTree =
         ASTTransformer.transformAST(Parser.parse(tokenSequence))
@@ -19,7 +24,8 @@ fun compile(sourceCode: Sequence<Char>) {
                 }
         }
     }
-    if (mainFunction == null) {
-        throw CompilationError("There needs to be at least one function named main!")
-    }
+    mainFunction?.let {
+        val classDeclarationsWithTypes = TypeChecker.withTypes(classDeclarations)
+        return CompilationResult(classDeclarationsWithTypes , it)
+    } ?: throw CompilationError("There needs to be at least one function named main!")
 }

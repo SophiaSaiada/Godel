@@ -22,7 +22,7 @@ object TypeChecker {
         )
     }
 
-    fun checkTypes(classRoots: List<ASTNode.ClassDeclaration>): List<ASTNode.ClassDeclaration> {
+    fun withTypes(classRoots: List<ASTNode.ClassDeclaration>): List<ASTNode.ClassDeclaration> {
         val classDescriptions =
             classRoots.map { it.name to getClassDescription(it) }.toMap() +
                     coreClasses.map { it.key to it.value.description }.toMap()
