@@ -66,5 +66,9 @@ class TestTypeChecker : StringSpec({
         "val x = if (true) 1 else 2" wrappedAstShouldBe "val with if expression"
         "val x = if (true) 1 else \"hello\"" typeCheckerShouldFallWith
                 "If expression's both branches should yield values from the same type."
+        "val x = if (1) 1 else 2" typeCheckerShouldFallWith
+                "If's condition must be a Boolean."
+        "val x: String = 1" typeCheckerShouldFallWith
+                "Type mismatch. Required: String, Found: Int"
     }
 })
