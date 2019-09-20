@@ -86,15 +86,23 @@ class ASTNode {
         abstract fun toBlockWithoutValue(): WithoutValue
         abstract fun maybeToBlockWithValue(): WithValue?
 
-        class WithValue(statements: Statements, val returnValue: Expression) : Block(statements), Expression {
+        class WithValue(
+            statements: Statements,
+            val returnValue: Expression,
+            override val actualType: Type = Type.Functional(emptyList(), returnValue.actualType, false)
+        ) : Block(statements), Expression {
             override fun typed(
                 identifierTypes: Map<String, Type>,
                 classMemberTypeResolver: ClassMemberTypeResolver
-            ): Pair<Block.WithValue, Map<String, Type>> {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            ): Pair<WithValue, Map<String, Type>> {
+                val (typedStatements, updatedIdentifierTypes) = statements.typed(
+                    identifierTypes,
+                    classMemberTypeResolver
+                )
+                val (typedReturnValue, _) = returnValue.typed(updatedIdentifierTypes, classMemberTypeResolver)
+                return WithValue(typedStatements, typedReturnValue) to identifierTypes
             }
 
-            override val actualType: Type = returnValue.actualType
 
             override fun toBlockWithoutValue() =
                 WithoutValue(Statements(statements + returnValue))
@@ -106,8 +114,10 @@ class ASTNode {
             override fun typed(
                 identifierTypes: Map<String, Type>,
                 classMemberTypeResolver: ClassMemberTypeResolver
-            ): Pair<Block.WithoutValue, Map<String, Type>> {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            ): Pair<WithoutValue, Map<String, Type>> {
+                val (typedStatements, _) =
+                    statements.typed(identifierTypes, classMemberTypeResolver)
+                return WithoutValue(typedStatements) to identifierTypes
             }
 
             override fun toBlockWithoutValue() = this
