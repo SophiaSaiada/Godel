@@ -29,7 +29,7 @@ object ASTJSONizer {
             else -> name.compareTo("")
         }
 
-    private fun Any?.toJSON(): String =
+    private fun Any?.toJSON(withActualType: Boolean = false): String =
         when (this) {
             is ASTNode.Statement,
             is ASTNode.Expression,
@@ -39,29 +39,29 @@ object ASTJSONizer {
             is ASTNode.Member,
             is ASTNode.Type ->
                 this::class.memberProperties
-                    .filter { it.name != "actualType" }
+                    .filter { withActualType || it.name != "actualType" }
                     .map {
                         it.name to it.getter.call(this)
                     }.sortedBy { (name, _) ->
                         specialOrder(this, name)
                     }.joinToString(", ") { (name, value) ->
-                        """"$name": ${value?.toJSON()}"""
+                        """"$name": ${value?.toJSON(withActualType)}"""
                     }.let {
                         "{\"name\": \"${this::class.qualifiedName.orEmpty().removePrefix("ASTNode.")}\", \"props\": {$it}}"
                     }
             is ASTNode.Statements ->
-                "{\"name\": \"Statements\", \"props\": {\"statements\": ${this.joinToString(", ") { it.toJSON() }.let { "[$it]" }}}}"
+                "{\"name\": \"Statements\", \"props\": {\"statements\": ${this.joinToString(", ") { it.toJSON(withActualType) }.let { "[$it]" }}}}"
             is List<Any?> ->
-                this.joinToString(", ") { it.toJSON() }.let { "[$it]" }
+                this.joinToString(", ") { it.toJSON(withActualType) }.let { "[$it]" }
             is Pair<Any?, Any?> ->
-                "{\"name\": \"Pair\", \"props\": {\"first\": ${this.first.toJSON()}, \"second\": ${this.second.toJSON()}}}"
+                "{\"name\": \"Pair\", \"props\": {\"first\": ${this.first.toJSON(withActualType)}, \"second\": ${this.second.toJSON(withActualType)}}}"
             is ASTNode.BinaryOperator -> "\"${this.name}\""
             is ASTNode.PrivateOrPublic -> "\"${this.name}\""
             is String -> "\"$this\""
             is Int -> this.toString()
             is Map<*, *> ->
                 this.map { (key, value) ->
-                    key.toString() to value.toJSON()
+                    key.toString() to value.toJSON(withActualType)
                 }.joinToString(", ") { (key, value) ->
                     """"$key": $value"""
                 }
@@ -69,5 +69,6 @@ object ASTJSONizer {
             else -> toString()
         }
 
+    fun toJSON(root: ASTNode.ClassDeclaration, withActualType: Boolean = false) = root.toJSON(withActualType)
     fun toJSON(root: ASTNode.Statements) = root.toJSON()
 }

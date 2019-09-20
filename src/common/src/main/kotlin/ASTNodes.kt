@@ -375,7 +375,7 @@ class ASTNode {
                 val (typedPositiveBranch, _) = positiveBranch.typed(identifierTypes, classMemberTypeResolver)
                 val (typedNegativeBranch, _) = negativeBranch.typed(identifierTypes, classMemberTypeResolver)
                 if (
-                    typedNegativeBranch.actualType.withNullable(false)
+                    typedPositiveBranch.actualType.withNullable(false)
                     != typedNegativeBranch.actualType.withNullable(false)
                 )
                     throw CompilationError("If expression's both branches should yield values from the same type.")

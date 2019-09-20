@@ -2,7 +2,7 @@ import io.kotlintest.specs.StringSpec
 
 class TestCompileDeepNestedCode : StringSpec({
     fun shouldBeAbleToCompile(sourceCode: String) {
-        compile(sourceCode.asSequence())
+        Compiler.compile(sourceCode.asSequence())
     }
 
     "should be able to compile a deep nested code" {

@@ -9,7 +9,7 @@ object Benchmark {
         val sourceCode =
             File("./inputs/veryLongCode.gd")
                 .readLines().joinToString("\n").asSequence()
-        compile(sourceCode)
+        Compiler.compile(sourceCode)
     }
 
     @JvmStatic

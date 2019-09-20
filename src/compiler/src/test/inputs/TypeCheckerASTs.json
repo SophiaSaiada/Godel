@@ -1,0 +1,99 @@
+{
+  "float val declaration": {
+    "name": "ValDeclaration",
+    "props": {
+      "name": "x",
+      "type": {
+        "name": "Type.Regular",
+        "props": {
+          "name": "Float",
+          "nullable": false,
+          "typesParameters": []
+        }
+      },
+      "value": {
+        "name": "FloatLiteral",
+        "props": {
+          "value": 3.14,
+          "actualType": {
+            "name": "Type.Regular",
+            "props": {
+              "name": "Float",
+              "nullable": false,
+              "typesParameters": []
+            }
+          }
+        }
+      }
+    }
+  },
+  "val with if expression": {
+    "name": "ValDeclaration",
+    "props": {
+      "name": "x",
+      "type": {
+        "name": "Type.Regular",
+        "props": {
+          "name": "Int",
+          "nullable": false,
+          "typesParameters": []
+        }
+      },
+      "value": {
+        "name": "If.Expression",
+        "props": {
+          "condition": {
+            "name": "BooleanLiteral",
+            "props": {
+              "value": true,
+              "actualType": {
+                "name": "Type.Regular",
+                "props": {
+                  "name": "Boolean",
+                  "nullable": false,
+                  "typesParameters": []
+                }
+              }
+            }
+          },
+          "positiveBranch": {
+            "name": "IntLiteral",
+            "props": {
+              "value": 1,
+              "actualType": {
+                "name": "Type.Regular",
+                "props": {
+                  "name": "Int",
+                  "nullable": false,
+                  "typesParameters": []
+                }
+              }
+            }
+          },
+          "negativeBranch": {
+            "name": "IntLiteral",
+            "props": {
+              "value": 2,
+              "actualType": {
+                "name": "Type.Regular",
+                "props": {
+                  "name": "Int",
+                  "nullable": false,
+                  "typesParameters": []
+                }
+              }
+            }
+          },
+          "actualType": {
+            "name": "Type.Regular",
+            "props": {
+              "name": "Int",
+              "nullable": false,
+              "typesParameters": []
+            }
+          }
+        }
+      }
+    }
+  }
+}
