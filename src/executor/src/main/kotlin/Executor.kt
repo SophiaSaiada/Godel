@@ -1,16 +1,26 @@
-import java.util.*
+import java.util.Stack
 
-class Value(
-    val value: Any,
-    val type: ASTNode.Type
-)
+typealias Context = MutableMap<String, Executor.Object>
 
 class Executor(
-    val classes: Map<String, ASTNode.ClassDeclaration>
+    val classes: Map<String, ClassDescription>
 ) {
-    val parameters: Stack<MutableMap<String, ASTNode.Expression>> = Stack()
+    val contextStack: Stack<Context> = Stack()
 
-    constructor(classes: Set<ASTNode.ClassDeclaration>) : this(classes.map { it.name to it }.toMap())
+    sealed class Object(
+        open val type: ClassDescription
+    ) {
+        class Primitive<T>(
+            type: ClassDescription,
+            val innerValue: T
+        ) : Object(type)
+
+        class Complex(
+            val state: Map<String, Object>
+        )
+    }
+
+    constructor(classes: Set<ClassDescription>) : this(classes.map { it.name to it }.toMap())
 
     fun run(mainFunction: ASTNode.FunctionDeclaration) {
         evaluate(mainFunction.body.statements)
@@ -24,25 +34,21 @@ class Executor(
 
     private fun evaluate(statement: ASTNode.Statement) {
         when (statement) {
-            is ASTNode.Block -> evaluate(statement)
             is ASTNode.ClassDeclaration -> evaluate(statement)
             is ASTNode.Expression -> evaluate(statement)
             is ASTNode.FunctionDeclarationOrValDeclaration -> evaluate(statement)
-            is ASTNode.If -> evaluate(statement)
+            is ASTNode.If.Statement -> evaluate(statement)
             is ASTNode.Member -> evaluate(statement)
+            else -> error(statement::class.simpleName!!)
         }
-    }
-
-    private fun evaluate(block: ASTNode.Block) {
-
     }
 
     private fun evaluate(Class: ASTNode.ClassDeclaration) {
 
     }
 
-    private fun evaluate(expression: ASTNode.Expression) {
-        when (expression) {
+    private fun evaluate(expression: ASTNode.Expression): Object {
+        return when (expression) {
             is ASTNode.BinaryExpression<*, *> -> evaluate(expression)
             is ASTNode.BooleanLiteral -> evaluate(expression)
             is ASTNode.If.Expression -> evaluate(expression)
@@ -56,29 +62,52 @@ class Executor(
             is ASTNode.Return -> evaluate(expression)
             is ASTNode.StringLiteral -> evaluate(expression)
             is ASTNode.Unit -> evaluate(expression)
-            is ASTNode.Block.WithValue -> evaluate(expression)
+            else ->
+                error(expression::class.simpleName!!)
         }
     }
 
-    private fun evaluate(binaryExpression: ASTNode.BinaryExpression<*, *>): Value {
-        if(binaryExpression.operator.group == ASTNode.BinaryOperator.Group.MemberAccess){
-            return Value(binaryExpression.right)
-        }
+    private fun evaluate(floatLiteral: ASTNode.FloatLiteral) =
+        Object.Primitive(
+            type = classes["float"]!!,
+            innerValue = floatLiteral.value
+        )
+
+    private fun evaluate(ifExpression: ASTNode.If.Expression): Object {
+        val conditionEvaluated =
+            (evaluate(ifExpression.condition) as? Object.Primitive<*> ?: error("זה לא מרימיטב")).innerValue as? Boolean
+                ?: error("זה לא בולאן")
+        return if (conditionEvaluated) evaluate(ifExpression.positiveBranch) else evaluate(ifExpression.negativeBranch)
     }
 
-    private fun evaluate(funOrVal: ASTNode.FunctionDeclarationOrValDeclaration) {
+    private fun evaluate(binaryExpression: ASTNode.BinaryExpression<*, *>): Object {
+        TODO()
+    }
+
+    private fun evaluate(funOrVal: ASTNode.FunctionDeclarationOrValDeclaration): Object {
+        TODO()
+    }
+
+    private fun evaluate(block: ASTNode.Block): Object {
+        TODO()
+    }
+
+    private fun evaluate(onlyIf: ASTNode.If.Statement) {
+        val conditionEvaluated =
+            (evaluate(onlyIf.condition) as? Object.Primitive<*> ?: error("זה לא מרימיטב")).innerValue as? Boolean
+                ?: error("זה לא בולאן")
+        if (conditionEvaluated)
+            evaluate(onlyIf.positiveBranch)
+        else
+            onlyIf.negativeBranch?.let { evaluate(it) }
 
     }
 
-    private fun evaluate(onlyIf: ASTNode.If) {
-
-    }
-
-    private fun evaluate(member: ASTNode.Member) {
-
+    private fun evaluate(member: ASTNode.Member): Object {
+        TODO()
     }
 
     private fun evaluate(valDeclaration: ASTNode.ValDeclaration) {
-        parameters.peek()[valDeclaration.name] = valDeclaration.value
+        contextStack.peek()[valDeclaration.name] = evaluate(valDeclaration.value)
     }
 }

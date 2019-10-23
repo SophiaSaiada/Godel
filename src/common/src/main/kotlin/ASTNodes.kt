@@ -110,9 +110,7 @@ class ASTNode {
             override fun maybeToBlockWithValue() = this
         }
 
-        class WithoutValue(statements: Statements) : Block(statements), Expression {
-            override val actualType = Type.Functional(emptyList(), Type.Core.unit, false)
-
+        class WithoutValue(statements: Statements) : Block(statements) {
             override fun typed(
                 identifierTypes: Map<String, Type>,
                 classMemberTypeResolver: ClassMemberTypeResolver
