@@ -16,18 +16,21 @@ class Executor(
         ) : Object(type)
 
         class Complex(
+            type: ClassDescription,
             val state: Map<String, Object>
-        )
+        ): Object(type)
+
         class Function(
+            type: ClassDescription,
             val functionDeclaration: ASTNode.FunctionDeclaration,
             val context: Context
-        )
+        ) : Object (type)
     }
 
     constructor(classes: Set<ClassDescription>) : this(classes.map { it.name to it }.toMap())
 
     fun run(mainFunction: ASTNode.FunctionDeclaration) {
-        evaluate(mainFunction.body.statements)
+        evaluate(mainFunction.body)
     }
 
     private fun evaluate(statements: ASTNode.Statements) {
@@ -71,17 +74,72 @@ class Executor(
         }
     }
 
+    private fun evaluate (lambda: ASTNode.Lambda)=
+        Object.Function(
+            functionDeclaration = ASTNode.FunctionDeclaration(
+                name = "",
+                typeParameters = emptyList(),
+                returnType = lambda.returnValue.actualType,
+                parameters = lambda.parameters.map { ASTNode.Parameter(it.first,it.second) },
+                body = lambda.statements
+            ),
+            context = mergeContext(contextStack)
+        )
+
+    private fun mergeContext(contexts: Stack<Context>): Context{
+        val contextsList = contexts.toMutableList().reversed()
+        val resultContext = mutableMapOf<String, Executor.Object>()
+        for (context in contextsList){
+            resultContext.putAll(resultContext + context)
+        }
+        return resultContext
+    }
+
+
+    private fun evaluate(returnExpression: ASTNode.Return){
+        TODO()
+    }
+
+    private fun evaluate(negativeBranchOnly: ASTNode.If.NegativeBranchOnly) {
+        error("negativeBranchOnly")
+    }
+
     private fun evaluate(floatLiteral: ASTNode.FloatLiteral) =
         Object.Primitive(
             type = classes["float"]!!,
             innerValue = floatLiteral.value
         )
 
+    private fun evaluate(intLiteral: ASTNode.IntLiteral) =
+        Object.Primitive(
+            type = classes["int"]!!,
+            innerValue = intLiteral.value
+        )
+
+    private fun evaluate(stringLiteral: ASTNode.StringLiteral) =
+        Object.Primitive(
+            type = classes["string"]!!,
+            innerValue = stringLiteral.value
+        )
+
+    private fun evaluate(unit: ASTNode.Unit) =
+        Object.Primitive(
+            type = classes["unit"]!!,
+            innerValue = Unit
+        )
+
+    private fun evaluate(booleanLiteral: ASTNode.BooleanLiteral) =
+        Object.Primitive(
+            type = classes["boolean"]!!,
+            innerValue = booleanLiteral.value
+        )
+
     private fun evaluate(ifExpression: ASTNode.If.Expression): Object {
         val conditionEvaluated =
             (evaluate(ifExpression.condition) as? Object.Primitive<*> ?: error("זה לא מרימיטב")).innerValue as? Boolean
                 ?: error("זה לא בולאן")
-        return if (conditionEvaluated) evaluate(ifExpression.positiveBranch) else evaluate(ifExpression.negativeBranch)
+        contextStack.push(mutableMapOf())
+        return (if (conditionEvaluated) evaluate(ifExpression.positiveBranch) else evaluate(ifExpression.negativeBranch)).also { contextStack.pop() }
     }
 
     private fun evaluate(binaryExpression: ASTNode.BinaryExpression<*, *>): Object {
@@ -100,11 +158,13 @@ class Executor(
         val conditionEvaluated =
             (evaluate(onlyIf.condition) as? Object.Primitive<*> ?: error("זה לא מרימיטב")).innerValue as? Boolean
                 ?: error("זה לא בולאן")
+        contextStack.push(mutableMapOf())
         if (conditionEvaluated)
+
             evaluate(onlyIf.positiveBranch)
         else
             onlyIf.negativeBranch?.let { evaluate(it) }
-
+        contextStack.pop()
     }
 
     private fun evaluate(member: ASTNode.Member): Object {

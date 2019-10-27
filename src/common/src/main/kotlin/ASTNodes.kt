@@ -339,7 +339,7 @@ class ASTNode {
         val typeParameters: List<Pair<String, Type?>>,
         val parameters: List<Parameter>,
         val returnType: Type,
-        val body: Block
+        val body: Statements
     ) : FunctionDeclarationOrValDeclaration {
         override fun typed(
             identifierTypes: Map<String, Type>,
@@ -350,7 +350,7 @@ class ASTNode {
                 typeParameters,
                 parameters,
                 returnType,
-                body.typed(identifierTypes, classMemberTypeResolver).first as Block
+                body.typed(identifierTypes, classMemberTypeResolver).first
             ) to identifierTypes
     }
 

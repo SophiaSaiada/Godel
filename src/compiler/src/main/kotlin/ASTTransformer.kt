@@ -115,7 +115,7 @@ object ASTTransformer {
             parameters = transformFunctionParameters(rootNode[6]),
             returnType = (rootNode[8] as? ParseTreeNode.Inner)?.let { transformType(it[2] as ParseTreeNode.Inner) }
                 ?: ASTNode.Type.Core.unit,
-            body = transformBlock(rootNode.last() as ParseTreeNode.Inner)
+            body = transformStatements(rootNode.last() as ParseTreeNode.Inner)
         )
     }
 
