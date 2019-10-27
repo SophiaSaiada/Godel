@@ -18,6 +18,10 @@ class Executor(
         class Complex(
             val state: Map<String, Object>
         )
+        class Function(
+            val functionDeclaration: ASTNode.FunctionDeclaration,
+            val context: Context
+        )
     }
 
     constructor(classes: Set<ClassDescription>) : this(classes.map { it.name to it }.toMap())
