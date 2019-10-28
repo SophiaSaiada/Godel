@@ -3,7 +3,8 @@ import java.util.Stack
 typealias Context = MutableMap<String, Executor.Object>
 
 class Executor(
-    val classes: Map<String, ClassDescription>
+    val classes: Map<String, ASTNode.ClassDeclaration>,
+    val classDescriptions: Map<String, ClassDescription>
 ) {
     val contextStack: Stack<Context> = Stack()
 
@@ -27,9 +28,13 @@ class Executor(
         ) : Object (type)
     }
 
-    constructor(classes: Set<ClassDescription>) : this(classes.map { it.name to it }.toMap())
+    constructor(
+        classes: Set<ASTNode.ClassDeclaration>,
+        classDescriptions: Set<ClassDescription>
+    ) : this(classes.map { it.name to it }.toMap(), classDescriptions.map { it.name to it }.toMap())
 
     fun run(mainFunction: ASTNode.FunctionDeclaration) {
+        // TODO: evaluate Invocation of main and print the returned String.
         evaluate(mainFunction.body)
     }
 
@@ -106,31 +111,31 @@ class Executor(
 
     private fun evaluate(floatLiteral: ASTNode.FloatLiteral) =
         Object.Primitive(
-            type = classes["float"]!!,
+            type = classDescriptions["float"]!!,
             innerValue = floatLiteral.value
         )
 
     private fun evaluate(intLiteral: ASTNode.IntLiteral) =
         Object.Primitive(
-            type = classes["int"]!!,
+            type = classDescriptions["int"]!!,
             innerValue = intLiteral.value
         )
 
     private fun evaluate(stringLiteral: ASTNode.StringLiteral) =
         Object.Primitive(
-            type = classes["string"]!!,
+            type = classDescriptions["string"]!!,
             innerValue = stringLiteral.value
         )
 
     private fun evaluate(unit: ASTNode.Unit) =
         Object.Primitive(
-            type = classes["unit"]!!,
+            type = classDescriptions["unit"]!!,
             innerValue = Unit
         )
 
     private fun evaluate(booleanLiteral: ASTNode.BooleanLiteral) =
         Object.Primitive(
-            type = classes["boolean"]!!,
+            type = classDescriptions["boolean"]!!,
             innerValue = booleanLiteral.value
         )
 

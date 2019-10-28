@@ -1,5 +1,6 @@
 data class CompilationResult(
-    val classDeclarations: List<ASTNode.ClassDeclaration>,
+    val classes: Set<ASTNode.ClassDeclaration>,
+    val classDescriptions: Set<ClassDescription>,
     val mainFunction: ASTNode.FunctionDeclaration
 )
 
@@ -26,8 +27,15 @@ object Compiler {
             }
         }
         mainFunction?.let {
-            val (classDeclarationsWithTypes, mainFunctionWithTypes) = TypeChecker.withTypes(classDeclarations, it)
-            return CompilationResult(classDeclarationsWithTypes, mainFunctionWithTypes)
+            val (classDeclarationsWithTypes, classDescriptions, mainFunctionWithTypes) = TypeChecker.withTypes(
+                classDeclarations,
+                it
+            )
+            return CompilationResult(
+                classDeclarationsWithTypes.toSet(),
+                classDescriptions,
+                mainFunctionWithTypes
+            )
         } ?: throw CompilationError("There needs to be at least one function named main!")
     }
 }

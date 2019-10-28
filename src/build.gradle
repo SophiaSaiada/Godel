@@ -20,6 +20,9 @@ dependencies {
     testImplementation 'io.kotlintest:kotlintest-runner-junit5:3.1.11'
     testCompile group: 'org.slf4j', name: 'slf4j-simple', version: '1.6.1'
     testImplementation 'com.beust:klaxon:5.0.1'
+
+    implementation project(':compiler')
+    implementation project(':executor')
 }
 
 compileKotlin {
