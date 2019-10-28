@@ -217,7 +217,12 @@
                                                     "value": 5
                                                   }
                                                 },
-                                                "right": "y",
+                                                "right": {
+                                                  "name": "Identifier",
+                                                  "props": {
+                                                    "value": "y"
+                                                  }
+                                                },
                                                 "operator": "Dot"
                                               }
                                             },
@@ -722,7 +727,12 @@
                                             "value": 1
                                           }
                                         },
-                                        "right": "a",
+                                        "right": {
+                                          "name": "Identifier",
+                                          "props": {
+                                            "value": "a"
+                                          }
+                                        },
                                         "operator": "Dot"
                                       }
                                     },
@@ -845,7 +855,12 @@
                                             "value": 1
                                           }
                                         },
-                                        "right": "a",
+                                        "right": {
+                                          "name": "Identifier",
+                                          "props": {
+                                            "value": "a"
+                                          }
+                                        },
                                         "operator": "Dot"
                                       }
                                     },
@@ -980,7 +995,12 @@
                                             "value": 1
                                           }
                                         },
-                                        "right": "a",
+                                        "right": {
+                                          "name": "Identifier",
+                                          "props": {
+                                            "value": "a"
+                                          }
+                                        },
                                         "operator": "Dot"
                                       }
                                     },
@@ -1784,7 +1804,7 @@
               {
                 "name": "Member",
                 "props": {
-                  "publicOrPrivate": "Public",
+                  "visibilityModifier": "Public",
                   "declaration": {
                     "name": "ValDeclaration",
                     "props": {
@@ -1803,7 +1823,7 @@
               {
                 "name": "Member",
                 "props": {
-                  "publicOrPrivate": "Public",
+                  "visibilityModifier": "Public",
                   "declaration": {
                     "name": "ValDeclaration",
                     "props": {
@@ -1822,7 +1842,7 @@
               {
                 "name": "Member",
                 "props": {
-                  "publicOrPrivate": "Private",
+                  "visibilityModifier": "Private",
                   "declaration": {
                     "name": "ValDeclaration",
                     "props": {
@@ -1912,6 +1932,23 @@
                   }
                 }
               }
+            ],
+            "constructorParameters": [
+              {
+                "name": "ConstructorParameter",
+                "props": {
+                  "name": "x",
+                  "type": {
+                    "name": "Type.Regular",
+                    "props": {
+                      "name": "Int",
+                      "nullable": false,
+                      "typesParameters": []
+                    }
+                  },
+                  "visibilityModifier": "Private"
+                }
+              }
             ]
           }
         }
@@ -1931,7 +1968,7 @@
               {
                 "name": "Member",
                 "props": {
-                  "publicOrPrivate": "Public",
+                  "visibilityModifier": "Public",
                   "declaration": {
                     "name": "FunctionDeclaration",
                     "props": {
@@ -1948,7 +1985,14 @@
                       },
                       "name": "x",
                       "parameters": [],
-                      "returnType": null,
+                      "returnType": {
+                        "name": "Type.Regular",
+                        "props": {
+                          "name": "Unit",
+                          "nullable": false,
+                          "typesParameters": []
+                        }
+                      },
                       "typeParameters": []
                     }
                   }
@@ -1957,7 +2001,7 @@
               {
                 "name": "Member",
                 "props": {
-                  "publicOrPrivate": "Private",
+                  "visibilityModifier": "Private",
                   "declaration": {
                     "name": "FunctionDeclaration",
                     "props": {
@@ -1974,7 +2018,14 @@
                       },
                       "name": "z",
                       "parameters": [],
-                      "returnType": null,
+                      "returnType": {
+                        "name": "Type.Regular",
+                        "props": {
+                          "name": "Unit",
+                          "nullable": false,
+                          "typesParameters": []
+                        }
+                      },
                       "typeParameters": []
                     }
                   }
@@ -1983,7 +2034,7 @@
               {
                 "name": "Member",
                 "props": {
-                  "publicOrPrivate": "Public",
+                  "visibilityModifier": "Public",
                   "declaration": {
                     "name": "FunctionDeclaration",
                     "props": {
@@ -2000,10 +2051,34 @@
                       },
                       "name": "h",
                       "parameters": [],
-                      "returnType": null,
+                      "returnType": {
+                        "name": "Type.Regular",
+                        "props": {
+                          "name": "Unit",
+                          "nullable": false,
+                          "typesParameters": []
+                        }
+                      },
                       "typeParameters": []
                     }
                   }
+                }
+              }
+            ],
+            "constructorParameters": [
+              {
+                "name": "ConstructorParameter",
+                "props": {
+                  "name": "x",
+                  "type": {
+                    "name": "Type.Regular",
+                    "props": {
+                      "name": "Int",
+                      "nullable": false,
+                      "typesParameters": []
+                    }
+                  },
+                  "visibilityModifier": "Private"
                 }
               }
             ]
@@ -2025,7 +2100,7 @@
               {
                 "name": "Member",
                 "props": {
-                  "publicOrPrivate": "Public",
+                  "visibilityModifier": "Public",
                   "declaration": {
                     "name": "FunctionDeclaration",
                     "props": {
@@ -2042,7 +2117,14 @@
                       },
                       "name": "x",
                       "parameters": [],
-                      "returnType": null,
+                      "returnType": {
+                        "name": "Type.Regular",
+                        "props": {
+                          "name": "Unit",
+                          "nullable": false,
+                          "typesParameters": []
+                        }
+                      },
                       "typeParameters": []
                     }
                   }
@@ -2051,7 +2133,7 @@
               {
                 "name": "Member",
                 "props": {
-                  "publicOrPrivate": "Private",
+                  "visibilityModifier": "Private",
                   "declaration": {
                     "name": "FunctionDeclaration",
                     "props": {
@@ -2068,7 +2150,14 @@
                       },
                       "name": "z",
                       "parameters": [],
-                      "returnType": null,
+                      "returnType": {
+                        "name": "Type.Regular",
+                        "props": {
+                          "name": "Unit",
+                          "nullable": false,
+                          "typesParameters": []
+                        }
+                      },
                       "typeParameters": []
                     }
                   }
@@ -2077,7 +2166,7 @@
               {
                 "name": "Member",
                 "props": {
-                  "publicOrPrivate": "Public",
+                  "visibilityModifier": "Public",
                   "declaration": {
                     "name": "FunctionDeclaration",
                     "props": {
@@ -2094,7 +2183,14 @@
                       },
                       "name": "f",
                       "parameters": [],
-                      "returnType": null,
+                      "returnType": {
+                        "name": "Type.Regular",
+                        "props": {
+                          "name": "Unit",
+                          "nullable": false,
+                          "typesParameters": []
+                        }
+                      },
                       "typeParameters": []
                     }
                   }
@@ -2103,7 +2199,7 @@
               {
                 "name": "Member",
                 "props": {
-                  "publicOrPrivate": "Public",
+                  "visibilityModifier": "Public",
                   "declaration": {
                     "name": "FunctionDeclaration",
                     "props": {
@@ -2120,7 +2216,14 @@
                       },
                       "name": "@ a",
                       "parameters": [],
-                      "returnType": null,
+                      "returnType": {
+                        "name": "Type.Regular",
+                        "props": {
+                          "name": "Unit",
+                          "nullable": false,
+                          "typesParameters": []
+                        }
+                      },
                       "typeParameters": []
                     }
                   }
@@ -2129,7 +2232,7 @@
               {
                 "name": "Member",
                 "props": {
-                  "publicOrPrivate": "Public",
+                  "visibilityModifier": "Public",
                   "declaration": {
                     "name": "FunctionDeclaration",
                     "props": {
@@ -2146,7 +2249,14 @@
                       },
                       "name": "+",
                       "parameters": [],
-                      "returnType": null,
+                      "returnType": {
+                        "name": "Type.Regular",
+                        "props": {
+                          "name": "Unit",
+                          "nullable": false,
+                          "typesParameters": []
+                        }
+                      },
                       "typeParameters": []
                     }
                   }
@@ -2155,7 +2265,7 @@
               {
                 "name": "Member",
                 "props": {
-                  "publicOrPrivate": "Public",
+                  "visibilityModifier": "Public",
                   "declaration": {
                     "name": "ValDeclaration",
                     "props": {
@@ -2174,7 +2284,7 @@
               {
                 "name": "Member",
                 "props": {
-                  "publicOrPrivate": "Public",
+                  "visibilityModifier": "Public",
                   "declaration": {
                     "name": "FunctionDeclaration",
                     "props": {
@@ -2191,10 +2301,34 @@
                       },
                       "name": "y",
                       "parameters": [],
-                      "returnType": null,
+                      "returnType": {
+                        "name": "Type.Regular",
+                        "props": {
+                          "name": "Unit",
+                          "nullable": false,
+                          "typesParameters": []
+                        }
+                      },
                       "typeParameters": []
                     }
                   }
+                }
+              }
+            ],
+            "constructorParameters": [
+              {
+                "name": "ConstructorParameter",
+                "props": {
+                  "name": "x",
+                  "type": {
+                    "name": "Type.Regular",
+                    "props": {
+                      "name": "Int",
+                      "nullable": false,
+                      "typesParameters": []
+                    }
+                  },
+                  "visibilityModifier": "Private"
                 }
               }
             ]
@@ -2216,7 +2350,7 @@
               {
                 "name": "Member",
                 "props": {
-                  "publicOrPrivate": "Private",
+                  "visibilityModifier": "Private",
                   "declaration": {
                     "name": "ValDeclaration",
                     "props": {
@@ -2235,7 +2369,7 @@
               {
                 "name": "Member",
                 "props": {
-                  "publicOrPrivate": "Public",
+                  "visibilityModifier": "Public",
                   "declaration": {
                     "name": "FunctionDeclaration",
                     "props": {
@@ -2252,7 +2386,14 @@
                       },
                       "name": "x",
                       "parameters": [],
-                      "returnType": null,
+                      "returnType": {
+                        "name": "Type.Regular",
+                        "props": {
+                          "name": "Unit",
+                          "nullable": false,
+                          "typesParameters": []
+                        }
+                      },
                       "typeParameters": []
                     }
                   }
@@ -2261,7 +2402,7 @@
               {
                 "name": "Member",
                 "props": {
-                  "publicOrPrivate": "Private",
+                  "visibilityModifier": "Private",
                   "declaration": {
                     "name": "FunctionDeclaration",
                     "props": {
@@ -2278,7 +2419,14 @@
                       },
                       "name": "z",
                       "parameters": [],
-                      "returnType": null,
+                      "returnType": {
+                        "name": "Type.Regular",
+                        "props": {
+                          "name": "Unit",
+                          "nullable": false,
+                          "typesParameters": []
+                        }
+                      },
                       "typeParameters": []
                     }
                   }
@@ -2287,7 +2435,7 @@
               {
                 "name": "Member",
                 "props": {
-                  "publicOrPrivate": "Private",
+                  "visibilityModifier": "Private",
                   "declaration": {
                     "name": "ValDeclaration",
                     "props": {
@@ -2306,7 +2454,7 @@
               {
                 "name": "Member",
                 "props": {
-                  "publicOrPrivate": "Public",
+                  "visibilityModifier": "Public",
                   "declaration": {
                     "name": "FunctionDeclaration",
                     "props": {
@@ -2323,7 +2471,14 @@
                       },
                       "name": "h",
                       "parameters": [],
-                      "returnType": null,
+                      "returnType": {
+                        "name": "Type.Regular",
+                        "props": {
+                          "name": "Unit",
+                          "nullable": false,
+                          "typesParameters": []
+                        }
+                      },
                       "typeParameters": []
                     }
                   }
@@ -2332,7 +2487,7 @@
               {
                 "name": "Member",
                 "props": {
-                  "publicOrPrivate": "Private",
+                  "visibilityModifier": "Private",
                   "declaration": {
                     "name": "ValDeclaration",
                     "props": {
@@ -2353,6 +2508,54 @@
                       }
                     }
                   }
+                }
+              }
+            ],
+            "constructorParameters": [
+              {
+                "name": "ConstructorParameter",
+                "props": {
+                  "name": "x",
+                  "type": {
+                    "name": "Type.Regular",
+                    "props": {
+                      "name": "Int",
+                      "nullable": true,
+                      "typesParameters": []
+                    }
+                  },
+                  "visibilityModifier": "Private"
+                }
+              },
+              {
+                "name": "ConstructorParameter",
+                "props": {
+                  "name": "y",
+                  "type": {
+                    "name": "Type.Functional",
+                    "props": {
+                      "parameterTypes": [
+                        {
+                          "name": "Type.Regular",
+                          "props": {
+                            "name": "Int",
+                            "nullable": false,
+                            "typesParameters": []
+                          }
+                        }
+                      ],
+                      "resultType": {
+                        "name": "Type.Regular",
+                        "props": {
+                          "name": "Float",
+                          "nullable": false,
+                          "typesParameters": []
+                        }
+                      },
+                      "nullable": false
+                    }
+                  },
+                  "visibilityModifier": "Private"
                 }
               }
             ]

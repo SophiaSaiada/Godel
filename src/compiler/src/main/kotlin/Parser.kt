@@ -2,7 +2,7 @@ object Parser : ParserBase() {
     override val start = ::parseProgram
 
     enum class InnerNodeType : NodeType {
-        Program, Statements, Statement, Declaration, ValDeclaration, ValDeclarationRest, Type, FunctionalOrNullableType, TypeStar, TypeStarRest, TypeArgumentsOptional, TypeArguments, TypeArgumentsContent, TypeNamedArgumentsOptional, TypeArgumentsContentRest, TypeParameters, TypeParametersNamesPlus, TypeParametersInheritanceOptional, TypeParametersNamesPlusRest, QuestionMarkOptional, ParenthesizedExpression, PaddedExpression, Expression, SimpleExpression, BooleanLiteral, Number, MemberAccessWithoutFirstDot, StringLiteral, AnythingEndsWithApostrophes, IfExpression, ElseExpression, ClassDeclaration, MemberDeclarationStar, MemberDeclarationStarRest, MemberDeclaration, MemberDeclarationRest, PrivateOrPublic, ElvisExpression, ReturnExpression, InfixExpression, DisjunctionExpression, ConjunctionExpression, EqualityOperator, EqualityExpression, ComparisonOperator, ComparisonExpression, AdditiveOperator, AdditiveExpression, MultiplicativeOperator, MultiplicativeExpression, DotOrQuestionedDot, MemberAccess, Invocation, InvocationArgumentsStar, InvocationArguments, ArgumentStar, NamedArgumentPostfixOptional, ArgumentStarRest, SimpleOrParenthesizedExpression, FunctionDeclaration, FunctionName, ReturnTypeOptional, FunctionParameters, FunctionParameterStar, FunctionParameterStarRest, FunctionParameter, StatementOrBlock, Block, Lambda, LambdaParametersStar, LambdaParametersRest, WhiteSpaceOrBreakLine, SpaceStar, SpacePlus, WhitespaceStar, WhitespacePlus, AnythingButBacktickPlus, SEMI, SEMIRest, SEMIOptional, SemiColonOptional
+        Program, Statements, Statement, Declaration, ValDeclaration, ValDeclarationRest, Type, FunctionalOrNullableType, TypeStar, TypeStarRest, TypeArgumentsOptional, TypeArguments, TypeArgumentsContent, TypeNamedArgumentsOptional, TypeArgumentsContentRest, TypeParameters, TypeParametersNamesPlus, TypeParametersInheritanceOptional, TypeParametersNamesPlusRest, QuestionMarkOptional, ParenthesizedExpression, PaddedExpression, Expression, SimpleExpression, BooleanLiteral, Number, MemberAccessWithoutFirstDot, StringLiteral, AnythingEndsWithApostrophes, IfExpression, ElseExpression, ClassDeclaration, ClassPropertyStar, ClassProperty, MemberDeclarationStar, MemberDeclarationStarRest, MemberDeclaration, MemberDeclarationRest, PrivateOrPublic, ElvisExpression, ReturnExpression, InfixExpression, DisjunctionExpression, ConjunctionExpression, EqualityOperator, EqualityExpression, ComparisonOperator, ComparisonExpression, AdditiveOperator, AdditiveExpression, MultiplicativeOperator, MultiplicativeExpression, DotOrQuestionedDot, MemberAccess, Invocation, InvocationArgumentsStar, InvocationArguments, ArgumentStar, NamedArgumentPostfixOptional, ArgumentStarRest, SimpleOrParenthesizedExpression, FunctionDeclaration, FunctionName, ReturnTypeOptional, FunctionParameters, FunctionParameterStar, FunctionParameterStarRest, FunctionParameter, StatementOrBlock, Block, Lambda, LambdaParametersStar, LambdaParametersRest, WhiteSpaceOrBreakLine, SpaceStar, SpacePlus, WhitespaceStar, WhitespacePlus, AnythingButBacktickPlus, SEMI, SEMIRest, SEMIOptional, SemiColonOptional
     }
 
     private fun parseProgram(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
@@ -1003,14 +1003,63 @@ object Parser : ParserBase() {
             val (child3, nextToken4) = parseSpaceStar(nextToken3, restOfTokens)
             val (child4, nextToken5) = parseTypeParameters(nextToken4, restOfTokens)
             val (child5, nextToken6) = parseSpaceStar(nextToken5, restOfTokens)
-            val (child6, nextToken7) = parseToken(TokenType.OpenBraces).invoke(nextToken6, restOfTokens)
+            val (child6, nextToken7) = parseToken(TokenType.OpenParenthesis).invoke(nextToken6, restOfTokens)
             val (child7, nextToken8) = parseSpaceStar(nextToken7, restOfTokens)
-            val (child8, nextToken9) = parseMemberDeclarationStar(nextToken8, restOfTokens)
-            val (child9, nextToken10) = parseSEMIOptional(nextToken9, restOfTokens)
-            val (child10, nextToken11) = parseToken(TokenType.CloseBraces).invoke(nextToken10, restOfTokens)
+            val (child8, nextToken9) = parseClassPropertyStar(nextToken8, restOfTokens)
+            val (child9, nextToken10) = parseToken(TokenType.CloseParenthesis).invoke(nextToken9, restOfTokens)
+            val (child10, nextToken11) = parseSpaceStar(nextToken10, restOfTokens)
+            val (child11, nextToken12) = parseToken(TokenType.OpenBraces).invoke(nextToken11, restOfTokens)
+            val (child12, nextToken13) = parseSpaceStar(nextToken12, restOfTokens)
+            val (child13, nextToken14) = parseMemberDeclarationStar(nextToken13, restOfTokens)
+            val (child14, nextToken15) = parseSEMIOptional(nextToken14, restOfTokens)
+            val (child15, nextToken16) = parseToken(TokenType.CloseBraces).invoke(nextToken15, restOfTokens)
             ParseTreeNodeResult(
-                ParseTreeNode.Inner(listOf(child0, child1, child2, child3, child4, child5, child6, child7, child8, child9, child10), nodeType),
-                nextToken11
+                ParseTreeNode.Inner(listOf(child0, child1, child2, child3, child4, child5, child6, child7, child8, child9, child10, child11, child12, child13, child14, child15), nodeType),
+                nextToken16
+            )
+        } else throw CompilationError("not matching alternative for nextToken.")
+    }
+
+    private fun parseClassPropertyStar(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
+        val nodeType = InnerNodeType.ClassPropertyStar
+        return if (nextToken0 in setOf(Keyword.Private, Keyword.Public)) {
+            val (child0, nextToken1) = parseClassProperty(nextToken0, restOfTokens)
+            if (nextToken1 in setOf(TokenType.Comma)) {
+                val (child1, nextToken2) = parseToken(TokenType.Comma).invoke(nextToken1, restOfTokens)
+                val (child2, nextToken3) = parseSpaceStar(nextToken2, restOfTokens)
+                val (child3, nextToken4) = parseClassPropertyStar(nextToken3, restOfTokens)
+                ParseTreeNodeResult(
+                    ParseTreeNode.Inner(listOf(child0, child1, child2, child3), nodeType),
+                    nextToken4
+                )
+            } else {
+                val (child1, nextToken2) = parseSpaceStar(nextToken1, restOfTokens)
+                ParseTreeNodeResult(
+                    ParseTreeNode.Inner(listOf(child0, child1), nodeType),
+                    nextToken2
+                )
+            }
+        } else {
+            ParseTreeNodeResult(ParseTreeNode.EpsilonLeaf(nodeType), nextToken0)
+        }
+    }
+
+    private fun parseClassProperty(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult {
+        val nodeType = InnerNodeType.ClassProperty
+        return if (nextToken0 in setOf(Keyword.Private, Keyword.Public)) {
+            val (child0, nextToken1) = parsePrivateOrPublic(nextToken0, restOfTokens)
+            val (child1, nextToken2) = parseSpacePlus(nextToken1, restOfTokens)
+            val (child2, nextToken3) = parseToken(Keyword.Val).invoke(nextToken2, restOfTokens)
+            val (child3, nextToken4) = parseSpacePlus(nextToken3, restOfTokens)
+            val (child4, nextToken5) = parseToken(TokenType.SimpleName).invoke(nextToken4, restOfTokens)
+            val (child5, nextToken6) = parseSpaceStar(nextToken5, restOfTokens)
+            val (child6, nextToken7) = parseToken(TokenType.Colon).invoke(nextToken6, restOfTokens)
+            val (child7, nextToken8) = parseSpaceStar(nextToken7, restOfTokens)
+            val (child8, nextToken9) = parseType(nextToken8, restOfTokens)
+            val (child9, nextToken10) = parseSpaceStar(nextToken9, restOfTokens)
+            ParseTreeNodeResult(
+                ParseTreeNode.Inner(listOf(child0, child1, child2, child3, child4, child5, child6, child7, child8, child9), nodeType),
+                nextToken10
             )
         } else throw CompilationError("not matching alternative for nextToken.")
     }

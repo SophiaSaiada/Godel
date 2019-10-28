@@ -59,8 +59,11 @@
 <ElseExpression> -> KeywordElse <SpaceStar> <StatementOrBlock>
 
 // Class
-<ClassDeclaration> -> KeywordClass <SpacePlus> SimpleName <SpaceStar> <TypeParameters> <SpaceStar> OpenBraces
-                      <SpaceStar> <MemberDeclarationStar> <SEMIOptional> CloseBraces
+<ClassDeclaration> -> KeywordClass <SpacePlus> SimpleName <SpaceStar> <TypeParameters> <SpaceStar>
+                      OpenParenthesis <SpaceStar> <ClassPropertyStar> CloseParenthesis <SpaceStar>
+                      OpenBraces <SpaceStar> <MemberDeclarationStar> <SEMIOptional> CloseBraces
+<ClassPropertyStar> -> <ClassProperty> <SpaceStar> | <ClassProperty> Comma <SpaceStar> <ClassPropertyStar> | ε
+<ClassProperty> -> <PrivateOrPublic> <SpacePlus> KeywordVal <SpacePlus> SimpleName <SpaceStar> Colon <SpaceStar> <Type> <SpaceStar>
 <MemberDeclarationStar> -> <MemberDeclaration> <WhitespaceStar> <MemberDeclarationStarRest> | ε
 <MemberDeclarationStarRest> -> <SEMI> <MemberDeclarationStar> | ε
 

@@ -18,7 +18,7 @@ class TestTypeChecker : StringSpec({
     }
 
     infix fun String.wrappedAstShouldBe(expectedResultName: String) {
-        val classCode = """class A {
+        val classCode = """class A(){
             |private $this
             |}
             |fun main() {}
@@ -35,9 +35,9 @@ class TestTypeChecker : StringSpec({
         this shouldBe inputs.obj(expectedResultName)
     }
 
-    fun String.typeCheckerShouldFall() {
+    fun String.typeCheckerShouldFail() {
         shouldThrow<CompilationError> {
-            val classCode = """class A {
+            val classCode = """class A(){
             |private $this
             |}
             |fun main() {}
@@ -46,9 +46,9 @@ class TestTypeChecker : StringSpec({
         }
     }
 
-    infix fun String.typeCheckerShouldFallWith(message: String) {
+    infix fun String.typeCheckerShouldFailWith(message: String) {
         val exception = shouldThrow<CompilationError> {
-            val classCode = """class A {
+            val classCode = """class A(){
             |private $this
             |}
             |fun main() {}
@@ -64,11 +64,11 @@ class TestTypeChecker : StringSpec({
     "val declaration" {
         "val x = 3.14" wrappedAstShouldBe "float val declaration"
         "val x = if (true) 1 else 2" wrappedAstShouldBe "val with if expression"
-        "val x = if (true) 1 else \"hello\"" typeCheckerShouldFallWith
+        "val x = if (true) 1 else \"hello\"" typeCheckerShouldFailWith
                 "If expression's both branches should yield values from the same type."
-        "val x = if (1) 1 else 2" typeCheckerShouldFallWith
+        "val x = if (1) 1 else 2" typeCheckerShouldFailWith
                 "If's condition must be a Boolean."
-        "val x: String = 1" typeCheckerShouldFallWith
+        "val x: String = 1" typeCheckerShouldFailWith
                 "Type mismatch. Required: String, Found: Int"
     }
 })

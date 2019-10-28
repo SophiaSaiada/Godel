@@ -90,10 +90,12 @@ object ASTTransformer {
                                 resultType = transformType(node.last().last() as ParseTreeNode.Inner),
                                 nullable = false
                             )
-                    else -> throwInvalidParseError()
+                    else ->
+                        throwInvalidParseError()
                 }
             }
-            else -> throwInvalidParseError()
+            else ->
+                throwInvalidParseError()
         }
 
     private fun transformFunctionDeclaration(rootNode: ParseTreeNode.Inner): ASTNode.FunctionDeclaration {
@@ -233,8 +235,37 @@ object ASTTransformer {
         ASTNode.ClassDeclaration(
             name = (rootNode[2] as ParseTreeNode.Leaf).token.content,
             typeParameters = transformTypeParameters(rootNode[4]),
-            members = transformMembers(rootNode[8])
+            members = transformMembers(rootNode[13]),
+            constructorParameters = transformClassProperties(rootNode[8])
         )
+
+    private fun transformClassProperties(currentNode: ParseTreeNode): List<ASTNode.ConstructorParameter> =
+        when (currentNode) {
+            is ParseTreeNode.EpsilonLeaf -> emptyList()
+            is ParseTreeNode.Inner ->
+                when (currentNode.type) {
+                    Parser.InnerNodeType.ClassPropertyStar ->
+                        when (currentNode.children.size) {
+                            4 -> listOf(transformClassProperty(currentNode[0] as ParseTreeNode.Inner)) +
+                                    transformClassProperties(currentNode.last())
+                            2 -> listOf(transformClassProperty(currentNode[0] as ParseTreeNode.Inner))
+                            else -> throwInvalidParseError()
+                        }
+                    else -> throwInvalidParseError()
+                }
+            else -> throwInvalidParseError()
+        }
+
+    private fun transformClassProperty(rootNode: ParseTreeNode.Inner): ASTNode.ConstructorParameter {
+        val privateOrPublic = transformPrivateOrPublic(rootNode[0])
+        val propertyName = (rootNode[4] as ParseTreeNode.Leaf).token.content
+        val propertyType = transformType(rootNode[8] as ParseTreeNode.Inner)
+        return ASTNode.ConstructorParameter(
+            privateOrPublic,
+            propertyName,
+            propertyType
+        )
+    }
 
     private fun transformMembers(currentNode: ParseTreeNode): List<ASTNode.Member> =
         when (currentNode) {
@@ -264,7 +295,7 @@ object ASTTransformer {
     }
 
     private fun transformPrivateOrPublic(rootNode: ParseTreeNode) =
-        ASTNode.PrivateOrPublic.values()
+        ASTNode.VisibilityModifier.values()
             .find { (rootNode[0] as ParseTreeNode.Leaf).token.content == it.name.toLowerCase() }
             ?: throwInvalidParseError()
 

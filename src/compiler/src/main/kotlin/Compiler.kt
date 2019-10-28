@@ -26,8 +26,8 @@ object Compiler {
             }
         }
         mainFunction?.let {
-            val classDeclarationsWithTypes = TypeChecker.withTypes(classDeclarations)
-            return CompilationResult(classDeclarationsWithTypes, it)
+            val (classDeclarationsWithTypes, mainFunctionWithTypes) = TypeChecker.withTypes(classDeclarations, it)
+            return CompilationResult(classDeclarationsWithTypes, mainFunctionWithTypes)
         } ?: throw CompilationError("There needs to be at least one function named main!")
     }
 }

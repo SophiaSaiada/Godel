@@ -27,10 +27,20 @@ abstract class ParserBase {
             else throw CompilationError("The token $firstToken doesn't fit expected keyword \"$keyword\"")
         }
 
-    fun parse(tokens: Sequence<Token>): ParseTreeNode {
+    fun parse(tokens: Sequence<Token>, printErrors: Boolean = false): ParseTreeNode {
         val iterator = tokens.iterator()
         val firstToken = iterator.nextOrNull()
-        val rootResult = start(firstToken, iterator)
+        val rootResult = try {
+            start(firstToken, iterator)
+        } catch (compilationError: CompilationError) {
+            if(printErrors) {
+                println("An error occurred during compilation.")
+                println("Code left to parse:\n------")
+                iterator.forEach { print(it.content) }
+                println("\n------")
+            }
+            throw compilationError
+        }
         if (rootResult.nextToken != null) {
             val leftTokens =
                 sequence {
@@ -39,7 +49,7 @@ abstract class ParserBase {
                 }.toList()
             throw CompilationError(
                 """
-                    |The whole source code can't be parsed from the language grammar.
+                    |The whole source code can't be parsed from the language's grammar.
                     |
                     |Left code:
                     |${leftTokens.joinToString("") { it?.content.orEmpty() }}

@@ -297,10 +297,17 @@ class ASTNode {
         }
     }
 
+    class ConstructorParameter(
+        val visibilityModifier: VisibilityModifier,
+        val name: String,
+        val type: Type
+    )
+
     class ClassDeclaration(
         val name: String,
         val typeParameters: List<Pair<String, Type?>>,
-        val members: List<Member>
+        val members: List<Member>,
+        val constructorParameters: List<ConstructorParameter>
     ) : Statement {
         override fun typed(
             identifierTypes: Map<String, Type>,
@@ -309,14 +316,15 @@ class ASTNode {
             ClassDeclaration(
                 name,
                 typeParameters,
-                members.map { it.typed(identifierTypes, classMemberTypeResolver).first }
+                members.map { it.typed(identifierTypes, classMemberTypeResolver).first },
+                constructorParameters
             ) to identifierTypes
     }
 
-    enum class PrivateOrPublic { Public, Private }
+    enum class VisibilityModifier { Public, Private }
 
     class Member(
-        val publicOrPrivate: PrivateOrPublic,
+        val visibilityModifier: VisibilityModifier,
         val declaration: FunctionDeclarationOrValDeclaration
     ) : Statement {
         override fun typed(
@@ -324,7 +332,7 @@ class ASTNode {
             classMemberTypeResolver: ClassMemberTypeResolver
         ) =
             Member(
-                publicOrPrivate,
+                visibilityModifier,
                 declaration.typed(identifierTypes, classMemberTypeResolver).first as FunctionDeclarationOrValDeclaration
             ) to identifierTypes
     }
@@ -539,9 +547,9 @@ class ASTNode {
     class Invocation(
         val function: Expression,
         val typeArguments: List<TypeArgument>,
-        val arguments: List<FunctionArgument>
-    ) : Expression {
+        val arguments: List<FunctionArgument>,
         override val actualType: Type = Type.Unknown
+    ) : Expression {
 
         override fun typed(
             identifierTypes: Map<String, Type>,
@@ -556,11 +564,11 @@ class ASTNode {
                     ?: throw CompilationError("Attempt to invoke non-functional value $function.")
 
             val expectedArgumentTypes = functionType.parameterTypes.joinToString(", ")
-            val actualArgumentTypes = typedArguments.joinToString(", ")
+            val actualArgumentTypes = typedArguments.joinToString(", ") { it.value.actualType.toString() }
             if (expectedArgumentTypes != actualArgumentTypes)
                 throw CompilationError("Actual argument's types ($actualArgumentTypes) don't match the expected types ($expectedArgumentTypes).")
 
-            return Invocation(typedFunction, typeArguments, typedArguments) to identifierTypes
+            return Invocation(typedFunction, typeArguments, typedArguments, functionType.resultType) to identifierTypes
         }
     }
 

@@ -230,6 +230,55 @@ class TestGrammar : StringSpec({
 
     "classes" {
         shouldAccept(
+            """class A(public val r: Int) {}""",
+            """class A(public val r: Int,
+                |private val x: List<C>) { private val x=1 }""".trimMargin(),
+            """class A(public val r: Int, private val x: List<C>,) { public val x=1;}""",
+            """class A(public val r: Int) { public fun x() {} }""",
+            """class A(public val r: Int) { private val x = 1; public fun x() {} }""",
+            """class A(public val r: Int) { private val x=1 ; public val z=2; public val h=3;}""",
+            """class A(public val r: Int) { public fun x(){} ; private fun z(){}; public fun f(){} }""",
+            """class A(public val r: Int,) {
+                |   public val x=1;
+                |   public val z=2;
+                |   private val h: Float=3.2;
+                |}
+            """.trimMargin(),
+            """class A(
+                |public val r: Int,
+                |) {
+                |   public fun x() {}
+                |   private fun z() {}
+                |   public fun h() {}
+                |}
+            """.trimMargin(),
+            """class A(
+                |   public val r: Int
+                |   ) {
+                |   public fun x() {}
+                |   ;
+                |   private fun z() {}   ;
+                |   public fun f() {}
+                |   public fun h() {};
+                |   public val z=2
+                |   public fun y() {}
+                |
+                |   ;
+                |
+                |}
+                |
+            """.trimMargin(),
+            """class A (public val r: Int) {
+                |   private val x=1;  public fun x() {}
+                |   private fun z() {};
+                |   private val z=2;
+                |   public fun h() {}
+                |   private val h: Float=3.2;
+                |}
+            """.trimMargin()
+        )
+        shouldReject(
+            """class A(public val r: Int,,) {}""",
             """class A {}""",
             """class A { private val x=1 }""",
             """class A { public val x=1;}""",

@@ -1,4 +1,3 @@
-import ASTNode
 import kotlin.reflect.full.memberProperties
 
 object ASTJSONizer {
@@ -37,7 +36,8 @@ object ASTJSONizer {
             is ASTNode.TypeArgument,
             is ASTNode.Parameter,
             is ASTNode.Member,
-            is ASTNode.Type ->
+            is ASTNode.Type,
+            is ASTNode.ConstructorParameter ->
                 this::class.memberProperties
                     .filter { withActualType || it.name != "actualType" }
                     .map {
@@ -56,7 +56,7 @@ object ASTJSONizer {
             is Pair<Any?, Any?> ->
                 "{\"name\": \"Pair\", \"props\": {\"first\": ${this.first.toJSON(withActualType)}, \"second\": ${this.second.toJSON(withActualType)}}}"
             is ASTNode.BinaryOperator -> "\"${this.name}\""
-            is ASTNode.PrivateOrPublic -> "\"${this.name}\""
+            is ASTNode.VisibilityModifier -> "\"${this.name}\""
             is String -> "\"$this\""
             is Int -> this.toString()
             is Map<*, *> ->

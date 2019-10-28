@@ -1,78 +1,87 @@
 import kotlinx.collections.immutable.immutableMapOf
 
+typealias TypeResolver = Pair<Map<String, ASTNode.Type>, ClassMemberTypeResolver>
+
 object TypeChecker {
 
     private fun getClassMemberDescription(member: ASTNode.Member, className: String): ClassDescription.Member {
         return if (member.declaration is ASTNode.FunctionDeclaration) {
             val functionDeclaration = member.declaration as ASTNode.FunctionDeclaration
             ClassDescription.Member.Method(
+                member.visibilityModifier == ASTNode.VisibilityModifier.Public,
                 functionDeclaration.name,
                 functionDeclaration.parameters.map { it.type },
                 functionDeclaration.returnType
             )
         } else {
             val valDeclaration = member.declaration as ASTNode.ValDeclaration
+            val (identifierTypes, classMemberTypeResolver) = memoizedCreateTypeResolverBasedOn(coreClassDescriptions)
             val type =
-                valDeclaration.typed(emptyMap(), memoizedCreateClassMemberTypeResolverBasedOn(coreClassDescriptions))
-                    .first.type
+                valDeclaration.typed(identifierTypes, classMemberTypeResolver).first.type
                     ?: throw CompilationError("Type inference could'nt infer the type of property ${valDeclaration.name} of class $className")
-            ClassDescription.Member.Property(valDeclaration.name, type)
+            ClassDescription.Member.Property(
+                member.visibilityModifier == ASTNode.VisibilityModifier.Public,
+                valDeclaration.name,
+                type
+            )
         }
     }
 
-    private fun getClassDescription(classDeclaration: ASTNode.ClassDeclaration): ClassDescription {
-        return ClassDescription(
-            classDeclaration.name,
-            classDeclaration.members.map { getClassMemberDescription(it, classDeclaration.name) },
-            isNative = false
-        )
-    }
+    private fun getClassDescription(classDeclaration: ASTNode.ClassDeclaration) =
+        classDeclaration.constructorParameters.map { getClassMemberDescription(it) }.let { constructorParameters ->
+            ClassDescription(
+                classDeclaration.name,
+                classDeclaration.members.map {
+                    getClassMemberDescription(it, classDeclaration.name)
+                } + constructorParameters,
+                constructorParameters,
+                isNative = false
+            )
+        }
 
-    fun withTypes(classRoots: List<ASTNode.ClassDeclaration>): List<ASTNode.ClassDeclaration> {
+    private fun getClassMemberDescription(member: ASTNode.ConstructorParameter) =
+        ClassDescription.Member.Property(
+            member.visibilityModifier == ASTNode.VisibilityModifier.Public,
+            member.name,
+            member.type
+        )
+
+    fun withTypes(
+        classRoots: List<ASTNode.ClassDeclaration>,
+        mainFunction: ASTNode.FunctionDeclaration
+    ): Pair<List<ASTNode.ClassDeclaration>, ASTNode.FunctionDeclaration> {
         val classDescriptions: Map<ASTNode.Type, ClassDescription> =
             classRoots.map { ASTNode.Type.Regular(it.name) to getClassDescription(it) }.toMap() +
                     coreClassDescriptions
-        val classMemberTypeResolver = memoizedCreateClassMemberTypeResolverBasedOn(classDescriptions)
-        return classRoots.map { it.typed(emptyMap(), classMemberTypeResolver).first }
+        val (identifierTypes, classMemberTypeResolver) = memoizedCreateTypeResolverBasedOn(classDescriptions)
+        return classRoots.map { it.typed(identifierTypes, classMemberTypeResolver).first } to
+                mainFunction.typed(identifierTypes, classMemberTypeResolver).first
     }
 
     private val coreClassDescriptions: Map<ASTNode.Type, ClassDescription> =
         coreClasses.map { it.key to it.value.description }.toMap()
 
-    private var pastResultsOfCreateClassMemberTypeResolverBasedOn =
-        immutableMapOf<Map<ASTNode.Type, ClassDescription>, ClassMemberTypeResolver>()
+    private var pastResultsOfCreateTypeResolverBasedOn =
+        immutableMapOf<Map<ASTNode.Type, ClassDescription>, TypeResolver>()
 
-    private fun memoizedCreateClassMemberTypeResolverBasedOn(classDescriptions: Map<ASTNode.Type, ClassDescription>) =
-        pastResultsOfCreateClassMemberTypeResolverBasedOn[classDescriptions] ?: createClassMemberTypeResolverBasedOn(
+    private fun memoizedCreateTypeResolverBasedOn(classDescriptions: Map<ASTNode.Type, ClassDescription>) =
+        pastResultsOfCreateTypeResolverBasedOn[classDescriptions] ?: createTypeResolverBasedOn(
             classDescriptions
         ).also {
-            pastResultsOfCreateClassMemberTypeResolverBasedOn =
-                pastResultsOfCreateClassMemberTypeResolverBasedOn.put(classDescriptions, it)
+            pastResultsOfCreateTypeResolverBasedOn =
+                pastResultsOfCreateTypeResolverBasedOn.put(classDescriptions, it)
         }
 
-    private fun createClassMemberTypeResolverBasedOn(classDescriptions: Map<ASTNode.Type, ClassDescription>) =
-        object : ClassMemberTypeResolver {
+    private fun createTypeResolverBasedOn(classDescriptions: Map<ASTNode.Type, ClassDescription>): TypeResolver {
+        val classMemberTypeResolver = object : ClassMemberTypeResolver {
             override fun resolve(classType: ASTNode.Type, memberName: String, isSafeCall: Boolean): ASTNode.Type {
                 if (classType.nullable && !isSafeCall)
                     throw CompilationError("Only safe (?.) calls are allowed on a nullable receiver of type $classType")
-                for (className in classDescriptions.keys)
-                    if (className == classType) {
-                        val classDescription = classDescriptions[className]
-                            ?: error("classDescriptions doesn't contains description for class $className")
-                        for (member in classDescription.members)
-                            if (member.name == memberName)
-                                return if (member is ClassDescription.Member.Property)
-                                    member.type
-                                else {
-                                    val methodMember = member as ClassDescription.Member.Method
-                                    ASTNode.Type.Functional(
-                                        methodMember.parameterTypes,
-                                        member.resultType,
-                                        member.resultType.nullable
-                                    )
-                                }
-                    }
-                throw CompilationError("Class doesn't exist")
+                return classDescriptions.filter { it.key == classType }.values.singleOrNull()
+                    ?.members
+                    ?.find { it.name == memberName }
+                    ?.type
+                    ?: throw CompilationError("Class doesn't exist")
             }
 
             override fun resolve(
@@ -112,4 +121,10 @@ object TypeChecker {
                 throw ASTError("Class didn't exist")
             }
         }
+        val identifierTypes =
+            classDescriptions.values.map {
+                it.name to it.constructorType()
+            }.toMap()
+        return identifierTypes to classMemberTypeResolver
+    }
 }

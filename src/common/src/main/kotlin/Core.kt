@@ -11,14 +11,17 @@ val coreClasses = mapOf(
                 ClassDescription.Member.Method(
                     name = "&&",
                     parameterTypes = listOf(ASTNode.Type.Core.boolean),
-                    resultType = ASTNode.Type.Core.boolean
+                    resultType = ASTNode.Type.Core.boolean,
+                    isPublic = true
                 ),
                 ClassDescription.Member.Method(
                     name = "||",
                     parameterTypes = listOf(ASTNode.Type.Core.boolean),
-                    resultType = ASTNode.Type.Core.boolean
+                    resultType = ASTNode.Type.Core.boolean,
+                    isPublic = true
                 )
-            ) + getBasicFunctionsOfType(ASTNode.Type.Core.boolean)
+            ) + getBasicFunctionsOfType(ASTNode.Type.Core.boolean),
+            constructorParameter = emptyList()
         )
     ),
 
@@ -27,7 +30,8 @@ val coreClasses = mapOf(
             name = ASTNode.Type.Core.int.name,
             isNative = true,
             members = getArithmeticFunctionsOfType(ASTNode.Type.Core.int)
-                    + getBasicFunctionsOfType(ASTNode.Type.Core.int)
+                    + getBasicFunctionsOfType(ASTNode.Type.Core.int),
+            constructorParameter = emptyList()
         )
     ),
 
@@ -36,8 +40,8 @@ val coreClasses = mapOf(
             name = ASTNode.Type.Core.float.name,
             isNative = true,
             members = getArithmeticFunctionsOfType(ASTNode.Type.Core.float)
-                    + getBasicFunctionsOfType(ASTNode.Type.Core.float)
-
+                    + getBasicFunctionsOfType(ASTNode.Type.Core.float),
+            constructorParameter = emptyList()
         )
     ),
 
@@ -49,13 +53,17 @@ val coreClasses = mapOf(
                 ClassDescription.Member.Method(
                     name = "+",
                     parameterTypes = listOf(ASTNode.Type.Core.string),
-                    resultType = ASTNode.Type.Core.string
+                    resultType = ASTNode.Type.Core.string,
+                    isPublic = true
                 ),
-                ClassDescription.Member.Property(
+                ClassDescription.Member.Method(
                     name = "length",
-                    type = ASTNode.Type.Core.int
+                    parameterTypes = emptyList(),
+                    resultType = ASTNode.Type.Core.int,
+                    isPublic = true
                 )
-            ) + getBasicFunctionsOfType(ASTNode.Type.Core.string)
+            ) + getBasicFunctionsOfType(ASTNode.Type.Core.string),
+            constructorParameter = emptyList()
         )
     ),
 
@@ -63,7 +71,8 @@ val coreClasses = mapOf(
         ClassDescription(
             name = ASTNode.Type.Core.unit.name,
             isNative = true,
-            members = getBasicFunctionsOfType(ASTNode.Type.Core.unit)
+            members = getBasicFunctionsOfType(ASTNode.Type.Core.unit),
+            constructorParameter = emptyList()
         )
     )
 )
@@ -73,18 +82,21 @@ private fun getBasicFunctionsOfType(type: ASTNode.Type) =
         ClassDescription.Member.Method(
             name = "==",
             parameterTypes = listOf(type),
-            resultType = ASTNode.Type.Core.boolean
+            resultType = ASTNode.Type.Core.boolean,
+            isPublic = true
         ),
         ClassDescription.Member.Method(
             name = "!=",
             parameterTypes = listOf(type),
-            resultType = ASTNode.Type.Core.boolean
+            resultType = ASTNode.Type.Core.boolean,
+            isPublic = true
         ),
 
         ClassDescription.Member.Method(
             name = "toString",
             parameterTypes = emptyList(),
-            resultType = ASTNode.Type.Core.string
+            resultType = ASTNode.Type.Core.string,
+            isPublic = true
         )
     )
 
@@ -93,21 +105,25 @@ private fun getArithmeticFunctionsOfType(type: ASTNode.Type) =
         ClassDescription.Member.Method(
             name = "+",
             parameterTypes = listOf(type),
-            resultType = type
+            resultType = type,
+            isPublic = true
         ),
         ClassDescription.Member.Method(
             name = "-",
             parameterTypes = listOf(type),
-            resultType = type
+            resultType = type,
+            isPublic = true
         ),
         ClassDescription.Member.Method(
             name = "*",
             parameterTypes = listOf(type),
-            resultType = type
+            resultType = type,
+            isPublic = true
         ),
         ClassDescription.Member.Method(
             name = "/",
             parameterTypes = listOf(type),
-            resultType = type
+            resultType = type,
+            isPublic = true
         )
     )

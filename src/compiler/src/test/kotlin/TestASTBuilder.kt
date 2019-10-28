@@ -85,19 +85,25 @@ class TestASTBuilder : StringSpec({
     }
 
     "class" {
-        """class A {
+        """class A (
+            |   private val x: Int
+            |) {
                 |   public val x=1;
                 |   public val z=2;
                 |   private val h: (Float) -> Int=#{ x: Float -> this.x + x};
                 |}
             """.trimMargin() astShouldBe "class with primitive properties"
-        """class A {
+        """class A (
+            |   private val x: Int
+            |) {
                 |   public fun x() {}
                 |   private fun z() {}
                 |   public fun h() {}
                 |}
             """.trimMargin() astShouldBe "class with methods"
-        """class A {
+        """class A (
+            |   private val x: Int
+            |) {
                 |   public fun x() {}
                 |   ;
                 |   private fun z() {}   ;
@@ -112,7 +118,10 @@ class TestASTBuilder : StringSpec({
                 |}
                 |
             """.trimMargin() astShouldBe "class with mixed properties no 1"
-        """class A {
+        """class A (
+            |   private val x: Int?,
+            |   private val y: (Int) -> Float
+            |) {
                 |   private val x=1;  public fun x() {}
                 |   private fun z() {};
                 |   private val z=2;
