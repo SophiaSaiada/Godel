@@ -70,7 +70,8 @@ class Executor(
             is ASTNode.IntLiteral -> evaluate(expression)
             is ASTNode.Invocation -> evaluate(expression)
             is ASTNode.Lambda -> evaluate(expression)
-            is ASTNode.If.NegativeBranchOnly -> evaluate(expression)
+            is ASTNode.If.NegativeBranchOnly ->
+                error("negativeBranchOnly")
             is ASTNode.Return -> evaluate(expression)
             is ASTNode.StringLiteral -> evaluate(expression)
             is ASTNode.Unit -> evaluate(expression)
@@ -103,10 +104,6 @@ class Executor(
 
     private fun evaluate(returnExpression: ASTNode.Return){
         TODO()
-    }
-
-    private fun evaluate(negativeBranchOnly: ASTNode.If.NegativeBranchOnly) {
-        error("negativeBranchOnly")
     }
 
     private fun evaluate(floatLiteral: ASTNode.FloatLiteral) =
