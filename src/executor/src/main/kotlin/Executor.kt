@@ -9,20 +9,20 @@ class Executor(
     val contextStack: Stack<Context> = Stack()
 
     sealed class Object(
-        open val type: ClassDescription
+        open val type: ASTNode.Type
     ) {
         class Primitive<T>(
-            type: ClassDescription,
+            type: ASTNode.Type,
             val innerValue: T
         ) : Object(type)
 
         class Complex(
-            type: ClassDescription,
+            type: ASTNode.Type,
             val state: Map<String, Object>
         ): Object(type)
 
         class Function(
-            type: ClassDescription,
+            type: ASTNode.Type,
             val functionDeclaration: ASTNode.FunctionDeclaration,
             val context: Context
         ) : Object (type)
@@ -83,7 +83,8 @@ class Executor(
                 parameters = lambda.parameters.map { ASTNode.Parameter(it.first,it.second) },
                 body = lambda.statements
             ),
-            context = mergeContext(contextStack)
+            context = mergeContext(contextStack),
+            type= ASTNode.Type.Functional(lambda.parameters.map { it.second }, lambda.returnValue.actualType, false)
         )
 
     private fun mergeContext(contexts: Stack<Context>): Context{
@@ -102,31 +103,31 @@ class Executor(
 
     private fun evaluate(floatLiteral: ASTNode.FloatLiteral) =
         Object.Primitive(
-            type = classDescriptions["float"]!!,
+            type = ASTNode.Type.Core.float,
             innerValue = floatLiteral.value
         )
 
     private fun evaluate(intLiteral: ASTNode.IntLiteral) =
         Object.Primitive(
-            type = classDescriptions["int"]!!,
+            type = ASTNode.Type.Core.int,
             innerValue = intLiteral.value
         )
 
     private fun evaluate(stringLiteral: ASTNode.StringLiteral) =
         Object.Primitive(
-            type = classDescriptions["string"]!!,
+            type = ASTNode.Type.Core.string,
             innerValue = stringLiteral.value
         )
 
     private fun evaluate(unit: ASTNode.Unit) =
         Object.Primitive(
-            type = classDescriptions["unit"]!!,
+            type = ASTNode.Type.Core.unit,
             innerValue = Unit
         )
 
     private fun evaluate(booleanLiteral: ASTNode.BooleanLiteral) =
         Object.Primitive(
-            type = classDescriptions["boolean"]!!,
+            type = ASTNode.Type.Core.boolean,
             innerValue = booleanLiteral.value
         )
 
