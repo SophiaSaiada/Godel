@@ -46,17 +46,11 @@ class Executor(
 
     private fun evaluate(statement: ASTNode.Statement) {
         when (statement) {
-            is ASTNode.ClassDeclaration -> evaluate(statement)
             is ASTNode.Expression -> evaluate(statement)
-            is ASTNode.FunctionDeclarationOrValDeclaration -> evaluate(statement)
             is ASTNode.If.Statement -> evaluate(statement)
-            is ASTNode.Member -> evaluate(statement)
+            is ASTNode.ValDeclaration -> evaluate(statement)
             else -> error(statement::class.simpleName!!)
         }
-    }
-
-    private fun evaluate(Class: ASTNode.ClassDeclaration) {
-
     }
 
     private fun evaluate(expression: ASTNode.Expression): Object {
@@ -148,14 +142,6 @@ class Executor(
         TODO()
     }
 
-    private fun evaluate(funOrVal: ASTNode.FunctionDeclarationOrValDeclaration): Object {
-        TODO()
-    }
-
-    private fun evaluate(block: ASTNode.Block): Object {
-        TODO()
-    }
-
     private fun evaluate(onlyIf: ASTNode.If.Statement) {
         val conditionEvaluated =
             (evaluate(onlyIf.condition) as? Object.Primitive<*> ?: error("זה לא מרימיטב")).innerValue as? Boolean
@@ -167,10 +153,6 @@ class Executor(
         else
             onlyIf.negativeBranch?.let { evaluate(it) }
         contextStack.pop()
-    }
-
-    private fun evaluate(member: ASTNode.Member): Object {
-        TODO()
     }
 
     private fun evaluate(valDeclaration: ASTNode.ValDeclaration) {
