@@ -9,7 +9,12 @@ class TestCompileDeepNestedCode : StringSpec({
         val depth = 500
         val sourceCode =
             (1..depth).joinToString("\n") { "if (true) {" } +
-                    (1..depth).joinToString("") { "\n}" }
+                    (1..depth).joinToString("") { "\n}" } + """
+                        |
+                        |fun main(): String {
+                        |   return "hi"
+                        |}
+                    """.trimMargin()
         shouldBeAbleToCompile(sourceCode)
     }
 

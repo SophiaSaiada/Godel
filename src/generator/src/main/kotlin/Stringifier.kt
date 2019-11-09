@@ -148,6 +148,8 @@ private fun parseFunctionAsString(
     getSymbolFirstLetters: (Symbol) -> Set<Symbol>,
     parseFunction: ParseFunction
 ): String {
+    if (parseFunction.name == "Statements")
+        return parseFunctionAsStringStatementsSpecialCase()
     val functionName = "parse${parseFunction.name}"
     val header =
         "private fun $functionName(nextToken0: Token?, restOfTokens: Iterator<Token>): ParseTreeNodeResult"
@@ -161,6 +163,65 @@ private fun parseFunctionAsString(
         |}
     """.trimMargin()
 }
+
+private fun parseFunctionAsStringStatementsSpecialCase() =
+    """
+    |/***
+    | * @return a ParseTreeNodeResult with node of type [ParseTreeNode.Inner] and specifically [InnerNodeType.Statements].
+    | *         The node should hold all statements as children.
+    | */
+    |private tailrec fun parseStatements(
+    |    nextToken0: Token?,
+    |    restOfTokens: Iterator<Token>,
+    |    partialResult: ParseTreeNode.Inner = ParseTreeNode.Inner(
+    |        children = emptyList(),
+    |        type = InnerNodeType.Statements
+    |    )
+    |): ParseTreeNodeResult {
+    |    val nodeType = InnerNodeType.Statements
+    |    return if (nextToken0 in setOf(TokenType.DecimalLiteral, TokenType.Apostrophes, TokenType.SimpleName, TokenType.Hash, TokenType.OpenParenthesis) || nextToken0 in setOf(Keyword.If, Keyword.Else, Keyword.Return, Keyword.False, Keyword.True, Keyword.Val, Keyword.Class, Keyword.Fun)) {
+    |        val (child0, nextToken1) = parseStatement(nextToken0, restOfTokens)
+    |        when (nextToken1) {
+    |            in setOf(TokenType.WhiteSpace) -> {
+    |                val (child1, nextToken2) = parseWhitespacePlus(nextToken1, restOfTokens)
+    |                val (child2, nextToken3) = parseSEMI(nextToken2, restOfTokens)
+    |                parseStatements(
+    |                    nextToken3,
+    |                    restOfTokens,
+    |                    partialResult.copy(
+    |                        children = partialResult.children + listOf(child0, child1, child2)
+    |                    )
+    |                )
+    |            }
+    |            in setOf(TokenType.BreakLine, TokenType.SemiColon) -> {
+    |                val (child1, nextToken2) = parseSEMI(nextToken1, restOfTokens)
+    |                parseStatements(
+    |                    nextToken2,
+    |                    restOfTokens,
+    |                    partialResult.copy(
+    |                        children = partialResult.children + listOf(child0, child1)
+    |                    )
+    |                )
+    |            }
+    |            else -> {
+    |                ParseTreeNodeResult(
+    |                    node = partialResult.copy(
+    |                        children = partialResult.children + listOf(child0)
+    |                    ),
+    |                    nextToken = nextToken1
+    |                )
+    |            }
+    |        }
+    |    } else {
+    |        ParseTreeNodeResult(
+    |            node =
+    |            if (partialResult.children.isEmpty()) ParseTreeNode.EpsilonLeaf(nodeType)
+    |            else partialResult,
+    |            nextToken = nextToken0
+    |        )
+    |    }
+    |}
+    """.trimMargin()
 
 private fun isEpsilonBranchExists(branchesAsText: List<BranchText>): Boolean =
     branchesAsText.any { isEpsilonBranch(it.enterCondition) }

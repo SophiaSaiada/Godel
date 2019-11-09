@@ -19,22 +19,16 @@ object ASTTransformer {
             }
 
     private fun transformStatements(rootNode: ParseTreeNode): ASTNode.Statements {
-        fun getStatements(currentNode: ParseTreeNode): List<ASTNode.Statement> =
-            when (currentNode) {
+        val rawStatements =
+            when (rootNode) {
                 is ParseTreeNode.EpsilonLeaf -> emptyList()
                 is ParseTreeNode.Inner ->
-                    when (currentNode.type) {
-                        Parser.InnerNodeType.Statements ->
-                            if (currentNode.children.size == 1)
-                                listOf(transformStatement(currentNode[0] as ParseTreeNode.Inner))
-                            else
-                                listOf(transformStatement(currentNode[0] as ParseTreeNode.Inner)) +
-                                        getStatements(currentNode.last())
-                        else -> throwInvalidParseError()
-                    }
+                    rootNode.children
+                        .filter { (it as? ParseTreeNode.Inner)?.type == Parser.InnerNodeType.Statement }
+                        .map { transformStatement(it as ParseTreeNode.Inner) }
                 else -> throwInvalidParseError()
             }
-        return ASTNode.Statements(mergeIfBranches(getStatements(rootNode)))
+        return ASTNode.Statements(mergeIfBranches(rawStatements))
     }
 
     private fun transformStatement(rootNode: ParseTreeNode.Inner): ASTNode.Statement {
@@ -117,7 +111,7 @@ object ASTTransformer {
             parameters = transformFunctionParameters(rootNode[6]),
             returnType = (rootNode[8] as? ParseTreeNode.Inner)?.let { transformType(it[2] as ParseTreeNode.Inner) }
                 ?: ASTNode.Type.Core.unit,
-            body = transformStatements(rootNode.last() as ParseTreeNode.Inner)
+            body = transformStatements(rootNode[10][1][1])
         )
     }
 

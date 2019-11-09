@@ -9,7 +9,7 @@
     Elvis, Or, And, Equal, NotEqual, GreaterThanEqual, LessThanEqual, NullAwareDot, RightArrow,
 
     KeywordVal, KeywordVar, KeywordFun, KeywordClass, KeywordTrue, KeywordFalse,
-    KeywordIf, KeywordElse, KeywordWhile, KeywordPrivate, KeywordPublic, KeywordWhen, KeywordReturn,
+    KeywordIf, KeywordElse, KeywordPrivate, KeywordPublic, KeywordWhen, KeywordReturn,
 
     Unknown
 

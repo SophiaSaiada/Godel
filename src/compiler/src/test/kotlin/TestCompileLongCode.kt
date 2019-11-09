@@ -1,17 +1,25 @@
 import io.kotlintest.specs.StringSpec
-import java.io.File
 
 class TestCompileLongCode : StringSpec({
-    fun shouldBeAbleToCompile(pathName: String) {
-        val sourceCode =
-            File(pathName).readLines().joinToString("\n").asSequence()
-                .take(0)
-        // TODO: fix test to pass in more computers
-        Compiler.compile(sourceCode)
-    }
+    fun getSourceCode(numOfClasses: Int) =
+        (0..numOfClasses).joinToString("\n") { numOfClass ->
+            """
+                    |class Integer$numOfClass() {
+                    |   private val innerValue: Int = $numOfClass
+                    |}
+                """.trimMargin()
+        } + """|
+            |fun main(): String {
+            |    return "hi"
+            |}
+        """.trimMargin()
 
     "should be able to compile a long code" {
-        shouldBeAbleToCompile("./src/test/inputs/veryLongCode.gd")
+        // [numOfClasses] can be also 50_000 (and theoretically, every number), but it's taking about 1.5 minutes (in some computers) to complete,
+        // and we don't want the test to take too much time.
+        val sourceCode =
+            getSourceCode(10_000).asSequence()
+        Compiler.compile(sourceCode)
     }
 
 })

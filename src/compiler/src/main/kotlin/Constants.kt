@@ -31,7 +31,6 @@ enum class Keyword {
     False,
     If,
     Else,
-    While,
     Public,
     Private,
     Return,
