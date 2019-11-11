@@ -36,4 +36,6 @@ data class ClassDescription(
             resultType = ASTNode.Type.Regular(name),
             nullable = false
         )
+
+    val allMembers = members + constructorParameter
 }

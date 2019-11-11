@@ -1,6 +1,6 @@
 data class CompilationResult(
     val classes: Set<ASTNode.ClassDeclaration>,
-    val classDescriptions: Set<ClassDescription>,
+    val classDescriptions: Map<ASTNode.Type, ClassDescription>,
     val mainFunction: ASTNode.FunctionDeclaration
 )
 

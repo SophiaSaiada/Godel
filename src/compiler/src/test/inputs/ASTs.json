@@ -1750,14 +1750,9 @@
           "name": "FunctionDeclaration",
           "props": {
             "body": {
-              "name": "Block.WithoutValue",
+              "name": "Statements",
               "props": {
-                "statements": {
-                  "name": "Statements",
-                  "props": {
-                    "statements": []
-                  }
-                }
+                "statements": []
               }
             },
             "name": "f",
@@ -1973,14 +1968,9 @@
                     "name": "FunctionDeclaration",
                     "props": {
                       "body": {
-                        "name": "Block.WithoutValue",
+                        "name": "Statements",
                         "props": {
-                          "statements": {
-                            "name": "Statements",
-                            "props": {
-                              "statements": []
-                            }
-                          }
+                          "statements": []
                         }
                       },
                       "name": "x",
@@ -2006,14 +1996,9 @@
                     "name": "FunctionDeclaration",
                     "props": {
                       "body": {
-                        "name": "Block.WithoutValue",
+                        "name": "Statements",
                         "props": {
-                          "statements": {
-                            "name": "Statements",
-                            "props": {
-                              "statements": []
-                            }
-                          }
+                          "statements": []
                         }
                       },
                       "name": "z",
@@ -2039,14 +2024,9 @@
                     "name": "FunctionDeclaration",
                     "props": {
                       "body": {
-                        "name": "Block.WithoutValue",
+                        "name": "Statements",
                         "props": {
-                          "statements": {
-                            "name": "Statements",
-                            "props": {
-                              "statements": []
-                            }
-                          }
+                          "statements": []
                         }
                       },
                       "name": "h",
@@ -2105,14 +2085,9 @@
                     "name": "FunctionDeclaration",
                     "props": {
                       "body": {
-                        "name": "Block.WithoutValue",
+                        "name": "Statements",
                         "props": {
-                          "statements": {
-                            "name": "Statements",
-                            "props": {
-                              "statements": []
-                            }
-                          }
+                          "statements": []
                         }
                       },
                       "name": "x",
@@ -2138,14 +2113,9 @@
                     "name": "FunctionDeclaration",
                     "props": {
                       "body": {
-                        "name": "Block.WithoutValue",
+                        "name": "Statements",
                         "props": {
-                          "statements": {
-                            "name": "Statements",
-                            "props": {
-                              "statements": []
-                            }
-                          }
+                          "statements": []
                         }
                       },
                       "name": "z",
@@ -2171,14 +2141,9 @@
                     "name": "FunctionDeclaration",
                     "props": {
                       "body": {
-                        "name": "Block.WithoutValue",
+                        "name": "Statements",
                         "props": {
-                          "statements": {
-                            "name": "Statements",
-                            "props": {
-                              "statements": []
-                            }
-                          }
+                          "statements": []
                         }
                       },
                       "name": "f",
@@ -2204,14 +2169,9 @@
                     "name": "FunctionDeclaration",
                     "props": {
                       "body": {
-                        "name": "Block.WithoutValue",
+                        "name": "Statements",
                         "props": {
-                          "statements": {
-                            "name": "Statements",
-                            "props": {
-                              "statements": []
-                            }
-                          }
+                          "statements": []
                         }
                       },
                       "name": "@ a",
@@ -2237,14 +2197,9 @@
                     "name": "FunctionDeclaration",
                     "props": {
                       "body": {
-                        "name": "Block.WithoutValue",
+                        "name": "Statements",
                         "props": {
-                          "statements": {
-                            "name": "Statements",
-                            "props": {
-                              "statements": []
-                            }
-                          }
+                          "statements": []
                         }
                       },
                       "name": "+",
@@ -2289,14 +2244,9 @@
                     "name": "FunctionDeclaration",
                     "props": {
                       "body": {
-                        "name": "Block.WithoutValue",
+                        "name": "Statements",
                         "props": {
-                          "statements": {
-                            "name": "Statements",
-                            "props": {
-                              "statements": []
-                            }
-                          }
+                          "statements": []
                         }
                       },
                       "name": "y",
@@ -2374,14 +2324,9 @@
                     "name": "FunctionDeclaration",
                     "props": {
                       "body": {
-                        "name": "Block.WithoutValue",
+                        "name": "Statements",
                         "props": {
-                          "statements": {
-                            "name": "Statements",
-                            "props": {
-                              "statements": []
-                            }
-                          }
+                          "statements": []
                         }
                       },
                       "name": "x",
@@ -2407,14 +2352,9 @@
                     "name": "FunctionDeclaration",
                     "props": {
                       "body": {
-                        "name": "Block.WithoutValue",
+                        "name": "Statements",
                         "props": {
-                          "statements": {
-                            "name": "Statements",
-                            "props": {
-                              "statements": []
-                            }
-                          }
+                          "statements": []
                         }
                       },
                       "name": "z",
@@ -2459,14 +2399,9 @@
                     "name": "FunctionDeclaration",
                     "props": {
                       "body": {
-                        "name": "Block.WithoutValue",
+                        "name": "Statements",
                         "props": {
-                          "statements": {
-                            "name": "Statements",
-                            "props": {
-                              "statements": []
-                            }
-                          }
+                          "statements": []
                         }
                       },
                       "name": "h",

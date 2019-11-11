@@ -1,5 +1,5 @@
 fun main() {
-    val compilationResult = Compiler.compile(
+    val (classes, classDescriptions, mainFunction) = Compiler.compile(
         """
         |class A(
         |    public val value: Int
@@ -14,7 +14,11 @@ fun main() {
         |}
     """.trimMargin().asSequence()
     )
-    val executor = Executor(compilationResult.classes.toSet(), compilationResult.classDescriptions)
-    executor.run(compilationResult.mainFunction)
+    val executor =
+        Executor(
+            classes.map { it.name to it }.toMap(),
+            classDescriptions
+        )
+    executor.run(mainFunction)
     // TODO: Check that functions actually returns what they guarantee to return.
 }

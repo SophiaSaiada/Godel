@@ -11,7 +11,7 @@ class TestTypeChecker : StringSpec({
         Compiler.compile(sourceCode.asSequence())
 
     infix fun String.astShouldBe(expectedResultName: String) {
-        val ast = Compiler.compile(this.asSequence()).classDeclarations.single()
+        val ast = Compiler.compile(this.asSequence()).classes.single()
         val rawJsonResult = ASTJSONizer.toJSON(ast, true)
         val result = parser.parse(rawJsonResult.byteInputStream()) as JsonObject
         result shouldBe inputs.obj(expectedResultName)
@@ -23,7 +23,7 @@ class TestTypeChecker : StringSpec({
             |}
             |fun main() {}
         """.trimMargin()
-        val ast = Compiler.compile(classCode.asSequence()).classDeclarations.single()
+        val ast = Compiler.compile(classCode.asSequence()).classes.single()
         val rawJsonResult = ASTJSONizer.toJSON(ast, true)
         val jsonResult = parser.parse(rawJsonResult.byteInputStream()) as JsonObject
         val result =
@@ -42,7 +42,7 @@ class TestTypeChecker : StringSpec({
             |}
             |fun main() {}
         """.trimMargin()
-            Compiler.compile(classCode.asSequence()).classDeclarations.single()
+            Compiler.compile(classCode.asSequence()).classes.single()
         }
     }
 
@@ -53,7 +53,7 @@ class TestTypeChecker : StringSpec({
             |}
             |fun main() {}
         """.trimMargin()
-            Compiler.compile(classCode.asSequence()).classDeclarations.single()
+            Compiler.compile(classCode.asSequence()).classes.single()
         }
         val actualMessage = exception.message
         actualMessage shouldBe message

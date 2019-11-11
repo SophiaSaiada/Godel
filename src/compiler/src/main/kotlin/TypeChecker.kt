@@ -49,14 +49,14 @@ object TypeChecker {
     fun withTypes(
         classRoots: List<ASTNode.ClassDeclaration>,
         mainFunction: ASTNode.FunctionDeclaration
-    ): Triple<List<ASTNode.ClassDeclaration>, Set<ClassDescription>, ASTNode.FunctionDeclaration> {
+    ): Triple<List<ASTNode.ClassDeclaration>, Map<ASTNode.Type, ClassDescription>, ASTNode.FunctionDeclaration> {
         val classDescriptions: Map<ASTNode.Type, ClassDescription> =
             classRoots.map { ASTNode.Type.Regular(it.name) to getClassDescription(it) }.toMap() +
                     coreClassDescriptions
         val (identifierTypes, classMemberTypeResolver) = memoizedCreateTypeResolverBasedOn(classDescriptions)
         return Triple(
             classRoots.map { it.typed(identifierTypes, classMemberTypeResolver).first },
-            classDescriptions.values.toSet(),
+            classDescriptions,
             mainFunction.typed(identifierTypes, classMemberTypeResolver).first
         )
     }
