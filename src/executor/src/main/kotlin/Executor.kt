@@ -65,7 +65,19 @@ class Executor(
         }
     }
 
-    private fun evaluate(expression: ASTNode.Expression): Object {
+    /**
+     * A().a()
+     * (if (x) { A().a } else { B().b })("a")
+     * Invocation(
+     *  function = BinaryExpression(
+     *      left = A(),
+     *      operator = ".",
+     *      right = "a"
+     *  ),
+     *  arguments = emptyList()
+     * )
+     */
+    private fun evaluate(expression: ASTNode.Expression): Either<BreakType, Object> {
         return when (expression) {
             is ASTNode.BinaryExpression<*, *> -> evaluate(expression)
             is ASTNode.BooleanLiteral -> evaluate(expression)
@@ -82,6 +94,24 @@ class Executor(
             is ASTNode.Unit -> evaluate(expression)
             else ->
                 error(expression::class.simpleName!!)
+        }
+    }
+
+
+    private fun evaluate(invocation: ASTNode.Invocation): Either<BreakType, Object> {
+        return when (val functionEvaluated = evaluate(invocation.function)) {
+            is Either.Left ->
+                functionEvaluated
+            is Either.Right -> {
+                val functionObject = functionEvaluated.b
+                if (functionObject is Object.Function) {
+                    invocation.arguments
+                    functionObject.functionDeclaration.parameters
+                    evaluate(functionObject.functionDeclaration.body)
+                } else {
+                    error("")
+                }
+            }
         }
     }
 
