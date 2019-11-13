@@ -9,8 +9,12 @@ repositories {
     mavenCentral()
 }
 
+def arrow_version = "0.9.0"
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    compile "io.arrow-kt:arrow-core-data:$arrow_version"
+    compile "io.arrow-kt:arrow-core-extensions:$arrow_version"
+
     implementation project(':common')
 }
 

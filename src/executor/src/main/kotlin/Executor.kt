@@ -1,3 +1,5 @@
+import arrow.core.Either
+import arrow.core.left
 import java.util.Stack
 
 typealias Context = MutableMap<String, Executor.Object>
@@ -32,24 +34,30 @@ class Executor(
         class Function(
             type: ASTNode.Type,
             val functionDeclaration: ASTNode.FunctionDeclaration,
-            val context: Stack<Context>
+            val context: Context
         ) : Object(type)
     }
 
+    sealed class BreakType {
+        class Return(val value: Object) : BreakType()
+    }
 
     fun run(mainFunction: ASTNode.FunctionDeclaration) {
         // TODO: evaluate Invocation of main and print the returned String.
         evaluate(mainFunction.body)
     }
 
-    private fun evaluate(statements: ASTNode.Statements) {
+    private fun evaluate(statements: ASTNode.Statements): Either<BreakType, Object> {
         for (statement in statements) {
-            evaluate(statement)
+            val result = evaluate(statement)
+            if (result.isLeft())
+                return result
         }
+        return Either.right(Object.Primitive.CoreUnit())
     }
 
-    private fun evaluate(statement: ASTNode.Statement) {
-        when (statement) {
+    private fun evaluate(statement: ASTNode.Statement): Either<BreakType, Object> {
+        return when (statement) {
             is ASTNode.Expression -> evaluate(statement)
             is ASTNode.If.Statement -> evaluate(statement)
             is ASTNode.ValDeclaration -> evaluate(statement)
@@ -86,12 +94,25 @@ class Executor(
                 parameters = lambda.parameters.map { ASTNode.Parameter(it.first, it.second) },
                 body = lambda.statements
             ),
-            context = contextStack,
+            context = mergeContext(contextStack),
             type = ASTNode.Type.Functional(lambda.parameters.map { it.second }, lambda.returnValue.actualType, false)
         )
 
-    private fun evaluate(returnExpression: ASTNode.Return) {
-        TODO()
+    private fun mergeContext(contexts: Stack<Context>): Context {
+        val contextsList = contexts.toMutableList().reversed()
+        val resultContext = mutableMapOf<String, Executor.Object>()
+        for (context in contextsList) {
+            resultContext.putAll(resultContext + context)
+        }
+        return resultContext
+    }
+
+    private fun evaluate(returnExpression: ASTNode.Return): Either<BreakType, Object> {
+        return Either.left(
+            BreakType.Return(
+                evaluate(returnExpression.value)
+            )
+        )
     }
 
     private fun evaluate(floatLiteral: ASTNode.FloatLiteral) =
@@ -209,13 +230,12 @@ class Executor(
         }
     }
 
-    private fun evaluate(onlyIf: ASTNode.If.Statement) {
+    private fun evaluate(onlyIf: ASTNode.If.Statement): Either<BreakType, Object.Primitive.CoreUnit> {
         val conditionEvaluated =
             (evaluate(onlyIf.condition) as? Object.Primitive<*> ?: error("זה לא מרימיטב")).innerValue as? Boolean
                 ?: error("זה לא בולאן")
         contextStack.push(mutableMapOf())
         if (conditionEvaluated)
-
             evaluate(onlyIf.positiveBranch)
         else
             onlyIf.negativeBranch?.let { evaluate(it) }
