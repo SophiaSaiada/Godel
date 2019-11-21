@@ -1,5 +1,5 @@
-import arrow.core.Either
-import arrow.core.left
+import arrow.core.*
+import arrow.core.extensions.option.applicative.just
 import java.util.Stack
 
 typealias Context = MutableMap<String, Executor.Object>
@@ -11,6 +11,7 @@ class Executor(
     val classDescriptions: Map<ASTNode.Type, ClassDescription>
 ) {
     val contextStack: Stack<Context> = Stack()
+    val returnStack: Stack<Object> = Stack()
 
     sealed class Object(
         open val type: ASTNode.Type
@@ -105,9 +106,14 @@ class Executor(
             is Either.Right -> {
                 val functionObject = functionEvaluated.b
                 if (functionObject is Object.Function) {
-                    invocation.arguments
+                    contextStack.push(invocation.arguments.mapIndexed { index, argument ->
+                        functionObject.functionDeclaration.parameters[index].name to (evaluate(argument.value) as Either.Right).b
+                    }.toMap().toMutableMap())
                     functionObject.functionDeclaration.parameters
-                    evaluate(functionObject.functionDeclaration.body)
+                    evaluate(functionObject.functionDeclaration.body).fold(
+                        ifLeft = { (it as BreakType.Return).value.right() },
+                        ifRight = { it.right() }
+                    )
                 } else {
                     error("")
                 }
@@ -115,7 +121,7 @@ class Executor(
         }
     }
 
-    private fun evaluate(lambda: ASTNode.Lambda) =
+    private fun evaluate(lambda: ASTNode.Lambda): Either<BreakType, Object> =
         Object.Function(
             functionDeclaration = ASTNode.FunctionDeclaration(
                 name = "",
@@ -126,7 +132,7 @@ class Executor(
             ),
             context = mergeContext(contextStack),
             type = ASTNode.Type.Functional(lambda.parameters.map { it.second }, lambda.returnValue.actualType, false)
-        )
+        ).right()
 
     private fun mergeContext(contexts: Stack<Context>): Context {
         val contextsList = contexts.toMutableList().reversed()
@@ -138,29 +144,27 @@ class Executor(
     }
 
     private fun evaluate(returnExpression: ASTNode.Return): Either<BreakType, Object> {
-        return Either.left(
-            BreakType.Return(
-                evaluate(returnExpression.value)
-            )
-        )
+        return evaluate(returnExpression.value).flatMap {
+            Either.left(BreakType.Return(it))
+        }
     }
 
-    private fun evaluate(floatLiteral: ASTNode.FloatLiteral) =
-        Object.Primitive.CoreFloat(floatLiteral.value)
+    private fun evaluate(floatLiteral: ASTNode.FloatLiteral): Either<BreakType, Object> =
+        Object.Primitive.CoreFloat(floatLiteral.value).right()
 
-    private fun evaluate(intLiteral: ASTNode.IntLiteral) =
-        Object.Primitive.CoreInt(intLiteral.value)
+    private fun evaluate(intLiteral: ASTNode.IntLiteral): Either<BreakType, Object> =
+        Object.Primitive.CoreInt(intLiteral.value).right()
 
-    private fun evaluate(stringLiteral: ASTNode.StringLiteral) =
-        Object.Primitive.CoreString(stringLiteral.value)
+    private fun evaluate(stringLiteral: ASTNode.StringLiteral): Either<BreakType, Object> =
+        Object.Primitive.CoreString(stringLiteral.value).right()
 
-    private fun evaluate(unit: ASTNode.Unit) =
-        Object.Primitive.CoreUnit()
+    private fun evaluate(unit: ASTNode.Unit): Either<BreakType, Object> =
+        Object.Primitive.CoreUnit().right()
 
-    private fun evaluate(booleanLiteral: ASTNode.BooleanLiteral) =
-        Object.Primitive.CoreBoolean(booleanLiteral.value)
+    private fun evaluate(booleanLiteral: ASTNode.BooleanLiteral): Either<BreakType, Object> =
+        Object.Primitive.CoreBoolean(booleanLiteral.value).right()
 
-    private fun evaluate(ifExpression: ASTNode.If.Expression): Object {
+    private fun evaluate(ifExpression: ASTNode.If.Expression): Either<BreakType, Object> {
         val conditionEvaluated =
             (evaluate(ifExpression.condition) as? Object.Primitive.CoreBoolean ?: error("זה לא בולאן")).innerValue
         contextStack.push(mutableMapOf())
@@ -218,7 +222,7 @@ class Executor(
                                 nullable = false
                             ),
                             functionDeclaration = methodDefinition,
-                            context = contextStack
+                            context = mergeContext(contextStack)
                         )
                     }
                 }
@@ -270,9 +274,13 @@ class Executor(
         else
             onlyIf.negativeBranch?.let { evaluate(it) }
         contextStack.pop()
+        return Object.Primitive.CoreUnit().right()
     }
 
-    private fun evaluate(valDeclaration: ASTNode.ValDeclaration) {
-        contextStack.peek()[valDeclaration.name] = evaluate(valDeclaration.value)
-    }
+    private fun evaluate(valDeclaration: ASTNode.ValDeclaration) =
+        evaluate(valDeclaration.value).map {
+            contextStack.peek()[valDeclaration.name] = it
+            Object.Primitive.CoreUnit()
+        }
+
 }
