@@ -5,7 +5,7 @@ fun main() {
         |    public val value: Int
         |) {
         |    public fun plusOne(): Int {
-        |       return value + 1
+        |       return this.value + 1
         |    }
         |}
         |fun main(): String {

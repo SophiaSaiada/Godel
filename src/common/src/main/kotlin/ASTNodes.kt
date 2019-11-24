@@ -316,7 +316,12 @@ class ASTNode {
             ClassDeclaration(
                 name,
                 typeParameters,
-                members.map { it.typed(identifierTypes, classMemberTypeResolver).first },
+                members.map {
+                    it.typed(
+                        identifierTypes + mapOf("this" to Type.Regular(name)),
+                        classMemberTypeResolver
+                    ).first
+                },
                 constructorParameters
             ) to identifierTypes
     }

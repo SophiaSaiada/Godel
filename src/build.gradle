@@ -1,4 +1,5 @@
 plugins {
+    id 'application'
     id 'org.jetbrains.kotlin.jvm' version '1.3.11'
 }
 
@@ -15,14 +16,14 @@ repositories {
 dependencies {
     ext.kotlin_version = '1.3.11'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.0'
-    testImplementation 'io.kotlintest:kotlintest-runner-junit5:3.1.11'
-    testCompile group: 'org.slf4j', name: 'slf4j-simple', version: '1.6.1'
-    testImplementation 'com.beust:klaxon:5.0.1'
 
     implementation project(':compiler')
     implementation project(':executor')
+}
+
+sourceSets {
+    main.java.srcDirs += 'src/main/kotlin/'
+    test.java.srcDirs += 'src/test/kotlin/'
 }
 
 compileKotlin {
@@ -35,4 +36,15 @@ compileTestKotlin {
 
 test {
     useJUnitPlatform()
+}
+
+mainClassName = "MainKt"
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'MainKt'
+    }
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }

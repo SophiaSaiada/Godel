@@ -1,5 +1,4 @@
 import arrow.core.*
-import arrow.core.extensions.option.applicative.just
 import java.util.Stack
 
 typealias Context = MutableMap<String, Executor.Object>
@@ -11,7 +10,6 @@ class Executor(
     val classDescriptions: Map<ASTNode.Type, ClassDescription>
 ) {
     val contextStack: Stack<Context> = Stack()
-    val returnStack: Stack<Object> = Stack()
 
     sealed class Object(
         open val type: ASTNode.Type
@@ -44,8 +42,18 @@ class Executor(
     }
 
     fun run(mainFunction: ASTNode.FunctionDeclaration) {
-        // TODO: evaluate Invocation of main and print the returned String.
-        evaluate(mainFunction.body)
+        val mainFunctionType = ASTNode.Type.Functional(
+            parameterTypes = emptyList(),
+            resultType = ASTNode.Type.Core.string,
+            nullable = false
+        )
+        invoke(Object.Function(mainFunctionType, mainFunction, mutableMapOf()), mutableMapOf())
+            .toOption()
+            .flatMap { (it as? Object.Primitive.CoreString).toOption() }
+            .map { it.innerValue }
+            .map { resultString ->
+                println(resultString)
+            }
     }
 
     private fun evaluate(statements: ASTNode.Statements): Either<BreakType, Object> {
@@ -66,18 +74,6 @@ class Executor(
         }
     }
 
-    /**
-     * A().a()
-     * (if (x) { A().a } else { B().b })("a")
-     * Invocation(
-     *  function = BinaryExpression(
-     *      left = A(),
-     *      operator = ".",
-     *      right = "a"
-     *  ),
-     *  arguments = emptyList()
-     * )
-     */
     private fun evaluate(expression: ASTNode.Expression): Either<BreakType, Object> {
         return when (expression) {
             is ASTNode.BinaryExpression<*, *> -> evaluate(expression)
@@ -93,33 +89,32 @@ class Executor(
             is ASTNode.Return -> evaluate(expression)
             is ASTNode.StringLiteral -> evaluate(expression)
             is ASTNode.Unit -> evaluate(expression)
+            is ASTNode.Identifier -> evaluate(expression)
             else ->
                 error(expression::class.simpleName!!)
         }
     }
 
-
-    private fun evaluate(invocation: ASTNode.Invocation): Either<BreakType, Object> {
-        return when (val functionEvaluated = evaluate(invocation.function)) {
-            is Either.Left ->
-                functionEvaluated
-            is Either.Right -> {
-                val functionObject = functionEvaluated.b
-                if (functionObject is Object.Function) {
-                    contextStack.push(invocation.arguments.mapIndexed { index, argument ->
-                        functionObject.functionDeclaration.parameters[index].name to (evaluate(argument.value) as Either.Right).b
-                    }.toMap().toMutableMap())
-                    functionObject.functionDeclaration.parameters
-                    evaluate(functionObject.functionDeclaration.body).fold(
-                        ifLeft = { (it as BreakType.Return).value.right() },
-                        ifRight = { it.right() }
-                    )
-                } else {
-                    error("")
-                }
-            }
+    private fun invoke(functionObject: Object.Function, arguments: Context): Either<BreakType, Object> {
+        contextStack.push(functionObject.context)
+        contextStack.push(arguments)
+        return evaluate(functionObject.functionDeclaration.body).fold(
+            ifLeft = { (it as BreakType.Return).value.right() },
+            ifRight = { it.right() }
+        ).also {
+            contextStack.pop()
+            contextStack.pop()
         }
     }
+
+    private fun evaluate(invocation: ASTNode.Invocation): Either<BreakType, Object> =
+        evaluate(invocation.function).flatMap { invocationObject ->
+            val functionObject = (invocationObject as? Object.Function) ?: error("")
+            val arguments = invocation.arguments.mapIndexed { index, argument ->
+                functionObject.functionDeclaration.parameters[index].name to (evaluate(argument.value) as Either.Right).b
+            }.toMap().toMutableMap()
+            invoke(functionObject, arguments)
+        }
 
     private fun evaluate(lambda: ASTNode.Lambda): Either<BreakType, Object> =
         Object.Function(
@@ -215,6 +210,9 @@ class Executor(
                             classDeclaration.members.mapNotNull { it.declaration as? ASTNode.FunctionDeclaration }
                                 .find { it.name == memberName }
                                 ?: throw GodelRuntimeError("Unable to find method named $memberName for type ${godelObject.type}.")
+                        val functionContext =
+                            (mergeContext(contextStack) + mapOf("this" to godelObject))
+                                .toMutableMap()
                         Object.Function(
                             type = ASTNode.Type.Functional(
                                 methodDefinition.parameters.map { it.type },
@@ -222,24 +220,26 @@ class Executor(
                                 nullable = false
                             ),
                             functionDeclaration = methodDefinition,
-                            context = mergeContext(contextStack)
+                            context = functionContext
                         )
                     }
                 }
         }
     }
 
-    private fun evaluate(binaryExpression: ASTNode.BinaryExpression<*, *>): Object {
+    private fun evaluate(binaryExpression: ASTNode.BinaryExpression<*, *>): Either<BreakType, Object> {
         return when (binaryExpression.operator) {
             ASTNode.BinaryOperator.Dot -> {
-                val leftObject = evaluate(binaryExpression.left)
-                val memberName = (binaryExpression.right as ASTNode.Identifier).value
-                getMember(leftObject, memberName, safeAccess = false)
+                evaluate(binaryExpression.left).map { leftObject ->
+                    val memberName = (binaryExpression.right as ASTNode.Identifier).value
+                    getMember(leftObject, memberName, safeAccess = false)
+                }
             }
             ASTNode.BinaryOperator.NullAwareDot -> {
-                val leftObject = evaluate(binaryExpression.left)
-                val memberName = (binaryExpression.right as ASTNode.Identifier).value
-                getMember(leftObject, memberName, safeAccess = true)
+                evaluate(binaryExpression.left).map { leftObject ->
+                    val memberName = (binaryExpression.right as ASTNode.Identifier).value
+                    getMember(leftObject, memberName, safeAccess = true)
+                }
             }
             ASTNode.BinaryOperator.Elvis -> {
                 val leftObject = evaluate(binaryExpression.left)
@@ -277,10 +277,19 @@ class Executor(
         return Object.Primitive.CoreUnit().right()
     }
 
+    private fun getMostDeepContextThatContains(name: String) =
+        contextStack.reversed().lastOrNull { context ->
+            context[name] != null
+        }
+
+    private fun evaluate(identifier: ASTNode.Identifier): Either<BreakType, Object> =
+        getMostDeepContextThatContains(identifier.value)?.let { matchingContext ->
+            matchingContext[identifier.value]!!.right()
+        } ?: error("Used undefined identifier ${identifier.value}.")
+
     private fun evaluate(valDeclaration: ASTNode.ValDeclaration) =
         evaluate(valDeclaration.value).map {
             contextStack.peek()[valDeclaration.name] = it
             Object.Primitive.CoreUnit()
         }
-
 }
