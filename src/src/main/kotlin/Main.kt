@@ -9,8 +9,7 @@ fun main() {
         |    }
         |}
         |fun main(): String {
-        |    val x = A(2).plusOne()
-        |    return x.toString()
+        |    return (1 + 2).toString()
         |}
     """.trimMargin().asSequence()
     )
@@ -20,5 +19,8 @@ fun main() {
             classDescriptions
         )
     executor.run(mainFunction)
+        ?.let { result ->
+            print("Program returned: $result")
+        }
     // TODO: Check that functions actually returns what they guarantee to return.
 }

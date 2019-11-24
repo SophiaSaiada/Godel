@@ -30,30 +30,39 @@ class Executor(
             val state: Map<String, Object>
         ) : Object(type)
 
-        class Function(
+        sealed class Function(
             type: ASTNode.Type,
-            val functionDeclaration: ASTNode.FunctionDeclaration,
             val context: Context
-        ) : Object(type)
+        ) : Object(type) {
+            class Native(
+                type: ASTNode.Type,
+                val nativeFunction: NativeFunction,
+                context: Context
+            ) : Function(type, context)
+
+            class Godel(
+                type: ASTNode.Type,
+                val functionDeclaration: ASTNode.FunctionDeclaration,
+                context: Context
+            ) : Function(type, context)
+        }
     }
 
     sealed class BreakType {
         class Return(val value: Object) : BreakType()
     }
 
-    fun run(mainFunction: ASTNode.FunctionDeclaration) {
+    fun run(mainFunction: ASTNode.FunctionDeclaration): String? {
         val mainFunctionType = ASTNode.Type.Functional(
             parameterTypes = emptyList(),
             resultType = ASTNode.Type.Core.string,
             nullable = false
         )
-        invoke(Object.Function(mainFunctionType, mainFunction, mutableMapOf()), mutableMapOf())
+        return invoke(Object.Function.Godel(mainFunctionType, mainFunction, mutableMapOf()), mutableMapOf())
             .toOption()
             .flatMap { (it as? Object.Primitive.CoreString).toOption() }
             .map { it.innerValue }
-            .map { resultString ->
-                println(resultString)
-            }
+            .orNull()
     }
 
     private fun evaluate(statements: ASTNode.Statements): Either<BreakType, Object> {
@@ -95,7 +104,7 @@ class Executor(
         }
     }
 
-    private fun invoke(functionObject: Object.Function, arguments: Context): Either<BreakType, Object> {
+    private fun invoke(functionObject: Object.Function.Godel, arguments: Context): Either<BreakType, Object> {
         contextStack.push(functionObject.context)
         contextStack.push(arguments)
         return evaluate(functionObject.functionDeclaration.body).fold(
@@ -107,17 +116,28 @@ class Executor(
         }
     }
 
+    private fun invoke(
+        functionObject: Object.Function.Native,
+        arguments: List<Object>
+    ): Either<BreakType, Object> =
+        functionObject.nativeFunction.value.invoke(functionObject.context["this"]!!, arguments).right()
+
     private fun evaluate(invocation: ASTNode.Invocation): Either<BreakType, Object> =
         evaluate(invocation.function).flatMap { invocationObject ->
-            val functionObject = (invocationObject as? Object.Function) ?: error("")
-            val arguments = invocation.arguments.mapIndexed { index, argument ->
-                functionObject.functionDeclaration.parameters[index].name to (evaluate(argument.value) as Either.Right).b
-            }.toMap().toMutableMap()
-            invoke(functionObject, arguments)
+            when (val functionObject = (invocationObject as? Object.Function) ?: error("")) {
+                is Object.Function.Godel -> {
+                    val arguments = invocation.arguments.mapIndexed { index, argument ->
+                        functionObject.functionDeclaration.parameters[index].name to (evaluate(argument.value) as Either.Right).b
+                    }.toMap().toMutableMap()
+                    invoke(functionObject, arguments)
+                }
+                is Object.Function.Native ->
+                    invoke(functionObject, invocation.arguments.map { (evaluate(it.value) as Either.Right).b })
+            }
         }
 
     private fun evaluate(lambda: ASTNode.Lambda): Either<BreakType, Object> =
-        Object.Function(
+        Object.Function.Godel(
             functionDeclaration = ASTNode.FunctionDeclaration(
                 name = "",
                 typeParameters = emptyList(),
@@ -196,10 +216,13 @@ class Executor(
                     is Object.Primitive<*> -> {
                         val nativeFunction = coreClassImplementations[godelObjectType]?.get(memberName)
                             ?: throw GodelRuntimeError("Cannot invoke method $memberName on type $godelObjectType.")
-                        nativeFunction.value(
-                            godelObject,
-                            emptyList()
-                        ) //TODO: we don't want to execute it immediately, just pass a reference to it.
+                        Object.Function.Native(
+                            (classDescription.allMembers.find { it.name == memberName } as ClassDescription.Member.Method).type,
+                            nativeFunction,
+                            mutableMapOf(
+                                "this" to godelObject
+                            )
+                        )
                     }
                     is Object.Function ->
                         throw GodelRuntimeError("Functional objects can't have properties currently.")
@@ -213,7 +236,7 @@ class Executor(
                         val functionContext =
                             (mergeContext(contextStack) + mapOf("this" to godelObject))
                                 .toMutableMap()
-                        Object.Function(
+                        Object.Function.Godel(
                             type = ASTNode.Type.Functional(
                                 methodDefinition.parameters.map { it.type },
                                 methodDefinition.returnType,
@@ -283,13 +306,36 @@ class Executor(
         }
 
     private fun evaluate(identifier: ASTNode.Identifier): Either<BreakType, Object> =
-        getMostDeepContextThatContains(identifier.value)?.let { matchingContext ->
-            matchingContext[identifier.value]!!.right()
-        } ?: error("Used undefined identifier ${identifier.value}.")
+        getConstructorOf(identifier.value)?.right()
+            ?: getMostDeepContextThatContains(identifier.value)?.let { matchingContext ->
+                matchingContext[identifier.value]!!.right()
+            }
+            ?: error("Used undefined identifier ${identifier.value}.")
 
     private fun evaluate(valDeclaration: ASTNode.ValDeclaration) =
         evaluate(valDeclaration.value).map {
             contextStack.peek()[valDeclaration.name] = it
             Object.Primitive.CoreUnit()
         }
+
+    private fun getConstructorOf(className: String): Object.Function.Native? {
+        val classType = ASTNode.Type.Regular(className)
+        return classDescriptions[classType]?.let { classDescription ->
+            Object.Function.Native(
+                ASTNode.Type.Functional(
+                    classDescription.constructorParameter.map { it.type },
+                    classType,
+                    nullable = false
+                ),
+                nativeFunction = NativeFunction { self, parameters ->
+                    //                    val (first, second) = (self + parameters).map { it as Primitive.CoreBoolean }.map { it.innerValue }
+                    Object.Complex(
+                        classType,
+                        mapOf()
+                    )
+                },
+                context = mergeContext(contextStack)
+            )
+        }
+    }
 }
