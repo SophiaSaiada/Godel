@@ -120,7 +120,7 @@ class Executor(
         functionObject: Object.Function.Native,
         arguments: List<Object>
     ): Either<BreakType, Object> =
-        functionObject.nativeFunction.value.invoke(functionObject.context["this"]!!, arguments).right()
+        functionObject.nativeFunction.value.invoke(functionObject.context["this"], arguments).right()
 
     private fun evaluate(invocation: ASTNode.Invocation): Either<BreakType, Object> =
         evaluate(invocation.function).flatMap { invocationObject ->
@@ -327,11 +327,12 @@ class Executor(
                     classType,
                     nullable = false
                 ),
-                nativeFunction = NativeFunction { self, parameters ->
-                    //                    val (first, second) = (self + parameters).map { it as Primitive.CoreBoolean }.map { it.innerValue }
+                nativeFunction = NativeFunction { _, parameters ->
                     Object.Complex(
                         classType,
-                        mapOf()
+                        classDescription.constructorParameter.mapIndexed { index, constructorParameter ->
+                            constructorParameter.name to parameters[index]
+                        }.toMap().toMutableMap()
                     )
                 },
                 context = mergeContext(contextStack)

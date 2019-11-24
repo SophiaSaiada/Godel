@@ -2,7 +2,7 @@ import Executor.Object.Primitive as Primitive
 import ASTNode.Type.Core as Core
 
 class NativeFunction(
-    val value: (Executor.Object, List<Executor.Object>) -> Executor.Object
+    val value: (Executor.Object?, List<Executor.Object>) -> Executor.Object
 )
 typealias PrimitiveCoreInt = Primitive.CoreInt
 typealias PrimitiveCoreFloat = Primitive.CoreFloat
@@ -10,11 +10,11 @@ typealias PrimitiveCoreFloat = Primitive.CoreFloat
 val coreClassImplementations: Map<ASTNode.Type, Map<String, NativeFunction>> = mapOf(
     Core.boolean to mapOf(
         "&&" to NativeFunction { self, parameters ->
-            val (first, second) = (self + parameters).map { it as Primitive.CoreBoolean }.map { it.innerValue }
+            val (first, second) = (self!! + parameters).map { it as Primitive.CoreBoolean }.map { it.innerValue }
             Primitive.CoreBoolean(first && second)
         },
         "&&" to NativeFunction { self, parameters ->
-            val (first, second) = (self + parameters).map { it as Primitive.CoreBoolean }.map { it.innerValue }
+            val (first, second) = (self!! + parameters).map { it as Primitive.CoreBoolean }.map { it.innerValue }
             Primitive.CoreBoolean(first || second)
         }
     ) + getBasicFunctionsOfType<Boolean>(),
@@ -34,7 +34,7 @@ val coreClassImplementations: Map<ASTNode.Type, Map<String, NativeFunction>> = m
     ),
     Core.string to getBasicFunctionsOfType<String>() + mapOf(
         "+" to NativeFunction { self, parameters ->
-            val (first, second) = (self + parameters).map { it as Primitive.CoreString }.map { it.innerValue }
+            val (first, second) = (self!! + parameters).map { it as Primitive.CoreString }.map { it.innerValue }
             Primitive.CoreString(first + second)
         },
         "length" to NativeFunction { self, _ ->
@@ -48,11 +48,11 @@ val coreClassImplementations: Map<ASTNode.Type, Map<String, NativeFunction>> = m
 private inline fun <reified R> getBasicFunctionsOfType() =
     mapOf(
         "==" to NativeFunction { self, parameters ->
-            val (first, second) = (self + parameters).map { it as Primitive<*> }.map { it.innerValue as R }
+            val (first, second) = (self!! + parameters).map { it as Primitive<*> }.map { it.innerValue as R }
             Primitive.CoreBoolean(first == second)
         },
         "!=" to NativeFunction { self, parameters ->
-            val (first, second) = (self + parameters).map { it as Primitive<*> }.map { it.innerValue as R }
+            val (first, second) = (self!! + parameters).map { it as Primitive<*> }.map { it.innerValue as R }
             Primitive.CoreBoolean(first != second)
         },
         "toString" to NativeFunction { self, _ ->
@@ -70,19 +70,19 @@ private inline fun <reified T> getArithmeticFunctionsOfType(
 ) =
     mapOf(
         "+" to NativeFunction { self, parameters ->
-            val (first, second) = (self + parameters).map { it as Primitive<*> }.map { it.innerValue as T }
+            val (first, second) = (self!! + parameters).map { it as Primitive<*> }.map { it.innerValue as T }
             constructorFunction(plus(first, second))
         },
         "-" to NativeFunction { self, parameters ->
-            val (first, second) = (self + parameters).map { it as Primitive<*> }.map { it.innerValue as T }
+            val (first, second) = (self!! + parameters).map { it as Primitive<*> }.map { it.innerValue as T }
             constructorFunction(minus(first, second))
         },
         "*" to NativeFunction { self, parameters ->
-            val (first, second) = (self + parameters).map { it as Primitive<*> }.map { it.innerValue as T }
+            val (first, second) = (self!! + parameters).map { it as Primitive<*> }.map { it.innerValue as T }
             constructorFunction(mul(first, second))
         },
         "/" to NativeFunction { self, parameters ->
-            val (first, second) = (self + parameters).map { it as Primitive<*> }.map { it.innerValue as T }
+            val (first, second) = (self!! + parameters).map { it as Primitive<*> }.map { it.innerValue as T }
             constructorFunction(div(first, second))
         }
     )

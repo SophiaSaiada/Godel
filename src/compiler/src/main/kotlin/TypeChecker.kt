@@ -80,11 +80,14 @@ object TypeChecker {
             override fun resolve(classType: ASTNode.Type, memberName: String, isSafeCall: Boolean): ASTNode.Type {
                 if (classType.nullable && !isSafeCall)
                     throw CompilationError("Only safe (?.) calls are allowed on a nullable receiver of type $classType")
-                return classDescriptions.filter { it.key == classType }.values.singleOrNull()
-                    ?.members
-                    ?.find { it.name == memberName }
+                return (
+                        classDescriptions.filter { it.key == classType }.values.singleOrNull()
+                            ?: throw CompilationError("Class $classType doesn't exist")
+                        )
+                    .members
+                    .find { it.name == memberName }
                     ?.type
-                    ?: throw CompilationError("Class doesn't exist")
+                    ?: throw CompilationError("Class $classType doesn't have member named $memberName.")
             }
 
             override fun resolve(

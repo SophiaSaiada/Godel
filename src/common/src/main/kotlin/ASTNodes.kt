@@ -180,6 +180,10 @@ class ASTNode {
             if (other is Type) toString() == other.toString()
             else false
 
+        override fun hashCode(): Int {
+            return toString().hashCode()
+        }
+
         class Regular(
             val name: String,
             // e.g. T extends Int -> T is the key and Int is the value
