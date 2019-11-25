@@ -128,7 +128,7 @@ object TypeChecker {
             }
         }
         val identifierTypes =
-            classDescriptions.values.map {
+            globalNativeFunctionTypes + classDescriptions.values.map {
                 it.name to it.constructorType()
             }.toMap()
         return identifierTypes to classMemberTypeResolver

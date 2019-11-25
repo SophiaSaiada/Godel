@@ -79,6 +79,7 @@ class Executor(
             is ASTNode.Expression -> evaluate(statement)
             is ASTNode.If.Statement -> evaluate(statement)
             is ASTNode.ValDeclaration -> evaluate(statement)
+            is ASTNode.Block.WithoutValue -> evaluate(statement.statements)
             else -> error(statement::class.simpleName!!)
         }
     }
@@ -179,16 +180,16 @@ class Executor(
     private fun evaluate(booleanLiteral: ASTNode.BooleanLiteral): Either<BreakType, Object> =
         Object.Primitive.CoreBoolean(booleanLiteral.value).right()
 
-    private fun evaluate(ifExpression: ASTNode.If.Expression): Either<BreakType, Object> {
-        val conditionEvaluated =
-            (evaluate(ifExpression.condition) as? Object.Primitive.CoreBoolean ?: error("זה לא בולאן")).innerValue
-        contextStack.push(mutableMapOf())
-        //TODO: test what happens when one branch have multiple statements in it
-        return (
-                if (conditionEvaluated) evaluate(ifExpression.positiveBranch)
-                else evaluate(ifExpression.negativeBranch)
-                ).also { contextStack.pop() }
-    }
+    private fun evaluate(ifExpression: ASTNode.If.Expression): Either<BreakType, Object> =
+        evaluate(ifExpression.condition).flatMap { conditionEvaluated ->
+            val conditionTyped =
+                (conditionEvaluated as? Object.Primitive.CoreBoolean ?: error("זה לא בולאן")).innerValue
+            contextStack.push(mutableMapOf())
+            //TODO: test what happens when one branch have multiple statements in it
+            (if (conditionTyped) evaluate(ifExpression.positiveBranch)
+            else evaluate(ifExpression.negativeBranch)
+                    ).also { contextStack.pop() }
+        }
 
     // TODO: safeAccess
     private fun getMember(godelObject: Object, memberName: String, safeAccess: Boolean): Object {
@@ -287,30 +288,58 @@ class Executor(
         }
     }
 
-    private fun evaluate(onlyIf: ASTNode.If.Statement): Either<BreakType, Object.Primitive.CoreUnit> {
-        val conditionEvaluated =
-            (evaluate(onlyIf.condition) as? Object.Primitive<*> ?: error("זה לא מרימיטב")).innerValue as? Boolean
-                ?: error("זה לא בולאן")
-        contextStack.push(mutableMapOf())
-        if (conditionEvaluated)
-            evaluate(onlyIf.positiveBranch)
-        else
-            onlyIf.negativeBranch?.let { evaluate(it) }
-        contextStack.pop()
-        return Object.Primitive.CoreUnit().right()
-    }
+    private fun evaluate(onlyIf: ASTNode.If.Statement): Either<BreakType, Object.Primitive.CoreUnit> =
+        evaluate(onlyIf.condition).flatMap { conditionEvaluated ->
+            val conditionValue =
+                (conditionEvaluated as? Object.Primitive<*>
+                    ?: error("זה לא פרימיטב")).innerValue as? Boolean
+                    ?: error("זה לא בולאן")
+            contextStack.push(mutableMapOf())
+            return if (conditionValue)
+                evaluate(onlyIf.positiveBranch).map {
+                    Object.Primitive.CoreUnit()
+                }.also {
+                    contextStack.pop()
+                }
+            else
+                (onlyIf.negativeBranch?.let { evaluate(it) }?.map {
+                    Object.Primitive.CoreUnit()
+                } ?: Object.Primitive.CoreUnit().right())
+                    .also {
+                        contextStack.pop()
+                    }
+        }
+
 
     private fun getMostDeepContextThatContains(name: String) =
-        contextStack.reversed().lastOrNull { context ->
+        contextStack.reversed().firstOrNull { context ->
             context[name] != null
         }
 
     private fun evaluate(identifier: ASTNode.Identifier): Either<BreakType, Object> =
-        getConstructorOf(identifier.value)?.right()
+        globalNativeFunctions[identifier.value]?.right()
+            ?: getConstructorOf(identifier.value)?.right()
             ?: getMostDeepContextThatContains(identifier.value)?.let { matchingContext ->
                 matchingContext[identifier.value]!!.right()
             }
             ?: error("Used undefined identifier ${identifier.value}.")
+
+    private val globalNativeFunctions = mapOf(
+        "println" to Object.Function.Native(
+            ASTNode.Type.Functional(listOf(ASTNode.Type.Core.string), ASTNode.Type.Core.unit, false),
+            NativeFunction { _, parameters ->
+                println((parameters[0] as Object.Primitive.CoreString).innerValue)
+                Object.Primitive.CoreUnit()
+            },
+            mergeContext(contextStack)
+        )
+    ).also {
+        require(
+            globalNativeFunctionTypes.keys.all { globalNativeFunctionName ->
+                it[globalNativeFunctionName] != null
+            }
+        )
+    }
 
     private fun evaluate(valDeclaration: ASTNode.ValDeclaration) =
         evaluate(valDeclaration.value).map {

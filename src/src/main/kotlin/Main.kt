@@ -5,13 +5,16 @@ fun main() {
             |class Addition(
             |    public val value: Int
             |) {
-            |    public fun plusOne(): Int {
-            |       return this.value + 1
+            |    public fun factorial(n: Int): Int {
+            |       println("n is " + n.toString())
+            |       return (
+            |           if (n == 0) 1 else this.factorial(n - 1) * n
+            |       )
             |    }
             |}
             |fun main(): String {
-            |    val x = Addition(Addition(2).plusOne()).plusOne() * 3
-            |    return (x == 12).toString()
+            |    val x = Addition(2).factorial(4)
+            |    return (x).toString()
             |}
             """.trimMargin().asSequence()
         )

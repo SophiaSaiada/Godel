@@ -367,7 +367,10 @@ class ASTNode {
                 typeParameters,
                 parameters,
                 returnType,
-                body.typed(identifierTypes, classMemberTypeResolver).first
+                body.typed(
+                    identifierTypes + parameters.map { it.name to it.type },
+                    classMemberTypeResolver
+                ).first
             ) to identifierTypes
     }
 

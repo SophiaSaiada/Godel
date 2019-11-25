@@ -127,3 +127,7 @@ private fun getArithmeticFunctionsOfType(type: ASTNode.Type) =
             isPublic = true
         )
     )
+
+val globalNativeFunctionTypes = mapOf(
+    "println" to ASTNode.Type.Functional(listOf(ASTNode.Type.Core.string), ASTNode.Type.Core.unit, nullable = false)
+)
