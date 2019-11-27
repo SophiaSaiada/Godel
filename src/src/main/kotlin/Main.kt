@@ -1,23 +1,14 @@
-fun main() {
+import java.io.File
+
+fun main(args: Array<String>) {
+    val sourceCodePath =
+        args.firstOrNull()
+            ?: return printError("Please specify a path to the source file.")
+    val sourceCode = getSourceCodeFromPath(sourceCodePath)
+        ?: return printError("Unable to find source code in $sourceCodePath.")
     try {
-        val (classes, classDescriptions, mainFunction) = Compiler.compile(
-            """
-            |class Addition(
-            |    public val value: Int
-            |) {
-            |    public fun factorial(n: Int): Int {
-            |       println("n is " + n.toString())
-            |       return (
-            |           if (n == 0) 1 else this.factorial(n - 1) * n
-            |       )
-            |    }
-            |}
-            |fun main(): String {
-            |    val x = Addition(2).factorial(4)
-            |    return (x).toString()
-            |}
-            """.trimMargin().asSequence()
-        )
+        val (classes, classDescriptions, mainFunction) =
+            Compiler.compile(sourceCode.asSequence())
         val executor =
             Executor(
                 classes.map { it.name to it }.toMap(),
@@ -25,10 +16,29 @@ fun main() {
             )
         executor.run(mainFunction)
             ?.let { result ->
-                print("Program returned: $result")
+                printSuccess("Program returned: $result")
             }
     } catch (e: CompilationError) {
-        println("CompilationError: ${e.message}")
+        printError("CompilationError: ${e.message}")
     }
-    // TODO: Check that functions actually returns what they guarantee to return.
 }
+
+fun getSourceCodeFromPath(path: String): String? =
+    (File(path).takeIf { it.exists() }
+        ?: File("$path.gd").takeIf { it.exists() })?.let { rootFile ->
+        if (rootFile.isDirectory) {
+            rootFile.listFiles()?.filter { it?.extension == "gd" }?.fold("") { sourceCode, file ->
+                file?.let {
+                    sourceCode + "\n" + it.readText()
+                } ?: sourceCode
+            }
+        } else {
+            rootFile.readText()
+        }
+    }
+
+fun printSuccess(message: String) =
+    println(AnsiColors.GREEN, message)
+
+fun printError(message: String) =
+    println(AnsiColors.RED, message)
