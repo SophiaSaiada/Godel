@@ -1,11 +1,12 @@
 import java.io.File
+import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
     val sourceCodePath =
         args.firstOrNull()
-            ?: return printError("Please specify a path to the source file.")
+            ?: printError("Please specify a path to the source file.")
     val sourceCode = getSourceCodeFromPath(sourceCodePath)
-        ?: return printError("Unable to find source code in $sourceCodePath.")
+        ?: printError("Unable to find source code in $sourceCodePath.")
     try {
         val (classes, classDescriptions, mainFunction) =
             Compiler.compile(sourceCode.asSequence())
@@ -40,5 +41,7 @@ fun getSourceCodeFromPath(path: String): String? =
 fun printSuccess(message: String) =
     println(AnsiColors.GREEN, message)
 
-fun printError(message: String) =
+fun printError(message: String): Nothing {
     println(AnsiColors.RED, message)
+    exitProcess(1)
+}
