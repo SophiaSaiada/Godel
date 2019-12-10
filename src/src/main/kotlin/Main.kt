@@ -21,12 +21,12 @@ fun main(args: Array<String>) {
             }
     } catch (e: CompilationError) {
         printError("CompilationError: ${e.message}") {
-            e.index?.let { errorIndex ->
+            e.sourceCodeErrorRange?.let { sourceCodeErrorRange ->
                 sourceCode.toCharArray().forEachIndexed { index, char ->
-                    if (index < errorIndex)
-                        print(char)
-                    else
+                    if (index in sourceCodeErrorRange)
                         print(AnsiColors.RED, char)
+                    else
+                        print(char)
                 }
             }
             println(
@@ -52,7 +52,7 @@ fun getSourceCodeFromPath(path: String): String? =
         } else {
             rootFile.readText()
         }
-    }
+    }?.filterNot { it.toInt() == 13 }
 
 fun printSuccess(message: String) =
     println(AnsiColors.GREEN, message)

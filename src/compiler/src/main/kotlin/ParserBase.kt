@@ -20,7 +20,7 @@ abstract class ParserBase {
                 ParseTreeNodeResult(ParseTreeNode.Leaf(firstToken), restOfTokens.nextOrNull())
             else throw CompilationError(
                 "The token $firstToken doesn't fit the expected token type \"$tokenType\"",
-                currentIndex
+                IntRange(currentIndex - (firstToken?.content?.length ?: 0), currentIndex)
             )
         }
 
@@ -30,7 +30,7 @@ abstract class ParserBase {
                 ParseTreeNodeResult(ParseTreeNode.Leaf(firstToken), restOfTokens.nextOrNull())
             else throw CompilationError(
                 "The token $firstToken doesn't fit expected keyword \"$keyword\"",
-                currentIndex
+                IntRange(currentIndex - (firstToken?.content?.length ?: 0), currentIndex)
             )
         }
 
@@ -69,10 +69,11 @@ abstract class ParserBase {
             return rootResult.node
     }
 
-    private fun <T> Iterator<T>.nextOrNull() = if (hasNext()) {
-        currentIndex++
-        next()
-    } else null
+    private fun Iterator<Token>.nextOrNull() =
+        if (hasNext())
+            next()
+                .also { currentIndex += it.content.length }
+        else null
 }
 
 

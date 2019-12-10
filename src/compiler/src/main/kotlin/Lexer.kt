@@ -19,8 +19,18 @@ class ClassificationByExactStringMatch(private val string: String) : TokenClassi
 data class Token(val content: String, val type: TokenType) {
     constructor(content: String) : this(content, classifyString(content))
 
-    fun equals(keyword: Keyword): Boolean =
-        type == TokenType.Keyword && content == keyword.asString
+    override fun equals(other: Any?): Boolean =
+        when (other) {
+            is Keyword ->
+                type == TokenType.Keyword && content == other.asString
+            is Token ->
+                content == other.content && type == other.type
+            else ->
+                false
+        }
+
+    override fun hashCode() =
+        content.hashCode()
 
     companion object {
         val classificationsByExactMatch = mapOf(
@@ -63,7 +73,7 @@ data class Token(val content: String, val type: TokenType) {
         fun classifyString(string: String) =
             tokensClassification.entries.find { (classifier, _) ->
                 classifier.matches(string)
-            }?.value ?: throw CompilationError("Cannot classify string ($string).")
+            }?.value ?: TokenType.Unknown
     }
 }
 

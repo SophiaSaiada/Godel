@@ -665,7 +665,12 @@ object ASTTransformer {
 
     private fun transformNumber(rootNode: ParseTreeNode.Inner): ASTNode.Expression {
         val firstTokenContent = (rootNode[0] as ParseTreeNode.Leaf).token.content
-        return if (rootNode.children.size == 1) {
+        return if (
+            rootNode.children.size == 1 ||
+            rootNode.children.size == 2 &&
+            (rootNode[0] as? ParseTreeNode.Leaf)?.token?.type == TokenType.DecimalLiteral &&
+            (rootNode[1] as? ParseTreeNode.Inner)?.type == Parser.InnerNodeType.WhitespacePlus
+        ) {
             ASTNode.IntLiteral(firstTokenContent.toInt())
         } else {
             when (val lastNode = rootNode.last()) {
