@@ -48,10 +48,10 @@ abstract class ParserBase {
             }
             throw compilationError
         }
-        if (rootResult.nextToken != null) {
+        rootResult.nextToken?.let { rootResultNextToken ->
             val leftTokens =
                 sequence {
-                    yield(rootResult.nextToken)
+                    yield(rootResultNextToken)
                     while (iterator.hasNext()) yield(iterator.next())
                 }.toList()
             throw CompilationError(
@@ -59,14 +59,13 @@ abstract class ParserBase {
                     |The whole source code can't be parsed from the language's grammar.
                     |
                     |Left code:
-                    |${leftTokens.joinToString("") { it?.content.orEmpty() }}
+                    |${leftTokens.joinToString("") { it.content }}
                     |
                     |Left tokens:
                     |${leftTokens.joinToString("\n")}
                 """.trimMargin()
             )
-        } else
-            return rootResult.node
+        } ?: return rootResult.node
     }
 
     private fun Iterator<Token>.nextOrNull() =
