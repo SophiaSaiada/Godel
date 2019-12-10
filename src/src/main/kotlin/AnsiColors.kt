@@ -6,3 +6,9 @@ enum class AnsiColors(val asString: String) {
 
 fun println(color: AnsiColors, message: String) =
     println(color.asString + message + AnsiColors.RESET.asString)
+
+fun print(color: AnsiColors, char: Char) =
+    print(color, char.toString())
+
+fun print(color: AnsiColors, message: String) =
+    print(color.asString + message + AnsiColors.RESET.asString)

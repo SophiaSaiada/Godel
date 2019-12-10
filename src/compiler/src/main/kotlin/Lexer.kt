@@ -63,7 +63,7 @@ data class Token(val content: String, val type: TokenType) {
         fun classifyString(string: String) =
             tokensClassification.entries.find { (classifier, _) ->
                 classifier.matches(string)
-            }?.value ?: TokenType.Unknown
+            }?.value ?: throw CompilationError("Cannot classify string ($string).")
     }
 }
 

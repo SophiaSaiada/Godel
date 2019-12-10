@@ -1,6 +1,7 @@
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import TokenType.*
+import io.kotlintest.shouldThrow
 
 class TestLexer : StringSpec({
 
@@ -65,9 +66,9 @@ class TestLexer : StringSpec({
         Token.classifyString("\t") shouldBe WhiteSpace
         Token.classifyString(" ") shouldBe WhiteSpace
 
-        Token.classifyString("4_0") shouldBe Unknown
-        Token.classifyString("#_0a") shouldBe Unknown
-        Token.classifyString("") shouldBe Unknown
+        shouldThrow<CompilationError> { Token.classifyString("4_0") }
+        shouldThrow<CompilationError> { Token.classifyString("#_0a") }
+        shouldThrow<CompilationError> { Token.classifyString("") }
     }
 
     "lexing and classifying single line" {

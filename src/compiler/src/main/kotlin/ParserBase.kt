@@ -1,5 +1,6 @@
 abstract class ParserBase {
     abstract val start: (Token?, Iterator<Token>) -> ParseTreeNodeResult
+    private var currentIndex = 0
 
     data class ParseTreeNodeResult(
         val node: ParseTreeNode,
@@ -17,14 +18,20 @@ abstract class ParserBase {
         { firstToken: Token?, restOfTokens: Iterator<Token> ->
             if (firstToken?.type == tokenType)
                 ParseTreeNodeResult(ParseTreeNode.Leaf(firstToken), restOfTokens.nextOrNull())
-            else throw CompilationError("The token $firstToken doesn't fit the expected token type \"$tokenType\"")
+            else throw CompilationError(
+                "The token $firstToken doesn't fit the expected token type \"$tokenType\"",
+                currentIndex
+            )
         }
 
     protected fun parseToken(keyword: Keyword) =
         { firstToken: Token?, restOfTokens: Iterator<Token> ->
             if (firstToken?.equals(keyword) == true)
                 ParseTreeNodeResult(ParseTreeNode.Leaf(firstToken), restOfTokens.nextOrNull())
-            else throw CompilationError("The token $firstToken doesn't fit expected keyword \"$keyword\"")
+            else throw CompilationError(
+                "The token $firstToken doesn't fit expected keyword \"$keyword\"",
+                currentIndex
+            )
         }
 
     fun parse(tokens: Sequence<Token>, printErrors: Boolean = false): ParseTreeNode {
@@ -33,7 +40,7 @@ abstract class ParserBase {
         val rootResult = try {
             start(firstToken, iterator)
         } catch (compilationError: CompilationError) {
-            if(printErrors) {
+            if (printErrors) {
                 println("An error occurred during compilation.")
                 println("Code left to parse:\n------")
                 iterator.forEach { print(it.content) }
@@ -62,7 +69,10 @@ abstract class ParserBase {
             return rootResult.node
     }
 
-    private fun <T> Iterator<T>.nextOrNull() = if (hasNext()) next() else null
+    private fun <T> Iterator<T>.nextOrNull() = if (hasNext()) {
+        currentIndex++
+        next()
+    } else null
 }
 
 

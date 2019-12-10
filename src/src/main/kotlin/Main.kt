@@ -20,7 +20,23 @@ fun main(args: Array<String>) {
                 printSuccess("Program returned: $result")
             }
     } catch (e: CompilationError) {
-        printError("CompilationError: ${e.message}")
+        printError("CompilationError: ${e.message}") {
+            e.index?.let { errorIndex ->
+                sourceCode.toCharArray().forEachIndexed { index, char ->
+                    if (index < errorIndex)
+                        print(char)
+                    else
+                        print(AnsiColors.RED, char)
+                }
+            }
+            println(
+                "\n\nParsing Stack Trace:\n" + e.stackTrace.mapNotNull { stackTraceElement ->
+                    Regex("parse[a-zA-Z]+").find(stackTraceElement.toString())?.value?.removePrefix("parse")?.let {
+                        it + ":" + stackTraceElement.getLineNumber()
+                    }
+                }.joinToString("\n") { "  $it" }
+            )
+        }
     }
 }
 
@@ -41,7 +57,8 @@ fun getSourceCodeFromPath(path: String): String? =
 fun printSuccess(message: String) =
     println(AnsiColors.GREEN, message)
 
-fun printError(message: String): Nothing {
+fun printError(message: String, beforeExit: () -> Unit = {}): Nothing {
     println(AnsiColors.RED, message)
+    beforeExit()
     exitProcess(1)
 }
