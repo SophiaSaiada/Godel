@@ -117,7 +117,7 @@ object TypeChecker {
                                     else
                                         throw ASTError(
                                             """
-                                            |Types of passed arguments don't match the expected parameters types.
+                                            |Types of passed arguments to function ${methodMember.name} of type $classType don't match the expected parameters types.
                                             |Expected: ${methodMember.parameterTypes}
                                             |Passed:   $argumentTypes
                                         """.trimMargin()

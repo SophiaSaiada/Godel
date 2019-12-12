@@ -144,7 +144,7 @@ class Executor(
                 typeParameters = emptyList(),
                 returnType = lambda.returnValue.actualType,
                 parameters = lambda.parameters.map { ASTNode.Parameter(it.first, it.second) },
-                body = lambda.statements
+                body = ASTNode.Statements(lambda.statements + lambda.returnValue)
             ),
             context = mergeContext(contextStack),
             type = ASTNode.Type.Functional(lambda.parameters.map { it.second }, lambda.returnValue.actualType, false)

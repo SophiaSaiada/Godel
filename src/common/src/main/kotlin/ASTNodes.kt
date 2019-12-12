@@ -139,7 +139,8 @@ class ASTNode {
             identifierTypes: Map<String, Type>,
             classMemberTypeResolver: ClassMemberTypeResolver
         ): Pair<Lambda, Map<String, Type>> {
-            val (typedStatements, updatedIdentifierTypes) = statements.typed(identifierTypes, classMemberTypeResolver)
+            val identifierTypesWithParameters = identifierTypes + parameters.toMap()
+            val (typedStatements, updatedIdentifierTypes) = statements.typed(identifierTypesWithParameters, classMemberTypeResolver)
             val (typedReturnValue, _) = returnValue.typed(updatedIdentifierTypes, classMemberTypeResolver)
             return Lambda(
                 parameters,

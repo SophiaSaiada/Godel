@@ -1,22 +1,21 @@
-class Composed(
-    public val first: (Int) -> Int,
-    public val second: (Int) -> Int
-) {
-    public fun run(x: Int): Int {
-        return this.second(this.first(x))
-    }
-}
-
-class Adder(public val constant: Int) {
-    public fun add(x: Int): Int {
-        return this.constant + x
+class Utils() {
+    public fun composed(first: (Int) -> Int,
+                        second: (Int) -> Int): (Int) -> Int {
+        return #{ x: Int ->
+            return second(first(x))
+        }
     }
 }
 
 fun main(): String {
-    val n = 3
-    val nMultiplier = #{ a: Int -> return n * a }
-    val twoAdder = Adder(2)
-    val composed = Composed(twoAdder.add, nMultiplier)
-    return composed.run(2).toString()
+    val mulByFive = #{ a: Int -> return 5 * a }
+    val add = #{ a: Int ->
+        return #{ b: Int ->
+            return a + b
+        }
+    }
+
+    val increase = add(1)
+    val incThanMulByFive = Utils().composed(increase, mulByFive)
+    return incThanMulByFive(2).toString()
 }
