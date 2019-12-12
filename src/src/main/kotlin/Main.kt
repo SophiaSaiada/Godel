@@ -32,7 +32,7 @@ fun main(args: Array<String>) {
             println(
                 "\n\nParsing Stack Trace:\n" + e.stackTrace.mapNotNull { stackTraceElement ->
                     Regex("parse[a-zA-Z]+").find(stackTraceElement.toString())?.value?.removePrefix("parse")?.let {
-                        it + ":" + stackTraceElement.getLineNumber()
+                        it + ":" + stackTraceElement.lineNumber
                     }
                 }.joinToString("\n") { "  $it" }
             )
